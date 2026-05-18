@@ -1,0 +1,9 @@
+export { PortfolioRenderer } from './PortfolioRenderer';
+export { sectionRegistry } from './registry';
+export { HeroSection } from './sections/HeroSection';
+export { AboutSection } from './sections/AboutSection';
+export { ProjectsSection } from './sections/ProjectsSection';
+export { SkillsSection } from './sections/SkillsSection';
+export { ExperienceSection } from './sections/ExperienceSection';
+export { EducationSection } from './sections/EducationSection';
+export { ContactSection } from './sections/ContactSection';

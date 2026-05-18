@@ -1,0 +1,30 @@
+{
+  "name": "@devfolio/export-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node --watch src/worker.ts",
+    "start": "node dist/worker.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@devfolio/renderer": "workspace:*",
+    "@devfolio/shared": "workspace:*",
+    "bullmq": "^5.13.0",
+    "ioredis": "^5.4.1",
+    "jszip": "^3.10.1",
+    "pg": "^8.12.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@types/jszip": "^3.4.1",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  }
+}
