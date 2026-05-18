@@ -1,216 +1,428 @@
+<div align="center">
+
 # DevFolio
 
-> Production-grade open-source developer portfolio builder platform.
+**A full-stack developer portfolio builder. Build it once, share it forever, and finally stop telling people to "just check your LinkedIn."**
 
-DevFolio lets developers create, customize, publish, and export portfolios through a visual editor — with everything stored as a single Portfolio JSON object. No HTML in the database, ever.
+[![CI](https://github.com/your-org/devfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/devfolio/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+[Live Demo](#) · [API Docs](http://localhost:3001/api/docs) · [Report Bug](https://github.com/your-org/devfolio/issues)
+
+</div>
+
+---
+
+## What Is This?
+
+DevFolio is a **visual portfolio editor** for developers. You log in, drag sections around, pick a theme, write your bio, and publish. Your portfolio gets a public URL. Done.
+
+No Webflow subscription. No WordPress plugin hell. No "I'll update my portfolio this weekend" for the 47th weekend in a row.
+
+**Key ideas:**
+- Your entire portfolio is one **JSON object** in the database — no HTML stored, ever
+- The editor is a live preview — what you see is literally what gets rendered publicly
+- Export to a static **ZIP file** (HTML + CSS) and host it anywhere for free
+- Connect GitHub to auto-import your repos as portfolio projects
+
+---
 
 ## Architecture
 
 ```
 devfolio/
 ├── apps/
-│   ├── api/          — NestJS backend (8 modules)
-│   └── web/          — Next.js 14 frontend (editor + SSR renderer)
+│   ├── api/              NestJS REST API            → :3001
+│   └── web/              Next.js 14 frontend        → :3000
 ├── packages/
-│   ├── shared/       — Zod schema + TypeScript types
-│   └── renderer/     — React portfolio renderer (shared by web + worker)
+│   ├── shared/           Zod schemas + TS types
+│   └── renderer/         React portfolio renderer
 ├── workers/
-│   └── export/       — BullMQ export worker (JSON → static ZIP)
-├── docker-compose.yml
-└── docker-compose.dev.yml
+│   └── export/           BullMQ static export worker
+├── docker-compose.yml    Full stack (prod-like)
+└── .env.example          Start here
 ```
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Browser   │────▶│  Next.js 14 │────▶│  NestJS API │
+│             │     │   :3000     │     │    :3001    │
+└─────────────┘     └─────────────┘     └──────┬──────┘
+                                               │
+                          ┌────────────────────┼────────────┐
+                          │                    │            │
+                   ┌──────▼──────┐    ┌────────▼───┐  ┌────▼────┐
+                   │ PostgreSQL  │    │   Redis    │  │ BullMQ  │
+                   │  (JSONB)   │    │  (cache)   │  │ (queue) │
+                   └─────────────┘    └────────────┘  └────┬────┘
+                                                           │
+                                                  ┌────────▼────────┐
+                                                  │  Export Worker  │
+                                                  │  JSON → ZIP     │
+                                                  └─────────────────┘
+```
+
+---
 
 ## Tech Stack
 
-| Layer         | Technology                                                  |
-|---------------|-------------------------------------------------------------|
-| Frontend      | Next.js 14 (App Router), React 18, TailwindCSS             |
-| Editor state  | Zustand + zundo (undo/redo) + immer + @dnd-kit             |
-| Backend       | NestJS, TypeORM, PostgreSQL (JSONB), class-validator       |
-| Cache/Queues  | Redis, BullMQ                                               |
-| Export        | BullMQ worker, ReactDOMServer, JSZip                       |
-| Auth          | JWT (access + refresh tokens), GitHub OAuth (Passport.js)  |
-| Monorepo      | pnpm workspaces + Turborepo                                 |
-| Containers    | Docker + Docker Compose                                     |
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 14 (App Router), React 18, Tailwind CSS |
+| **Editor state** | Zustand + zundo (50-step undo/redo) + @dnd-kit drag & drop |
+| **Backend** | NestJS 10, TypeORM, PostgreSQL (JSONB), class-validator |
+| **Auth** | JWT access + refresh tokens, bcrypt, GitHub OAuth via Passport.js |
+| **Cache** | Redis + cache-manager (portfolio pages cached 5 min) |
+| **Queue** | BullMQ — export jobs, retry logic, concurrency control |
+| **Export** | JSZip — generates self-contained HTML+CSS ZIP on-demand |
+| **Monorepo** | pnpm workspaces + Turborepo |
+| **Containers** | Docker + Docker Compose |
+| **CI** | GitHub Actions — type-check + tests on every push |
 
-## Portfolio JSON (single source of truth)
+---
 
-```json
-{
-  "id": "uuid",
-  "slug": "karaa",
-  "version": 1,
-  "userId": "uuid",
-  "theme": {
-    "colors": { "primary": "#7c3aed", "background": "#0f172a" },
-    "font": "inter",
-    "radius": "md",
-    "darkMode": true
-  },
-  "layout": { "sectionsOrder": ["hero-1", "about-1", "projects-1"] },
-  "sections": [
-    {
-      "id": "hero-1",
-      "type": "hero",
-      "visible": true,
-      "data": {
-        "name": "Karaa Kamaran",
-        "title": "Backend Engineer",
-        "subtitle": "NestJS · Django · Microservices"
-      }
-    }
-  ],
-  "metadata": { "title": "Karaa Kamaran — Portfolio" }
-}
-```
+## Features
 
-## Quick Start
+### Editor
+- **Drag & drop sections** — reorder your Hero, About, Projects, Skills, Experience, Education, Contact sections
+- **Live preview** — toggle between Edit and Preview mode; same renderer as the public page
+- **Undo / Redo** — 50 steps, powered by zundo temporal middleware
+- **Auto-save** — saves 2 seconds after your last keystroke, like a good editor should
+- **Theme panel** — 6 presets, per-color overrides, 5 fonts, border radius, spacing
 
-### Prerequisites
+### Portfolio Sections
 
-- Node.js ≥ 20
-- pnpm ≥ 9
-- Docker Desktop
+| Section | What goes in it |
+|---|---|
+| **Hero** | Name, title, subtitle, bio, location, "available for work" badge |
+| **About** | Long-form bio, highlights list |
+| **Projects** | Grid / list / masonry layout, tags, live URL, repo URL, featured flag |
+| **Skills** | Tags / bars / grid layout, proficiency levels, categories |
+| **Experience** | Timeline or cards, company, role, dates, description |
+| **Education** | Institution, degree, field, GPA |
+| **Contact** | Email, location, GitHub / LinkedIn / Twitter socials |
 
-### 1. Clone and install
+### Publishing & Export
+- **One-click publish** — your portfolio becomes live at `yourdomain.com/your-slug`
+- **Export to ZIP** — self-contained `index.html` + `styles.css`, host on Netlify, GitHub Pages, or a USB stick
+- **GitHub integration** — connect once, import repos as portfolio projects with stars, language, and description
+
+### Analytics
+- Page view tracking on every public portfolio visit
+- Dashboard shows total views, unique visitors, views-per-day sparkline
+
+---
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Node.js** ≥ 20 — [nodejs.org](https://nodejs.org)
+- **pnpm** ≥ 9 — `npm install -g pnpm`
+- **Docker Desktop** — [docker.com](https://www.docker.com/products/docker-desktop) (for PostgreSQL + Redis)
+
+That's it. No weird system dependencies. No global NestJS CLI required.
+
+---
+
+## Quick Start (Local Development)
+
+### Step 1 — Clone and install
 
 ```bash
-git clone https://github.com/yourorg/devfolio.git
+git clone https://github.com/your-org/devfolio.git
 cd devfolio
-cp .env.example .env
 pnpm install
 ```
 
-### 2. Start infrastructure
+This installs all dependencies for every package in the monorepo. Go make a coffee — pnpm is fast but it's still installing the internet.
+
+### Step 2 — Set up environment variables
 
 ```bash
-pnpm docker:up        # starts PostgreSQL + Redis
+cp .env.example .env
 ```
 
-### 3. Run all apps
+Open `.env` and fill in at minimum:
+
+```env
+# Generate these — do not use the placeholder values in production
+JWT_SECRET=<run: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
+JWT_REFRESH_SECRET=<run the same command again, get a different value>
+
+# Everything else can stay as-is for local development
+```
+
+The rest of the defaults (database URL, Redis, ports) work out of the box with Docker.
+
+> **GitHub OAuth is optional** — the app works fine without it. You only need it if you want the "Connect GitHub" feature. See [GitHub OAuth setup](#github-oauth-setup) below.
+
+### Step 3 — Start the database and Redis
 
 ```bash
-pnpm dev              # Turborepo starts all services concurrently
+docker compose up postgres redis -d
 ```
 
-| Service        | URL                              |
-|----------------|----------------------------------|
-| Web App        | http://localhost:3000            |
-| API            | http://localhost:3001/api/v1     |
-| Swagger Docs   | http://localhost:3001/api/docs   |
+This starts PostgreSQL on port `5432` and Redis on port `6379`. The API will create all tables automatically on first run (TypeORM `synchronize: true` in development — yes, we know, migrations exist for production).
 
-### 4. Production (Docker Compose)
+### Step 4 — Run everything
 
 ```bash
-docker-compose up -d
+pnpm dev
 ```
 
-## API Modules
+Turborepo starts all services in parallel:
 
-| Module      | Routes                                            |
-|-------------|---------------------------------------------------|
-| `auth`      | POST /register, /login, /refresh, GET /me, GitHub OAuth |
-| `users`     | GET/PATCH/DELETE /users/me                        |
-| `portfolios`| CRUD + /publish /unpublish /by-slug/:slug         |
-| `themes`    | GET /themes (6 built-in presets)                  |
-| `exports`   | POST /exports → queues job; GET /exports/:id      |
-| `github`    | GET /github/repos, POST /github/sync              |
-| `analytics` | POST /analytics/track, GET /analytics/portfolio/:id |
+| Service | URL | What it is |
+|---|---|---|
+| **Web App** | http://localhost:3000 | The frontend — start here |
+| **API** | http://localhost:3001/api/v1 | REST API |
+| **Swagger** | http://localhost:3001/api/docs | Interactive API docs |
+| **Export Worker** | (background) | Processes export jobs from BullMQ |
 
-## Section Types
+### Step 5 — Create your account
 
-| Type         | Description                                         |
-|--------------|-----------------------------------------------------|
-| `hero`       | Name, title, bio, avatar, CTA button                |
-| `about`      | Bio text, highlights, optional image                |
-| `projects`   | Grid/list/masonry layout, tags, live + repo links   |
-| `skills`     | Tags, bars, or grid layout with optional levels     |
-| `experience` | Timeline or cards, highlights per role              |
-| `education`  | Institution, degree, GPA                            |
-| `contact`    | Email, socials, optional contact form               |
+1. Go to http://localhost:3000
+2. Click **Register** — fill in name, email, password
+3. You're in. Create a portfolio, pick a slug, start building.
 
-## Editor Features
+---
 
-- **Visual drag & drop** — reorders `layout.sectionsOrder` only, never touches DOM directly
-- **Live preview** — renders the Portfolio JSON through the same `PortfolioRenderer` used publicly
-- **Undo / Redo** — 50-state history via `zundo` temporal middleware
-- **Auto-save** — debounced 2s save to API on any change
-- **Theme panel** — 6 presets + per-color pickers, font, radius, spacing
+## Full Docker Setup (Production-like)
 
-## Export Pipeline
+If you want everything in containers — API, web, worker, database, Redis — all at once:
 
-```
-Queue job (BullMQ)
-  ↓
-Export Worker picks up job
-  ↓
-Fetch Portfolio JSON from DB
-  ↓
-ReactDOMServer.renderToStaticMarkup
-  ↓
-Generate CSS from theme
-  ↓
-Bundle into ZIP (JSZip)
-  ↓
-Write to /uploads or S3
-  ↓
-Update export_jobs.file_url
+```bash
+cp .env.example .env
+# Edit .env — set proper JWT secrets and your domain URLs
+
+docker compose up --build -d
 ```
 
-Output structure:
+All 5 services start with proper health checks and restart policies. The web app will be at http://localhost:3000.
+
+To check logs:
+
+```bash
+docker compose logs -f api        # API logs
+docker compose logs -f web        # Next.js logs
+docker compose logs -f export-worker  # Export worker logs
 ```
-portfolio.zip
-├── index.html     ← Full self-contained HTML
-├── styles.css     ← Generated from Portfolio theme
-├── config.json    ← Export metadata
-└── README.md      ← Deployment instructions
+
+To stop everything:
+
+```bash
+docker compose down
 ```
+
+To nuke everything including the database volumes (careful):
+
+```bash
+docker compose down -v
+```
+
+---
+
+## Environment Variables Reference
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `DATABASE_URL` | Yes | `postgresql://devfolio:devfolio@localhost:5432/devfolio` | PostgreSQL connection string |
+| `REDIS_HOST` | Yes | `localhost` | Redis hostname |
+| `REDIS_PORT` | Yes | `6379` | Redis port |
+| `JWT_SECRET` | Yes | — | Access token signing secret (min 32 chars, use 64) |
+| `JWT_EXPIRES_IN` | No | `7d` | Access token lifetime |
+| `JWT_REFRESH_SECRET` | Yes | — | Refresh token secret — must be different from JWT_SECRET |
+| `JWT_REFRESH_EXPIRES_IN` | No | `30d` | Refresh token lifetime |
+| `GITHUB_CLIENT_ID` | No | — | GitHub OAuth App client ID |
+| `GITHUB_CLIENT_SECRET` | No | — | GitHub OAuth App client secret |
+| `GITHUB_CALLBACK_URL` | No | `http://localhost:3001/api/v1/auth/github/callback` | Must match your OAuth App settings |
+| `NEXT_PUBLIC_API_URL` | Yes (web) | `http://localhost:3001` | API URL as seen by the browser |
+| `PORT` | No | `3001` | API port |
+
+---
+
+## GitHub OAuth Setup
+
+GitHub OAuth is optional but enables the "Connect GitHub → import repos" feature.
+
+1. Go to [github.com/settings/developers](https://github.com/settings/developers)
+2. Click **New OAuth App**
+3. Fill in:
+   - **Application name**: DevFolio (or whatever)
+   - **Homepage URL**: `http://localhost:3000`
+   - **Authorization callback URL**: `http://localhost:3001/api/v1/auth/github/callback`
+4. Copy the **Client ID** and generate a **Client Secret**
+5. Add them to your `.env`:
+   ```env
+   GITHUB_CLIENT_ID=your_client_id
+   GITHUB_CLIENT_SECRET=your_client_secret
+   ```
+6. Restart the API — that's it
+
+For production, replace `localhost` URLs with your actual domain.
+
+---
+
+## How to Use the Editor
+
+Once you've created a portfolio:
+
+1. **Add sections** — click "Add Section" in the sidebar, choose a type
+2. **Fill in content** — click any section to open its form on the left
+3. **Reorder** — drag sections up and down in the Sections tab
+4. **Change theme** — go to the Theme tab, pick a preset or customize colors/font
+5. **Import GitHub repos** — go to the GitHub tab, connect your account, check the repos you want, click Import (they appear in your Projects section)
+6. **Preview** — click Preview in the top toolbar to see it exactly as visitors will
+7. **Publish** — click Publish. Your portfolio is now live at `localhost:3000/your-slug`
+8. **Export** — click Export for a ZIP file you can host anywhere for free
+
+---
+
+## API Overview
+
+All endpoints are under `/api/v1`. Full interactive docs at `/api/docs`.
+
+```
+Auth         POST /auth/register, /auth/login, /auth/refresh, /auth/logout
+             GET  /auth/me, /auth/github, /auth/github/callback
+
+Users        GET  /users/me
+             PATCH /users/me    (name, bio, avatar)
+             DELETE /users/me
+
+Portfolios   GET  /portfolios/mine
+             POST /portfolios
+             GET  /portfolios/:id
+             PATCH /portfolios/:id
+             DELETE /portfolios/:id
+             POST /portfolios/:id/publish
+             POST /portfolios/:id/unpublish
+             GET  /portfolios/by-slug/:slug   (public)
+
+Exports      POST /exports                    (queue job)
+             GET  /exports/:id                (status)
+             GET  /exports/:id/download       (download ZIP)
+
+GitHub       GET  /github/status
+             GET  /github/repos
+             POST /github/sync
+             DELETE /github/disconnect
+
+Analytics    POST /analytics/track            (public)
+             GET  /analytics/portfolio/:id
+
+Themes       GET  /themes
+```
+
+**Rate limits:** `/auth/login`, `/auth/register`, `/auth/refresh` are throttled to **5 requests per minute** per IP. Everything else: 20 req/min.
+
+---
 
 ## Database Migrations
 
-`synchronize: true` runs in development only. In production, run the migration before starting the API:
+In development, TypeORM auto-syncs the schema. In production, run migrations manually:
 
 ```bash
 cd apps/api
-pnpm db:migrate          # runs dist/database/migrations/*.js
+
+# Run pending migrations
+pnpm db:migrate
+
+# Generate a new migration after changing an entity
+pnpm db:migration:generate src/database/migrations/AddSomething
 ```
 
-Generate a new migration after entity changes:
+The initial migration (`1700000000000-InitialSchema.ts`) creates all tables and indexes from scratch. Run it when setting up a fresh production database.
 
-```bash
-pnpm db:migration:generate src/database/migrations/MyChange
-```
+---
 
-## Testing
+## Running Tests
 
 ```bash
 cd apps/api
-pnpm test            # unit tests (Jest)
-pnpm test:cov        # with coverage report
+
+pnpm test          # Run all unit tests
+pnpm test:watch    # Watch mode (for when you're actively breaking things)
+pnpm test:cov      # Coverage report
 ```
 
-Tests cover `AuthService` (register, login, refresh, logout) and `PortfolioService` (create with 1-per-user limit, access control, publish/unpublish).
+Tests cover:
+- `AuthService` — register, login, refresh token, logout
+- `PortfolioService` — 1-per-user limit, slug uniqueness, access control, publish/unpublish, cache invalidation
 
-## CI
+---
 
-GitHub Actions runs on every push to `main`/`develop` and every PR:
+## Project Structure (detailed)
 
-- **API**: type-check + unit tests
-- **Web**: type-check + production build
-- **Export worker**: type-check
+```
+apps/api/src/
+├── modules/
+│   ├── auth/           JWT auth, bcrypt, GitHub OAuth, refresh tokens
+│   ├── users/          Profile CRUD
+│   ├── portfolio/      Portfolio CRUD, publish/unpublish, view counter, cache
+│   ├── themes/         6 built-in theme presets
+│   ├── export/         Queue producer + ZIP generation controller
+│   ├── github/         OAuth token storage, repo fetch, sync to portfolio
+│   └── analytics/      Event tracking, per-portfolio stats
+├── database/
+│   ├── entities/       TypeORM entities (User, Portfolio, ExportJob, AnalyticsEvent)
+│   ├── migrations/     SQL migrations
+│   └── data-source.ts  TypeORM DataSource for CLI
+└── common/
+    ├── guards/         JwtAuthGuard, ThrottlerGuard (global)
+    └── decorators/     @CurrentUser(), @Public()
 
-## Design Rules
+apps/web/src/
+├── app/
+│   ├── (auth)/         Login + Register pages
+│   ├── dashboard/      Portfolio list, analytics, GitHub connection
+│   ├── editor/[id]/    The main editor
+│   ├── profile/        Edit name, bio, avatar
+│   └── [slug]/         Public portfolio page (SSR)
+├── components/editor/
+│   ├── Editor.tsx      Toolbar, publish, export
+│   ├── EditorSidebar.tsx Sections / Theme / GitHub / Settings tabs
+│   ├── EditorCanvas.tsx  Live preview iframe
+│   ├── SectionEditor.tsx Per-section form (typed, no `any`)
+│   ├── SectionList.tsx   Drag & drop list
+│   └── ThemePanel.tsx    Color pickers + presets
+└── store/
+    └── editor.store.ts   Zustand + zundo state
 
-1. **JSON is the single source of truth** — DB stores only JSONB, no HTML
-2. **UI is a pure function of JSON** — renderer maps `section.type → React component`
-3. **Editor never touches the DOM** — all changes mutate the JSON state
-4. **Unknown section types are ignored** — renderer skips them safely
-5. **Export is an independent system** — isolated worker, no shared process
+workers/export/src/
+├── worker.ts           BullMQ worker, DB update logic
+└── processors/
+    └── export.processor.ts  ZIP generation
 
-## Environment Variables
+packages/shared/src/
+├── schema/portfolio.ts  Zod schema — the single source of truth
+└── types/index.ts       API response types, UserProfile, etc.
+```
 
-See [.env.example](.env.example) for the full list.
+---
+
+## Contributing
+
+1. Fork it
+2. Create a branch (`git checkout -b feat/your-feature`)
+3. Make your changes
+4. Run `pnpm test` — make sure nothing is broken
+5. Submit a PR
+
+There's a CI pipeline that will tell you if you broke something. It's not personal.
+
+---
 
 ## License
 
-MIT — open source forever.
+MIT. Use it, fork it, sell it, tattoo it on your arm.
+
+---
+
+<div align="center">
+  <sub>Built with too much coffee and a healthy disregard for the phrase "we'll add that later."</sub>
+</div>
