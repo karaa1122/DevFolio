@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PortfolioRenderer } from '@devfolio/renderer';
 import type { Portfolio, PortfolioResponse } from '@devfolio/shared';
+import { PortfolioViewTracker } from '@/components/PortfolioViewTracker';
 
 interface Props {
   params: { slug: string };
@@ -58,7 +59,12 @@ export default async function PublicPortfolioPage({ params }: Props) {
     notFound();
   }
 
-  return <PortfolioRenderer portfolio={portfolio} />;
+  return (
+    <>
+      <PortfolioViewTracker portfolioId={portfolio.id} />
+      <PortfolioRenderer portfolio={portfolio} />
+    </>
+  );
 }
 
 export const dynamic = 'force-dynamic';

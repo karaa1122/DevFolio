@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePortfolioList } from '@/hooks/usePortfolio';
-import { portfolioApi, githubApi, authApi } from '@/lib/api';
+import { portfolioApi, githubApi, authApi, analyticsApi } from '@/lib/api';
 import { slugify } from '@/lib/utils';
 import useSWR from 'swr';
+import type { PortfolioAnalytics } from '@devfolio/shared';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -16,6 +17,13 @@ export default function DashboardPage() {
   const { data: githubStatus, mutate: mutateGithub } = useSWR(
     '/github/status',
     githubApi.status,
+    { revalidateOnFocus: false },
+  );
+
+  const portfolioId = portfolios[0]?.id ?? null;
+  const { data: analytics } = useSWR<PortfolioAnalytics>(
+    portfolioId ? `/analytics/portfolio/${portfolioId}` : null,
+    () => analyticsApi.getPortfolioStats(portfolioId!, 14),
     { revalidateOnFocus: false },
   );
 
@@ -203,54 +211,108 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* Analytics section — only shown when portfolio exists */}
+        {analytics && (
+          <div>
+            <h2 className="text-xl font-bold text-slate-100 mb-4">Analytics <span className="text-slate-600 text-sm font-normal ml-1">last 14 days</span></h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <StatCard label="Total Views" value={analytics.totalViews} />
+              <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} />
+              <StatCard label="Sections Tracked" value={analytics.topSections.length} />
+            </div>
+
+            {/* Sparkline */}
+            {analytics.viewsByDay.length > 0 && (
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <p className="text-xs text-slate-500 mb-4">Page views per day</p>
+                <MiniBarChart data={analytics.viewsByDay} />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* GitHub section */}
         <div>
-          <h2 className="text-xl font-bold text-slate-100 mb-4">GitHub Integration</h2>
+          <h2 className="text-xl font-bold text-slate-100 mb-1">GitHub</h2>
+          <p className="text-slate-500 text-sm mb-4">
+            Connect once here, then import repos inside the editor's{' '}
+            <span className="text-violet-400 font-medium">GitHub tab</span>.
+          </p>
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
             {!githubStatus ? (
               <div className="text-slate-500 text-sm">Checking connection...</div>
             ) : githubStatus.connected ? (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 text-lg">
-                    ⬡
+                  <div className="w-9 h-9 rounded-full bg-violet-900/50 border border-violet-700/50 flex items-center justify-center text-violet-400 font-bold text-sm">
+                    GH
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-200">
-                      Connected as{' '}
-                      <span className="text-violet-400">@{githubStatus.username}</span>
+                      Connected as <span className="text-violet-400">@{githubStatus.username}</span>
                     </p>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Import repos from the GitHub tab inside the editor
+                      Open your portfolio in the editor → GitHub tab → select repos → Import
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleDisconnectGithub}
-                  className="text-xs text-slate-600 hover:text-red-400 border border-slate-700 hover:border-red-800 px-3 py-1.5 rounded-lg transition-colors"
+                  className="text-xs text-slate-600 hover:text-red-400 border border-slate-700 hover:border-red-800 px-3 py-1.5 rounded-lg transition-colors shrink-0"
                 >
                   Disconnect
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-200">Connect GitHub</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Import your repositories into portfolio projects
+                  <p className="text-sm font-semibold text-slate-200">Connect your GitHub account</p>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                    Import your repositories as portfolio projects automatically — stars, language, description included.
                   </p>
                 </div>
                 <a
                   href={`${API_BASE}/api/v1/auth/github`}
-                  className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors shrink-0 flex items-center gap-2"
                 >
-                  Connect GitHub
+                  <span className="text-base">⬡</span> Connect GitHub
                 </a>
               </div>
             )}
           </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+// ─── Analytics sub-components ──────────────────────────────────────────────
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <p className="text-xs text-slate-500 mb-1">{label}</p>
+      <p className="text-3xl font-bold text-slate-100">{value.toLocaleString()}</p>
+    </div>
+  );
+}
+
+function MiniBarChart({ data }: { data: { date: string; views: number }[] }) {
+  const max = Math.max(...data.map((d) => d.views), 1);
+  return (
+    <div className="flex items-end gap-1 h-16">
+      {data.map((d) => (
+        <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group relative">
+          <div
+            className="w-full bg-violet-600/60 hover:bg-violet-500 rounded-sm transition-colors"
+            style={{ height: `${Math.max((d.views / max) * 100, 4)}%` }}
+          />
+          {/* Tooltip on hover */}
+          <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-xs text-slate-300 px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {d.date.slice(5)}: {d.views} view{d.views !== 1 ? 's' : ''}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
