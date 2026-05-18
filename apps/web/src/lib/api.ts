@@ -45,6 +45,17 @@ async function request<T>(
   const json = await res.json();
 
   if (!res.ok) {
+    if (
+      res.status === 401 &&
+      typeof window !== 'undefined' &&
+      path !== '/auth/login' &&
+      path !== '/auth/register'
+    ) {
+      localStorage.removeItem('devfolio_access_token');
+      localStorage.removeItem('devfolio_refresh_token');
+      window.location.href = '/login';
+      return undefined as T; // stop execution — navigation is in progress
+    }
     throw new ApiError(res.status, json.message ?? 'Request failed', json);
   }
 

@@ -56,8 +56,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  const [initialized, setInitialized] = useState(false);
 
+  // Populate form fields once user data arrives
+  const [initialized, setInitialized] = useState(false);
   if (user && !initialized) {
     setName(user.name ?? '');
     setBio(user.bio ?? '');
