@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
-import JSZip from 'jszip';
+import JSZip = require('jszip');
 import { renderPortfolioToHtml, generateCss } from '../renderers/html.renderer';
 import type { Portfolio } from '@devfolio/shared';
 

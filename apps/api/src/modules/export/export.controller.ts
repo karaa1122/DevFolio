@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import type { Response } from 'express';
-import JSZip from 'jszip';
+import JSZip = require('jszip');
 import { ExportService } from './export.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -79,7 +79,7 @@ export class ExportController {
 
   // ─── Shared ZIP generation ───────────────────────────────────────────────
 
-  private async streamZipForJob(jobId: string, zipName: string, res: Response) {
+  private async streamZipForJob(jobId: string, _zipName: string, res: Response) {
     const job = await this.exportJobRepo.findOne({ where: { id: jobId } });
     if (!job) throw new NotFoundException('Export job not found');
 
@@ -88,13 +88,17 @@ export class ExportController {
 
     const zipBuffer = await buildPortfolioZip(entity.data);
 
+    const rawName = entity.data.metadata?.title ?? entity.data.slug ?? 'portfolio';
+    const safeName = rawName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const zipName = `${safeName}-devfolio.zip`;
+
     res.set({
       'Content-Type': 'application/zip',
       'Content-Disposition': `attachment; filename="${zipName}"`,
       'Content-Length': zipBuffer.length,
     });
 
-    return new StreamableFile(zipBuffer);
+    res.end(zipBuffer);
   }
 }
 
