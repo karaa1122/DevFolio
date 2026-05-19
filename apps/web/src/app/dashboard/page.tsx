@@ -115,7 +115,7 @@ export default function DashboardPage() {
               <div className="flex gap-3">
                 <div className="flex-1">
                   <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-                    <span className="text-slate-500 text-sm pl-4 pr-1 whitespace-nowrap">devfolio.app/</span>
+                    <span className="text-slate-500 text-sm pl-4 pr-1 whitespace-nowrap">devfolioapp.cloud/</span>
                     <input
                       type="text"
                       value={newSlug}
@@ -170,7 +170,7 @@ export default function DashboardPage() {
                         {portfolio.data?.metadata?.title ?? portfolio.data?.slug}
                       </h3>
                       <p className="text-violet-400 text-sm font-mono mt-0.5">
-                        devfolio.app/{portfolio.data?.slug}
+                        devfolioapp.cloud/{portfolio.data?.slug}
                       </p>
                     </div>
                     <span

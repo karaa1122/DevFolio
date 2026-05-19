@@ -46,27 +46,6 @@ devfolio/
 └── .env.example          Start here
 ```
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Browser   │────▶│  Next.js 14 │────▶│  NestJS API │
-│             │     │   :3000     │     │    :3001    │
-└─────────────┘     └─────────────┘     └──────┬──────┘
-                                               │
-                          ┌────────────────────┼────────────┐
-                          │                    │            │
-                   ┌──────▼──────┐    ┌────────▼───┐  ┌────▼────┐
-                   │ PostgreSQL  │    │   Redis    │  │ BullMQ  │
-                   │  (JSONB)   │    │  (cache)   │  │ (queue) │
-                   └─────────────┘    └────────────┘  └────┬────┘
-                                                           │
-                                                  ┌────────▼────────┐
-                                                  │  Export Worker  │
-                                                  │  JSON → ZIP     │
-                                                  └─────────────────┘
-```
-
----
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -122,7 +101,7 @@ Before you start, make sure you have:
 
 - **Node.js** ≥ 20 — [nodejs.org](https://nodejs.org)
 - **pnpm** ≥ 9 — `npm install -g pnpm`
-- **Docker Desktop** — [docker.com](https://www.docker.com/products/docker-desktop) (for PostgreSQL + Redis)
+- **Docker** — [docker.com](https://www.docker.com/products/docker-desktop) (for PostgreSQL + Redis)
 
 That's it. No weird system dependencies. No global NestJS CLI required.
 
@@ -225,26 +204,6 @@ docker compose down -v
 ```
 
 ---
-
-## Environment Variables Reference
-
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `DATABASE_URL` | Yes | `postgresql://devfolio:devfolio@localhost:5432/devfolio` | PostgreSQL connection string |
-| `REDIS_HOST` | Yes | `localhost` | Redis hostname |
-| `REDIS_PORT` | Yes | `6379` | Redis port |
-| `JWT_SECRET` | Yes | — | Access token signing secret (min 32 chars, use 64) |
-| `JWT_EXPIRES_IN` | No | `7d` | Access token lifetime |
-| `JWT_REFRESH_SECRET` | Yes | — | Refresh token secret — must be different from JWT_SECRET |
-| `JWT_REFRESH_EXPIRES_IN` | No | `30d` | Refresh token lifetime |
-| `GITHUB_CLIENT_ID` | No | — | GitHub OAuth App client ID |
-| `GITHUB_CLIENT_SECRET` | No | — | GitHub OAuth App client secret |
-| `GITHUB_CALLBACK_URL` | No | `http://localhost:3001/api/v1/auth/github/callback` | Must match your OAuth App settings |
-| `NEXT_PUBLIC_API_URL` | Yes (web) | `http://localhost:3001` | API URL as seen by the browser |
-| `PORT` | No | `3001` | API port |
-
----
-
 ## GitHub OAuth Setup
 
 GitHub OAuth is optional but enables the "Connect GitHub → import repos" feature.
@@ -282,42 +241,6 @@ Once you've created a portfolio:
 
 ---
 
-## API Overview
-
-All endpoints are under `/api/v1`. Full interactive docs at `/api/docs`.
-
-```
-Auth         POST /auth/register, /auth/login, /auth/refresh, /auth/logout
-             GET  /auth/me, /auth/github, /auth/github/callback
-
-Users        GET  /users/me
-             PATCH /users/me    (name, bio, avatar)
-             DELETE /users/me
-
-Portfolios   GET  /portfolios/mine
-             POST /portfolios
-             GET  /portfolios/:id
-             PATCH /portfolios/:id
-             DELETE /portfolios/:id
-             POST /portfolios/:id/publish
-             POST /portfolios/:id/unpublish
-             GET  /portfolios/by-slug/:slug   (public)
-
-Exports      POST /exports                    (queue job)
-             GET  /exports/:id                (status)
-             GET  /exports/:id/download       (download ZIP)
-
-GitHub       GET  /github/status
-             GET  /github/repos
-             POST /github/sync
-             DELETE /github/disconnect
-
-Analytics    POST /analytics/track            (public)
-             GET  /analytics/portfolio/:id
-
-Themes       GET  /themes
-```
-
 **Rate limits:** `/auth/login`, `/auth/register`, `/auth/refresh` are throttled to **5 requests per minute** per IP. Everything else: 20 req/min.
 
 ---
@@ -330,10 +253,10 @@ In development, TypeORM auto-syncs the schema. In production, run migrations man
 cd apps/api
 
 # Run pending migrations
-pnpm db:migrate
+pnpm migration:run
 
 # Generate a new migration after changing an entity
-pnpm db:migration:generate src/database/migrations/AddSomething
+pnpm migration:generate
 ```
 
 The initial migration (`1700000000000-InitialSchema.ts`) creates all tables and indexes from scratch. Run it when setting up a fresh production database.

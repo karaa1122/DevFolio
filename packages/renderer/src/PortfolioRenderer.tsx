@@ -115,7 +115,7 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
           }}
         >
           Built with{' '}
-          <a href="https://devfolio.app" style={{ color: theme.colors.primary, textDecoration: 'none' }}>
+          <a href="https://devfolioapp.cloud" style={{ color: theme.colors.primary, textDecoration: 'none' }}>
             DevFolio
           </a>
         </footer>

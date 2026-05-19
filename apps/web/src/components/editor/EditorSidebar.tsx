@@ -247,7 +247,7 @@ function SettingsPanel() {
       <div>
         <label className="block text-xs text-slate-500 mb-1.5">Slug</label>
         <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-          <span className="text-slate-500 text-xs pl-3">devfolio.app/</span>
+          <span className="text-slate-500 text-xs pl-3">devfolioapp.cloud/</span>
           <span className="text-violet-400 text-sm py-2 pr-3 font-mono">{portfolio.slug}</span>
         </div>
         <p className="text-xs text-slate-600 mt-1">Slug cannot be changed after creation</p>

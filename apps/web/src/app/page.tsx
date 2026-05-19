@@ -96,7 +96,7 @@ export default function LandingPage() {
               {
                 icon: '🚀',
                 title: 'Custom Domains',
-                desc: 'Publish at yourname.devfolio.app or bring your own domain.',
+                desc: 'Publish at yourname.devfolioapp.cloud or bring your own domain.',
               },
             ].map((f) => (
               <div
