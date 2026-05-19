@@ -20,10 +20,13 @@ export default function DashboardPage() {
     { revalidateOnFocus: false },
   );
 
+  const [days, setDays] = useState(14);
+  const [creating, setCreating] = useState(false);
+
   const portfolioId = portfolios[0]?.id ?? null;
   const { data: analytics } = useSWR<PortfolioAnalytics>(
-    portfolioId ? `/analytics/portfolio/${portfolioId}` : null,
-    () => analyticsApi.getPortfolioStats(portfolioId!, 14),
+    portfolioId ? `/analytics/portfolio/${portfolioId}?days=${days}` : null,
+    () => analyticsApi.getPortfolioStats(portfolioId!, days),
     { revalidateOnFocus: false },
   );
 
@@ -33,8 +36,6 @@ export default function DashboardPage() {
     localStorage.removeItem('devfolio_refresh_token');
     router.push('/login');
   };
-
-  const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [newSlug, setNewSlug] = useState('');
   const [error, setError] = useState('');
@@ -212,21 +213,51 @@ export default function DashboardPage() {
         </div>
 
         {/* Analytics section — only shown when portfolio exists */}
-        {analytics && (
+        {portfolioId && (
           <div>
-            <h2 className="text-xl font-bold text-slate-100 mb-4">Analytics <span className="text-slate-600 text-sm font-normal ml-1">last 14 days</span></h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <StatCard label="Total Views" value={analytics.totalViews} />
-              <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} />
-              <StatCard label="Sections Tracked" value={analytics.topSections.length} />
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-slate-100">Analytics</h2>
+              <div className="flex gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1">
+                {[7, 14, 30].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDays(d)}
+                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                      days === d
+                        ? 'bg-violet-600 text-white'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    {d}d
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Sparkline */}
-            {analytics.viewsByDay.length > 0 && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                <p className="text-xs text-slate-500 mb-4">Page views per day</p>
-                <MiniBarChart data={analytics.viewsByDay} />
-              </div>
+            {analytics ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <StatCard label="Total Views" value={analytics.totalViews} />
+                  <StatCard label="Unique Visitors" value={analytics.uniqueVisitors} />
+                  <StatCard label="Sections Viewed" value={analytics.topSections.length} />
+                </div>
+
+                {analytics.viewsByDay.length > 0 && (
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-4">
+                    <p className="text-xs text-slate-500 mb-4">Page views per day</p>
+                    <MiniBarChart data={analytics.viewsByDay} />
+                  </div>
+                )}
+
+                {analytics.topSections.length > 0 && (
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <p className="text-xs text-slate-500 mb-4">Top sections</p>
+                    <TopSections data={analytics.topSections} />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-10 text-slate-600 text-sm">Loading analytics...</div>
             )}
           </div>
         )}
@@ -307,10 +338,29 @@ function MiniBarChart({ data }: { data: { date: string; views: number }[] }) {
             className="w-full bg-violet-600/60 hover:bg-violet-500 rounded-sm transition-colors"
             style={{ height: `${Math.max((d.views / max) * 100, 4)}%` }}
           />
-          {/* Tooltip on hover */}
           <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 text-xs text-slate-300 px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             {d.date.slice(5)}: {d.views} view{d.views !== 1 ? 's' : ''}
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TopSections({ data }: { data: { sectionId: string; views: number }[] }) {
+  const max = Math.max(...data.map((d) => d.views), 1);
+  return (
+    <div className="space-y-3">
+      {data.map((d) => (
+        <div key={d.sectionId} className="flex items-center gap-3">
+          <span className="text-xs text-slate-400 w-28 shrink-0 capitalize">{d.sectionId}</span>
+          <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-violet-600/70 rounded-full"
+              style={{ width: `${(d.views / max) * 100}%` }}
+            />
+          </div>
+          <span className="text-xs text-slate-500 w-8 text-right shrink-0">{d.views}</span>
         </div>
       ))}
     </div>

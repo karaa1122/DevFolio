@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { PortfolioRenderer } from '@devfolio/renderer';
 import type { Portfolio, PortfolioResponse } from '@devfolio/shared';
 import { PortfolioViewTracker } from '@/components/PortfolioViewTracker';
+import { SectionViewTracker } from '@/components/SectionViewTracker';
 
 interface Props {
   params: { slug: string };
@@ -62,6 +63,7 @@ export default async function PublicPortfolioPage({ params }: Props) {
   return (
     <>
       <PortfolioViewTracker portfolioId={portfolio.id} />
+      <SectionViewTracker portfolioId={portfolio.id} sectionIds={portfolio.sections.map((s: { id: string }) => s.id)} />
       <PortfolioRenderer portfolio={portfolio} />
     </>
   );
