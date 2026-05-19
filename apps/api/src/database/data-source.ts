@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL ?? 'postgresql://devfolio:devfolio@localhost:5432/devfolio',
   entities: [User, Portfolio, ExportJob, AnalyticsEvent],
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: ['dist/database/migrations/*.js'],
   synchronize: false,
   ssl:
     process.env.NODE_ENV === 'production'

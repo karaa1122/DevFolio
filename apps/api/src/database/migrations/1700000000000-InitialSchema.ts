@@ -74,9 +74,10 @@ export class InitialSchema1700000000000 implements MigrationInterface {
         "portfolioId" uuid NOT NULL,
         "type" character varying NOT NULL,
         "sectionId" character varying,
-        "metadata" jsonb,
-        "ip" character varying,
+        "referrer" character varying,
         "userAgent" character varying,
+        "ip" character varying,
+        "metadata" jsonb,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_analytics_events" PRIMARY KEY ("id"),
         CONSTRAINT "FK_analytics_events_portfolioId"

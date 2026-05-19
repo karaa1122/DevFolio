@@ -28,7 +28,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
         type: 'postgres',
         url: cfg.get<string>('database.url'),
         entities: [User, Portfolio, ExportJob, AnalyticsEvent],
-        synchronize: cfg.get<string>('app.env') === 'development',
+        synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         logging: cfg.get<string>('app.env') === 'development',
         ssl: cfg.get<string>('app.env') === 'production' ? { rejectUnauthorized: false } : false,
