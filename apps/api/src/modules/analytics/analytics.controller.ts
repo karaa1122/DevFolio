@@ -1,12 +1,11 @@
-import { Controller, Post, Get, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { AnalyticsService } from './analytics.service';
 import { TrackEventDto } from './dto/track-event.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import type { User } from '../../database/entities/user.entity';
 
 @ApiTags('analytics')
 @Controller({ path: 'analytics', version: '1' })
@@ -15,6 +14,8 @@ export class AnalyticsController {
 
   @Public()
   @Post('track')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({ summary: 'Track a portfolio event (public endpoint)' })
   track(@Body() dto: TrackEventDto, @Req() req: Request) {
     return this.analyticsService.track(dto, req);

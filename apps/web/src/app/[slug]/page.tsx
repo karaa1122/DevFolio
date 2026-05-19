@@ -9,7 +9,7 @@ interface Props {
   params: { slug: string };
 }
 
-async function fetchPortfolio(slug: string): Promise<Portfolio | null> {
+async function fetchPortfolio(slug: string): Promise<PortfolioResponse | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
     const res = await fetch(`${apiUrl}/api/v1/portfolios/by-slug/${slug}`, {
@@ -17,18 +17,17 @@ async function fetchPortfolio(slug: string): Promise<Portfolio | null> {
     });
     if (!res.ok) return null;
     const json = await res.json();
-    const entity = (json.data ?? json) as PortfolioResponse;
-    return entity.data ?? null;
+    return (json.data ?? json) as PortfolioResponse;
   } catch {
     return null;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const portfolio = await fetchPortfolio(params.slug);
-  if (!portfolio) return { title: 'Portfolio Not Found' };
+  const entity = await fetchPortfolio(params.slug);
+  if (!entity) return { title: 'Portfolio Not Found' };
 
-  const { metadata, sections } = portfolio;
+  const { metadata, sections } = entity.data;
   const hero = sections.find((s) => s.type === 'hero');
   const name = hero?.type === 'hero' ? hero.data.name : params.slug;
 
@@ -54,17 +53,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicPortfolioPage({ params }: Props) {
-  const portfolio = await fetchPortfolio(params.slug);
+  const entity = await fetchPortfolio(params.slug);
 
-  if (!portfolio) {
+  if (!entity) {
     notFound();
   }
 
   return (
     <>
-      <PortfolioViewTracker portfolioId={portfolio.id} />
-      <SectionViewTracker portfolioId={portfolio.id} sectionIds={portfolio.sections.map((s: { id: string }) => s.id)} />
-      <PortfolioRenderer portfolio={portfolio} />
+      <PortfolioViewTracker portfolioId={entity.id} />
+      <SectionViewTracker portfolioId={entity.id} sectionIds={entity.data.sections.map((s: { id: string }) => s.id)} />
+      <PortfolioRenderer portfolio={entity.data} />
     </>
   );
 }

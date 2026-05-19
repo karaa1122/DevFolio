@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import type { Request } from 'express';
 import { AnalyticsEvent } from '../../database/entities/analytics-event.entity';
+import { Portfolio } from '../../database/entities/portfolio.entity';
 import type { TrackEventDto } from './dto/track-event.dto';
 import type { PortfolioAnalytics } from '@devfolio/shared';
 
@@ -11,9 +12,20 @@ export class AnalyticsService {
   constructor(
     @InjectRepository(AnalyticsEvent)
     private readonly eventRepo: Repository<AnalyticsEvent>,
+    @InjectRepository(Portfolio)
+    private readonly portfolioRepo: Repository<Portfolio>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async track(dto: TrackEventDto, req: Request): Promise<void> {
+    // Silently drop events for portfolios that don't exist or aren't published.
+    // Prevents phantom-portfolio event spam from polluting the DB.
+    const exists = await this.portfolioRepo.existsBy({
+      id: dto.portfolioId,
+      isPublished: true,
+    });
+    if (!exists) return;
+
     const event = this.eventRepo.create({
       portfolioId: dto.portfolioId,
       type: dto.type,
@@ -30,41 +42,58 @@ export class AnalyticsService {
     const since = new Date();
     since.setDate(since.getDate() - days);
 
-    const events = await this.eventRepo.find({
-      where: { portfolioId },
-      order: { createdAt: 'DESC' },
-    });
+    // All aggregation is done in PostgreSQL — never loads raw rows into Node memory.
+    const [totalViewsRow, uniqueVisitorsRow, topSectionsRows, viewsByDayRows] = await Promise.all([
+      // Total page_view events
+      this.dataSource.query<[{ count: string }]>(
+        `SELECT COUNT(*) AS count
+         FROM analytics_events
+         WHERE "portfolioId" = $1 AND type = 'page_view' AND "createdAt" >= $2`,
+        [portfolioId, since],
+      ),
 
-    const pageViews = events.filter((e) => e.type === 'page_view');
-    const uniqueIps = new Set(pageViews.map((e) => e.ip).filter(Boolean)).size;
+      // Unique IPs among page_view events
+      this.dataSource.query<[{ count: string }]>(
+        `SELECT COUNT(DISTINCT ip) AS count
+         FROM analytics_events
+         WHERE "portfolioId" = $1 AND type = 'page_view' AND ip IS NOT NULL AND "createdAt" >= $2`,
+        [portfolioId, since],
+      ),
 
-    const sectionCounts = new Map<string, number>();
-    for (const event of events) {
-      if (event.sectionId) {
-        sectionCounts.set(event.sectionId, (sectionCounts.get(event.sectionId) ?? 0) + 1);
-      }
-    }
+      // Top 5 sections by event count
+      this.dataSource.query(
+        `SELECT "sectionId", COUNT(*) AS views
+         FROM analytics_events
+         WHERE "portfolioId" = $1 AND "sectionId" IS NOT NULL AND "createdAt" >= $2
+         GROUP BY "sectionId"
+         ORDER BY views DESC
+         LIMIT 5`,
+        [portfolioId, since],
+      ) as Promise<Array<{ sectionId: string; views: string }>>,
 
-    const topSections = Array.from(sectionCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([sectionId, views]) => ({ sectionId, views }));
-
-    const viewsByDayMap = new Map<string, number>();
-    for (const view of pageViews) {
-      const day = view.createdAt.toISOString().split('T')[0];
-      viewsByDayMap.set(day, (viewsByDayMap.get(day) ?? 0) + 1);
-    }
-    const viewsByDay = Array.from(viewsByDayMap.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([date, views]) => ({ date, views }));
+      // Daily page_view counts
+      this.dataSource.query(
+        `SELECT TO_CHAR("createdAt"::date, 'YYYY-MM-DD') AS date, COUNT(*) AS views
+         FROM analytics_events
+         WHERE "portfolioId" = $1 AND type = 'page_view' AND "createdAt" >= $2
+         GROUP BY "createdAt"::date
+         ORDER BY "createdAt"::date ASC`,
+        [portfolioId, since],
+      ) as Promise<Array<{ date: string; views: string }>>,
+    ]);
 
     return {
       portfolioId,
-      totalViews: pageViews.length,
-      uniqueVisitors: uniqueIps,
-      topSections,
-      viewsByDay,
+      totalViews: parseInt(totalViewsRow[0]?.count ?? '0', 10),
+      uniqueVisitors: parseInt(uniqueVisitorsRow[0]?.count ?? '0', 10),
+      topSections: topSectionsRows.map((r: { sectionId: string; views: string }) => ({
+        sectionId: r.sectionId,
+        views: parseInt(r.views, 10),
+      })),
+      viewsByDay: viewsByDayRows.map((r: { date: string; views: string }) => ({
+        date: r.date,
+        views: parseInt(r.views, 10),
+      })),
     };
   }
 }

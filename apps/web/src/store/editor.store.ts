@@ -58,6 +58,7 @@ const initialState: EditorState = {
 export const useEditorStore = create<EditorStore>()(
   temporal(
     immer<EditorStore>((set) => ({
+
       ...initialState,
 
       setPortfolio: (portfolio) =>
@@ -81,10 +82,9 @@ export const useEditorStore = create<EditorStore>()(
       updateTheme: (patch) =>
         set((s) => {
           if (!s.portfolio) return;
-          Object.assign(s.portfolio.theme, patch);
-          if (patch.colors) {
-            Object.assign(s.portfolio.theme.colors, patch.colors);
-          }
+          const { colors, ...rest } = patch;
+          Object.assign(s.portfolio.theme, rest);
+          if (colors) Object.assign(s.portfolio.theme.colors, colors);
           s.isDirty = true;
         }),
 

@@ -6,7 +6,8 @@ import { themesApi } from '@/lib/api';
 import type { Theme, ThemePreset } from '@devfolio/shared';
 
 export function ThemePanel() {
-  const { portfolio, updateTheme } = useEditorStore();
+  const portfolio = useEditorStore((s) => s.portfolio);
+  const updateTheme = useEditorStore((s) => s.updateTheme);
   const { data: presets } = useSWR<ThemePreset[]>('/themes', () => themesApi.list());
 
   if (!portfolio) return null;

@@ -47,6 +47,12 @@ export class User {
   emailVerificationTokenExpiresAt: Date;
 
   @Column({ nullable: true })
+  passwordResetToken!: string;
+
+  @Column({ nullable: true })
+  passwordResetTokenExpiresAt!: Date;
+
+  @Column({ nullable: true })
   refreshTokenHash: string;
 
   @CreateDateColumn()

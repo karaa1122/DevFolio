@@ -16,16 +16,31 @@ async function bootstrap() {
   const port = configService.get<number>('app.port') ?? 3001;
   const env = configService.get<string>('app.env') ?? 'development';
   const frontendUrl = configService.get<string>('frontend.url') ?? 'http://localhost:3000';
+  const isProd = env === 'production';
+
+  // Crash immediately if required secrets are missing in production.
+  // Dev fallbacks are intentionally weak; if they reach production the app
+  // is completely insecure.
+  if (isProd) {
+    const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL'];
+    const missing = required.filter((k) => !process.env[k]);
+    if (missing.length) {
+      throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
+  }
 
   // Security
   app.use(helmet());
 
-  // CORS
+  // Graceful shutdown — lets in-flight requests complete before the process exits.
+  app.enableShutdownHooks();
+
+  // CORS — localhost origins are only permitted outside production.
   app.enableCors({
-    origin: [frontendUrl, /localhost:\d+/],
+    origin: isProd ? [frontendUrl] : [frontendUrl, /localhost:\d+/],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   });
 
   // Global prefix & versioning

@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [eyeBounce, setEyeBounce] = useState(false);
 
   const togglePassword = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((v) => !v);
     setEyeBounce(true);
     setTimeout(() => setEyeBounce(false), 300);
   };

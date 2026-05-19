@@ -28,6 +28,7 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 
+# Only copy manifests needed for prod dependency install
 COPY package.json pnpm-workspace.yaml ./
 COPY pnpm-lock.yaml* ./
 COPY packages/shared/package.json ./packages/shared/
@@ -35,10 +36,16 @@ COPY apps/api/package.json ./apps/api/
 
 RUN pnpm install --no-frozen-lockfile --prod
 
+# Only compiled output — no source files or tsconfig in the final image
 COPY --from=builder /repo/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
-COPY --from=builder /repo/apps/api/src ./apps/api/src
-COPY --from=builder /repo/apps/api/tsconfig.json ./apps/api/tsconfig.json
+
+# Run as non-root for defence-in-depth
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nestjs && \
+    chown -R nestjs:nodejs /app
+
+USER nestjs
 
 WORKDIR /app/apps/api
 

@@ -110,6 +110,38 @@ export class AuthService {
     });
   }
 
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user || !user.passwordHash) return; // silently ignore — don't reveal existence
+
+    const token = randomBytes(32).toString('hex');
+    await this.userRepo.update(user.id, {
+      passwordResetToken: token,
+      passwordResetTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+    });
+
+    this.emailService
+      .sendPasswordResetEmail(user.email, user.name, token)
+      .catch((err) => this.logger.error(`Password reset email failed for ${user.email}: ${err.message}`));
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { passwordResetToken: token } });
+
+    if (!user) throw new BadRequestException('Invalid or expired reset link');
+    if (!user.passwordResetTokenExpiresAt || user.passwordResetTokenExpiresAt < new Date()) {
+      throw new BadRequestException('Reset link has expired. Please request a new one.');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await this.userRepo.update(user.id, {
+      passwordHash,
+      passwordResetToken: null as unknown as string,
+      passwordResetTokenExpiresAt: null as unknown as Date,
+      refreshTokenHash: null as unknown as string, // invalidate all sessions
+    });
+  }
+
   async resendVerification(email: string): Promise<void> {
     const user = await this.userRepo.findOne({ where: { email } });
     // Always return silently — don't reveal whether the email exists
@@ -209,13 +241,15 @@ export class AuthService {
     await this.userRepo.update(userId, { refreshTokenHash: hash });
   }
 
-  private sanitizeUser(user: User): Partial<User> {
+  sanitizeUser(user: User): Partial<User> {
     const {
       passwordHash: _ph,
       refreshTokenHash: _rh,
       githubAccessToken: _ga,
       emailVerificationToken: _evt,
       emailVerificationTokenExpiresAt: _evte,
+      passwordResetToken: _prt,
+      passwordResetTokenExpiresAt: _prte,
       ...rest
     } = user;
     return rest;

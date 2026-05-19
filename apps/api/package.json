@@ -11,9 +11,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "type-check": "tsc --noEmit",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+    "migration:run": "typeorm migration:run -d dist/database/data-source.js",
+    "migration:run:dev": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate src/database/migrations/Migration -d src/database/data-source.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts"
+    "migration:revert": "typeorm migration:revert -d dist/database/data-source.js",
+    "migration:revert:dev": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts"
   },
   "dependencies": {
     "@devfolio/shared": "workspace:*",
@@ -31,6 +33,7 @@
     "bcrypt": "^5.1.1",
     "bullmq": "^5.13.0",
     "cache-manager": "^5.7.0",
+    "cache-manager-ioredis-yet": "^2.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^17.4.2",

@@ -8,7 +8,8 @@ interface Props {
 }
 
 export function EditorCanvas({ mode }: Props) {
-  const { portfolio, selectSection } = useEditorStore();
+  const portfolio = useEditorStore((s) => s.portfolio);
+  const selectSection = useEditorStore((s) => s.selectSection);
 
   if (!portfolio) return null;
 

@@ -21,8 +21,9 @@ export class UsersController {
 
   @Patch('me')
   @ApiOperation({ summary: 'Update current user profile' })
-  updateMe(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(user.id, dto);
+  async updateMe(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
+    const updated = await this.usersService.update(user.id, dto);
+    return this.usersService.sanitize(updated);
   }
 
   @Delete('me')

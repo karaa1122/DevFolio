@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -13,6 +14,7 @@ import { ThemesModule } from './modules/themes/themes.module';
 import { ExportModule } from './modules/export/export.module';
 import { GithubModule } from './modules/github/github.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { HealthModule } from './modules/health/health.module';
 import { User } from './database/entities/user.entity';
 import { Portfolio } from './database/entities/portfolio.entity';
 import { ExportJob } from './database/entities/export-job.entity';
@@ -35,7 +37,24 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
       }),
     }),
 
-    CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: async (cfg: ConfigService) => {
+        const isProd = cfg.get<string>('app.env') === 'production';
+        if (isProd) {
+          const { redisStore } = await import('cache-manager-ioredis-yet');
+          return {
+            store: await redisStore({
+              host: cfg.get<string>('redis.host') ?? 'localhost',
+              port: cfg.get<number>('redis.port') ?? 6379,
+              ttl: 300,
+            }),
+          };
+        }
+        return { ttl: 300000 };
+      },
+    }),
 
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 20 }]),
 
@@ -62,7 +81,12 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
     ExportModule,
     GithubModule,
     AnalyticsModule,
+    HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestIdMiddleware).forRoutes('*');
+  }
+}

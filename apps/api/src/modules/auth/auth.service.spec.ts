@@ -22,6 +22,8 @@ const mockUser = (overrides: Partial<User> = {}): User => ({
   isEmailVerified: false,
   emailVerificationToken: null as unknown as string,
   emailVerificationTokenExpiresAt: null as unknown as Date,
+  passwordResetToken: null as unknown as string,
+  passwordResetTokenExpiresAt: null as unknown as Date,
   createdAt: new Date(),
   updatedAt: new Date(),
   portfolios: [],

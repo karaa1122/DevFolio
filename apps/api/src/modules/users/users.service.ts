@@ -28,7 +28,16 @@ export class UsersService {
   }
 
   sanitize(user: User): Partial<User> {
-    const { passwordHash: _p, refreshTokenHash: _r, githubAccessToken: _g, ...rest } = user;
+    const {
+      passwordHash: _p,
+      refreshTokenHash: _r,
+      githubAccessToken: _g,
+      emailVerificationToken: _evt,
+      emailVerificationTokenExpiresAt: _evte,
+      passwordResetToken: _prt,
+      passwordResetTokenExpiresAt: _prte,
+      ...rest
+    } = user;
     return rest;
   }
 }
