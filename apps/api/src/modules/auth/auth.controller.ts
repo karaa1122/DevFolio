@@ -12,6 +12,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { IsEmail } from 'class-validator';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -22,6 +23,11 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import type { User } from '../../database/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
+
+class ResendVerificationDto {
+  @IsEmail()
+  email: string;
+}
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -71,6 +77,25 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   me(@CurrentUser() user: User) {
     return user;
+  }
+
+  @Public()
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify email address with token' })
+  async verifyEmail(@Body('token') token: string) {
+    await this.authService.verifyEmail(token);
+    return { message: 'Email verified successfully' };
+  }
+
+  @Public()
+  @Post('resend-verification')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend email verification link' })
+  async resendVerification(@Body() dto: ResendVerificationDto) {
+    await this.authService.resendVerification(dto.email);
+    return { message: 'If that email exists and is unverified, a new link has been sent.' };
   }
 
   @Public()

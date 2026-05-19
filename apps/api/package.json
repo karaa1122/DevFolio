@@ -11,10 +11,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "type-check": "tsc --noEmit",
-    "db:migrate": "typeorm migration:run -d dist/database/data-source.js",
-    "db:migration:generate": "f() { typeorm migration:generate src/database/migrations/$1 -d dist/database/data-source.js; }; f",
-    "db:migration:revert": "typeorm migration:revert -d dist/database/data-source.js",
-    "db:seed": "ts-node src/database/seed.ts"
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate src/database/migrations/Migration -d src/database/data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts"
   },
   "dependencies": {
     "@devfolio/shared": "workspace:*",
@@ -47,6 +46,9 @@
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
     "uuid": "^10.0.0",
+    "resend": "^4.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
@@ -62,9 +64,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/uuid": "^10.0.0",
     "jest": "^29.7.0",
-    "ts-jest": "^29.2.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.0"
+    "ts-jest": "^29.2.4"
   },
   "jest": {
     "moduleFileExtensions": [

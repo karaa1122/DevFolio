@@ -41,6 +41,12 @@ export class User {
   isEmailVerified: boolean;
 
   @Column({ nullable: true })
+  emailVerificationToken: string;
+
+  @Column({ nullable: true })
+  emailVerificationTokenExpiresAt: Date;
+
+  @Column({ nullable: true })
   refreshTokenHash: string;
 
   @CreateDateColumn()

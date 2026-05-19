@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from './auth.service';
+import { EmailService } from './email.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
@@ -17,7 +18,7 @@ import { User } from '../../database/entities/user.entity';
     ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GithubStrategy],
+  providers: [AuthService, EmailService, JwtStrategy, GithubStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

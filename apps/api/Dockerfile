@@ -37,6 +37,8 @@ RUN pnpm install --no-frozen-lockfile --prod
 
 COPY --from=builder /repo/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /repo/apps/api/dist ./apps/api/dist
+COPY --from=builder /repo/apps/api/src ./apps/api/src
+COPY --from=builder /repo/apps/api/tsconfig.json ./apps/api/tsconfig.json
 
 WORKDIR /app/apps/api
 

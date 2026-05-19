@@ -6,13 +6,13 @@ import { Portfolio } from './entities/portfolio.entity';
 import { ExportJob } from './entities/export-job.entity';
 import { AnalyticsEvent } from './entities/analytics-event.entity';
 
-config({ path: '.env' });
+config({ path: '../../.env' }); // apps/api → root
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL ?? 'postgresql://devfolio:devfolio@localhost:5432/devfolio',
   entities: [User, Portfolio, ExportJob, AnalyticsEvent],
-  migrations: ['dist/database/migrations/*.js'],
+  migrations: ['src/database/migrations/*.ts'],
   synchronize: false,
   ssl:
     process.env.NODE_ENV === 'production'

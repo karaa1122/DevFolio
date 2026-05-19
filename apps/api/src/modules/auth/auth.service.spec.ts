@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
+import { EmailService } from './email.service';
 import { User } from '../../database/entities/user.entity';
 
 const mockUser = (overrides: Partial<User> = {}): User => ({
@@ -19,6 +20,8 @@ const mockUser = (overrides: Partial<User> = {}): User => ({
   githubUsername: null as unknown as string,
   githubAccessToken: null as unknown as string,
   isEmailVerified: false,
+  emailVerificationToken: null as unknown as string,
+  emailVerificationTokenExpiresAt: null as unknown as Date,
   createdAt: new Date(),
   updatedAt: new Date(),
   portfolios: [],
@@ -44,6 +47,10 @@ describe('AuthService', () => {
     get: jest.fn().mockReturnValue('secret'),
   };
 
+  const emailService = {
+    sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -51,6 +58,7 @@ describe('AuthService', () => {
         { provide: getRepositoryToken(User), useValue: userRepo },
         { provide: JwtService, useValue: jwtService },
         { provide: ConfigService, useValue: configService },
+        { provide: EmailService, useValue: emailService },
       ],
     }).compile();
 
@@ -59,18 +67,16 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('returns tokens and sanitized user on success', async () => {
+    it('returns a message on success (no tokens issued — email verification required)', async () => {
       userRepo.findOne.mockResolvedValue(null);
       const user = mockUser();
       userRepo.create.mockReturnValue(user);
       userRepo.save.mockResolvedValue(user);
-      userRepo.update.mockResolvedValue({});
 
       const result = await service.register({ name: 'Test', email: 'test@example.com', password: 'pass123' });
 
-      expect(result.accessToken).toBe('mock-token');
-      expect(result.user).not.toHaveProperty('passwordHash');
-      expect(result.user).not.toHaveProperty('refreshTokenHash');
+      expect(result).toHaveProperty('message');
+      expect(typeof result.message).toBe('string');
     });
 
     it('throws ConflictException when email already registered', async () => {

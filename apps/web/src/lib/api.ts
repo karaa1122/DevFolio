@@ -67,7 +67,7 @@ async function request<T>(
 
 export const authApi = {
   register: (data: { name: string; email: string; password: string }) =>
-    request<AuthTokens & { user: UserProfile }>('/auth/register', {
+    request<{ message: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -89,6 +89,18 @@ export const authApi = {
 
   me: () =>
     request<UserProfile>('/auth/me'),
+
+  verifyEmail: (token: string) =>
+    request<{ message: string }>('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+
+  resendVerification: (email: string) =>
+    request<{ message: string }>('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
 };
 
 // ─── Portfolios ────────────────────────────────────────────────────────────

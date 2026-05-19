@@ -3,39 +3,57 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { User } from '../../database/entities/user.entity';
+import { EmailService } from './email.service';
 import type { RegisterDto } from './dto/register.dto';
 import type { LoginDto } from './dto/login.dto';
 import type { AuthTokens } from '@devfolio/shared';
 
 const SALT_ROUNDS = 12;
+const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<AuthTokens & { user: Partial<User> }> {
+  async register(dto: RegisterDto): Promise<{ message: string }> {
     const existing = await this.userRepo.findOne({ where: { email: dto.email } });
     if (existing) throw new ConflictException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    const user = this.userRepo.create({ email: dto.email, name: dto.name, passwordHash });
+    const emailVerificationToken = randomBytes(32).toString('hex');
+    const emailVerificationTokenExpiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS);
+
+    const user = this.userRepo.create({
+      email: dto.email,
+      name: dto.name,
+      passwordHash,
+      emailVerificationToken,
+      emailVerificationTokenExpiresAt,
+    });
     await this.userRepo.save(user);
 
-    const tokens = await this.generateTokens(user);
-    await this.saveRefreshToken(user.id, tokens.refreshToken);
+    this.emailService
+      .sendVerificationEmail(user.email, user.name, emailVerificationToken)
+      .catch((err) => this.logger.error(`Verification email failed for ${user.email}: ${err.message}`));
 
-    return { ...tokens, user: this.sanitizeUser(user) };
+    return { message: 'Account created. Check your email to verify before signing in.' };
   }
 
   async login(dto: LoginDto): Promise<AuthTokens & { user: Partial<User> }> {
@@ -45,10 +63,65 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
+    if (!user.isEmailVerified) {
+      // Regenerate token if missing or expired, then resend
+      const needsNewToken =
+        !user.emailVerificationToken ||
+        !user.emailVerificationTokenExpiresAt ||
+        user.emailVerificationTokenExpiresAt < new Date();
+
+      let token = user.emailVerificationToken;
+      if (needsNewToken) {
+        token = randomBytes(32).toString('hex');
+        await this.userRepo.update(user.id, {
+          emailVerificationToken: token,
+          emailVerificationTokenExpiresAt: new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS),
+        });
+      }
+
+      this.emailService
+        .sendVerificationEmail(user.email, user.name, token!)
+        .catch(() => {});
+
+      throw new ForbiddenException(
+        'Please verify your email before signing in. A new verification link has been sent.',
+      );
+    }
+
     const tokens = await this.generateTokens(user);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return { ...tokens, user: this.sanitizeUser(user) };
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { emailVerificationToken: token } });
+
+    if (!user) throw new BadRequestException('Invalid or expired verification link');
+
+    if (!user.emailVerificationTokenExpiresAt || user.emailVerificationTokenExpiresAt < new Date()) {
+      throw new BadRequestException('Verification link has expired. Please request a new one.');
+    }
+
+    await this.userRepo.update(user.id, {
+      isEmailVerified: true,
+      emailVerificationToken: null as unknown as string,
+      emailVerificationTokenExpiresAt: null as unknown as Date,
+    });
+  }
+
+  async resendVerification(email: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { email } });
+    // Always return silently — don't reveal whether the email exists
+    if (!user || user.isEmailVerified) return;
+
+    const token = randomBytes(32).toString('hex');
+    await this.userRepo.update(user.id, {
+      emailVerificationToken: token,
+      emailVerificationTokenExpiresAt: new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS),
+    });
+
+    await this.emailService.sendVerificationEmail(user.email, user.name, token);
   }
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
@@ -100,7 +173,7 @@ export class AuthService {
           githubId: profile.githubId,
           githubUsername: profile.username,
           githubAccessToken: profile.accessToken,
-          isEmailVerified: true,
+          isEmailVerified: true, // GitHub already verified their email
         });
       }
       await this.userRepo.save(user);
@@ -137,7 +210,14 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User): Partial<User> {
-    const { passwordHash: _ph, refreshTokenHash: _rh, githubAccessToken: _ga, ...rest } = user;
+    const {
+      passwordHash: _ph,
+      refreshTokenHash: _rh,
+      githubAccessToken: _ga,
+      emailVerificationToken: _evt,
+      emailVerificationTokenExpiresAt: _evte,
+      ...rest
+    } = user;
     return rest;
   }
 }
