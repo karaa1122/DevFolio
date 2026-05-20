@@ -4,13 +4,10 @@
 
 **A full-stack developer portfolio builder. Build it once, share it forever, and finally stop telling people to "just check your LinkedIn."**
 
-[![CI](https://github.com/your-org/devfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/devfolio/actions/workflows/ci.yml)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
 ![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)
 ![License](https://img.shields.io/badge/license-MIT-green)
-
-[Live Demo](#) · [API Docs](http://localhost:3001/api/docs) · [Report Bug](https://github.com/your-org/devfolio/issues)
 
 </div>
 
@@ -43,6 +40,7 @@ devfolio/
 ├── workers/
 │   └── export/           BullMQ static export worker
 ├── docker-compose.yml    Full stack (prod-like)
+├── docker-compose.dev.yml  Dev stack (DB + Redis only)
 └── .env.example          Start here
 ```
 
@@ -53,13 +51,12 @@ devfolio/
 | **Frontend** | Next.js 14 (App Router), React 18, Tailwind CSS |
 | **Editor state** | Zustand + zundo (50-step undo/redo) + @dnd-kit drag & drop |
 | **Backend** | NestJS 10, TypeORM, PostgreSQL (JSONB), class-validator |
-| **Auth** | JWT access + refresh tokens, bcrypt, GitHub OAuth via Passport.js |
+| **Auth** | JWT access + refresh tokens in httpOnly cookies, bcrypt, GitHub OAuth via Passport.js |
 | **Cache** | Redis + cache-manager (portfolio pages cached 5 min) |
 | **Queue** | BullMQ — export jobs, retry logic, concurrency control |
 | **Export** | JSZip — generates self-contained HTML+CSS ZIP on-demand |
 | **Monorepo** | pnpm workspaces + Turborepo |
 | **Containers** | Docker + Docker Compose |
-| **CI** | GitHub Actions — type-check + tests on every push |
 
 ---
 
@@ -112,12 +109,10 @@ That's it. No weird system dependencies. No global NestJS CLI required.
 ### Step 1 — Clone and install
 
 ```bash
-git clone https://github.com/your-org/devfolio.git
+git clone https://github.com/your-username/devfolio.git
 cd devfolio
 pnpm install
 ```
-
-This installs all dependencies for every package in the monorepo. Go make a coffee — pnpm is fast but it's still installing the internet.
 
 ### Step 2 — Set up environment variables
 
@@ -128,24 +123,26 @@ cp .env.example .env
 Open `.env` and fill in at minimum:
 
 ```env
-# Generate these — do not use the placeholder values in production
-JWT_SECRET=<run: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
-JWT_REFRESH_SECRET=<run the same command again, get a different value>
+# Generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+JWT_SECRET=<64 hex chars>
+JWT_REFRESH_SECRET=<different 64 hex chars>
 
-# Everything else can stay as-is for local development
+# Required in production — safe to leave as-is for local dev
+IP_HASH_SALT=<32 hex chars>
+ENCRYPTION_KEY=<64 hex chars>
+
+# Everything else (database URL, Redis, ports) works out of the box with Docker
 ```
-
-The rest of the defaults (database URL, Redis, ports) work out of the box with Docker.
 
 > **GitHub OAuth is optional** — the app works fine without it. You only need it if you want the "Connect GitHub" feature. See [GitHub OAuth setup](#github-oauth-setup) below.
 
 ### Step 3 — Start the database and Redis
 
 ```bash
-docker compose up postgres redis -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-This starts PostgreSQL on port `15432` (host) and Redis on port `6379`.
+This starts PostgreSQL on port `5432` and Redis on port `6379`.
 
 ### Step 4 — Run migrations
 
@@ -153,7 +150,7 @@ This starts PostgreSQL on port `15432` (host) and Redis on port `6379`.
 pnpm --filter @devfolio/api migration:run
 ```
 
-This applies all pending migrations to your local database. Run this once on first setup, and again any time you pull changes that include new migration files.
+Run this once on first setup, and again whenever you pull changes that include new migration files.
 
 ### Step 5 — Run everything
 
@@ -184,40 +181,30 @@ If you want everything in containers — API, web, worker, database, Redis — a
 
 ```bash
 cp .env.example .env
-# Edit .env — set proper JWT secrets and your domain URLs
+# Edit .env — set proper secrets and your domain URLs
 
 docker compose up --build -d
 ```
 
-All 5 services start with proper health checks and restart policies. The web app will be at http://localhost:3000.
+All services start with health checks and restart policies. The web app will be at http://localhost:3000.
 
-**Run migrations after the first build** (postgres is exposed on port `15432`):
+**Run migrations after the first build:**
 
 ```bash
-DATABASE_URL=postgresql://devfolio:devfolio@localhost:15432/devfolio pnpm --filter @devfolio/api migration:run
+pnpm --filter @devfolio/api migration:run
 ```
 
-To check logs:
-
 ```bash
-docker compose logs -f api        # API logs
-docker compose logs -f web        # Next.js logs
-docker compose logs -f export-worker  # Export worker logs
-```
+docker compose logs -f api           # API logs (structured JSON)
+docker compose logs -f web           # Next.js logs
+docker compose logs -f export-worker # Export worker logs
 
-To stop everything:
-
-```bash
-docker compose down
-```
-
-To nuke everything including the database volumes (careful):
-
-```bash
-docker compose down -v
+docker compose down      # Stop everything
+docker compose down -v   # Stop + wipe database volumes
 ```
 
 ---
+
 ## GitHub OAuth Setup
 
 GitHub OAuth is optional but enables the "Connect GitHub → import repos" feature.
@@ -225,7 +212,6 @@ GitHub OAuth is optional but enables the "Connect GitHub → import repos" featu
 1. Go to [github.com/settings/developers](https://github.com/settings/developers)
 2. Click **New OAuth App**
 3. Fill in:
-   - **Application name**: DevFolio (or whatever)
    - **Homepage URL**: `http://localhost:3000`
    - **Authorization callback URL**: `http://localhost:3001/api/v1/auth/github/callback`
 4. Copy the **Client ID** and generate a **Client Secret**
@@ -233,8 +219,9 @@ GitHub OAuth is optional but enables the "Connect GitHub → import repos" featu
    ```env
    GITHUB_CLIENT_ID=your_client_id
    GITHUB_CLIENT_SECRET=your_client_secret
+   GITHUB_CALLBACK_URL=http://localhost:3001/api/v1/auth/github/callback
    ```
-6. Restart the API — that's it
+6. Restart the API
 
 For production, replace `localhost` URLs with your actual domain.
 
@@ -255,7 +242,28 @@ Once you've created a portfolio:
 
 ---
 
-**Rate limits:** `/auth/login`, `/auth/register`, `/auth/refresh` are throttled to **5 requests per minute** per IP. Everything else: 20 req/min.
+## Security
+
+- **httpOnly cookies** — JWT access and refresh tokens are stored in httpOnly, SameSite=Lax cookies. JavaScript cannot read them; XSS cannot steal them.
+- **Token encryption** — GitHub OAuth access tokens are encrypted at rest with AES-256-GCM before being stored in the database (`ENCRYPTION_KEY`).
+- **Account lockout** — 5 failed login attempts locks the account for 15 minutes.
+- **Rate limiting** — auth endpoints (`/login`, `/register`, `/refresh`) are throttled to 5 req/min per IP. Everything else: 20 req/min.
+- **IP hashing** — analytics visitor IPs are one-way hashed with SHA-256 + a secret salt before storage. No raw IPs ever hit the database.
+- **CSP** — Helmet sets explicit Content-Security-Policy headers: no `unsafe-eval`, no `unsafe-inline` scripts.
+- **Ownership checks** — analytics, export downloads, and portfolio operations verify that the requesting user owns the resource.
+- **Reserved slugs** — `api`, `admin`, `dashboard`, `auth`, and others are blocked at portfolio creation.
+- **Structured logging** — all API logs are emitted as JSON to stdout (level, timestamp, pid, context, message). No secrets in logs.
+
+---
+
+## Rate Limits
+
+| Endpoint | Limit |
+|---|---|
+| `POST /auth/login` | 5 req / min |
+| `POST /auth/register` | 5 req / min |
+| `POST /auth/refresh` | 5 req / min |
+| Everything else | 20 req / min |
 
 ---
 
@@ -272,13 +280,12 @@ pnpm --filter @devfolio/api migration:generate -- --name DescribeYourChange
 
 # Create an empty migration file to write manually
 pnpm --filter @devfolio/api migration:create -- DescribeYourChange
-# omit the name to get a timestamped default: migration:create
 
 # Revert the last applied migration
 pnpm --filter @devfolio/api migration:revert
 ```
 
-Migration files live in `apps/api/src/database/migrations/` and are always prefixed with a timestamp (e.g. `1748000000000-AddUserTable.ts`). Commit them — they are the source of truth for your schema.
+Migration files live in `apps/api/src/database/migrations/` and are prefixed with a timestamp (e.g. `1748000000000-AddUserTable.ts`). Always commit them — they are the source of truth for your schema.
 
 ---
 
@@ -288,7 +295,7 @@ Migration files live in `apps/api/src/database/migrations/` and are always prefi
 cd apps/api
 
 pnpm test          # Run all unit tests
-pnpm test:watch    # Watch mode (for when you're actively breaking things)
+pnpm test:watch    # Watch mode
 pnpm test:cov      # Coverage report
 ```
 
@@ -303,46 +310,53 @@ Tests cover:
 ```
 apps/api/src/
 ├── modules/
-│   ├── auth/           JWT auth, bcrypt, GitHub OAuth, refresh tokens
+│   ├── auth/           JWT auth, bcrypt, GitHub OAuth, refresh tokens, account lockout
 │   ├── users/          Profile CRUD
 │   ├── portfolio/      Portfolio CRUD, publish/unpublish, view counter, cache
 │   ├── themes/         6 built-in theme presets
 │   ├── export/         Queue producer + ZIP generation controller
 │   ├── github/         OAuth token storage, repo fetch, sync to portfolio
-│   └── analytics/      Event tracking, per-portfolio stats
+│   ├── analytics/      Event tracking, per-portfolio stats, IP hashing
+│   └── health/         GET /health — checks DB + Redis
 ├── database/
 │   ├── entities/       TypeORM entities (User, Portfolio, ExportJob, AnalyticsEvent)
 │   ├── migrations/     Migration files (timestamped, committed to source control)
 │   └── data-source.ts  TypeORM DataSource for CLI
 └── common/
+    ├── decorators/     @CurrentUser(), @Public()
+    ├── filters/        HttpExceptionFilter — catches all unhandled exceptions
     ├── guards/         JwtAuthGuard, ThrottlerGuard (global)
-    └── decorators/     @CurrentUser(), @Public()
+    ├── interceptors/   TransformInterceptor — wraps all responses in { data, ... }
+    ├── logger/         JsonLogger — structured JSON to stdout
+    ├── middleware/     RequestIdMiddleware — injects X-Request-ID header
+    └── services/       EncryptionService — AES-256-GCM encrypt/decrypt
 
 apps/web/src/
 ├── app/
 │   ├── (auth)/         Login + Register pages
-│   ├── dashboard/      Portfolio list, analytics, GitHub connection
+│   ├── dashboard/      Portfolio list, analytics
 │   ├── editor/[id]/    The main editor
 │   ├── profile/        Edit name, bio, avatar
+│   ├── auth/callback/  GitHub OAuth exchange
 │   └── [slug]/         Public portfolio page (SSR)
 ├── components/editor/
-│   ├── Editor.tsx      Toolbar, publish, export
-│   ├── EditorSidebar.tsx Sections / Theme / GitHub / Settings tabs
-│   ├── EditorCanvas.tsx  Live preview iframe
-│   ├── SectionEditor.tsx Per-section form (typed, no `any`)
-│   ├── SectionList.tsx   Drag & drop list
-│   └── ThemePanel.tsx    Color pickers + presets
+│   ├── Editor.tsx            Toolbar, publish, export
+│   ├── EditorSidebar.tsx     Sections / Theme / GitHub / Settings tabs
+│   ├── EditorCanvas.tsx      Live preview iframe
+│   ├── SectionEditor.tsx     Per-section form (typed, no any)
+│   ├── SectionList.tsx       Drag & drop list
+│   └── ThemePanel.tsx        Color pickers + presets
 └── store/
-    └── editor.store.ts   Zustand + zundo state
+    └── editor.store.ts       Zustand + zundo state
 
 workers/export/src/
-├── worker.ts           BullMQ worker, DB update logic
+├── worker.ts                 BullMQ worker, DB update logic
 └── processors/
-    └── export.processor.ts  ZIP generation
+    └── export.processor.ts   ZIP generation
 
 packages/shared/src/
-├── schema/portfolio.ts  Zod schema — the single source of truth
-└── types/index.ts       API response types, UserProfile, etc.
+├── schema/portfolio.ts       Zod schema — the single source of truth
+└── types/index.ts            API response types, UserProfile, etc.
 ```
 
 ---
@@ -354,8 +368,6 @@ packages/shared/src/
 3. Make your changes
 4. Run `pnpm test` — make sure nothing is broken
 5. Submit a PR
-
-There's a CI pipeline that will tell you if you broke something. It's not personal.
 
 ---
 
