@@ -49,7 +49,7 @@ export default function LandingPage() {
               Start Building Free →
             </Link>
             <a
-              href="https://github.com/devfolio/devfolio"
+              href="https://github.com/karaa1122/DevFolio"
               target="_blank"
               rel="noopener noreferrer"
               className="border border-slate-700 hover:border-slate-500 text-slate-300 font-semibold px-8 py-4 rounded-xl text-lg transition-all"
