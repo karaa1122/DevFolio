@@ -255,7 +255,7 @@ function HeroForm({
         <TextInput
           value={data.location ?? ''}
           onChange={(v) => onUpdate({ location: v })}
-          placeholder="Erbil, Kurdistan"
+          placeholder="City, Country"
         />
       </FieldWrapper>
       <div className="flex items-center gap-3">
