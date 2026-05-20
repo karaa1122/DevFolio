@@ -15,7 +15,7 @@
 
 ## What Is This?
 
-DevFolio is a **visual portfolio editor** for developers. You log in, drag sections around, pick a theme, write your bio, and publish. Your portfolio gets a public URL. Done.
+DevFolio is a **visual portfolio editor** for developers. You log in, drag sections around, pick a theme, write your bio, and publish. Your portfolio gets a public URL. Done. It's almost suspicious how simple that is.
 
 No Webflow subscription. No WordPress plugin hell. No "I'll update my portfolio this weekend" for the 47th weekend in a row.
 
@@ -100,7 +100,7 @@ Before you start, make sure you have:
 - **pnpm** ≥ 9 — `npm install -g pnpm`
 - **Docker** — [docker.com](https://www.docker.com/products/docker-desktop) (for PostgreSQL + Redis)
 
-That's it. No weird system dependencies. No global NestJS CLI required.
+That's it. No weird system dependencies. No global NestJS CLI required. You're welcome.
 
 ---
 
@@ -171,7 +171,7 @@ Turborepo starts all services in parallel:
 
 1. Go to http://localhost:3000
 2. Click **Register** — fill in name, email, password
-3. You're in. Create a portfolio, pick a slug, start building.
+3. You're in. Create a portfolio, pick a slug, start building. The personal brand era begins.
 
 ---
 
@@ -366,8 +366,8 @@ packages/shared/src/
 1. Fork it
 2. Create a branch (`git checkout -b feat/your-feature`)
 3. Make your changes
-4. Run `pnpm test` — make sure nothing is broken
-5. Submit a PR
+4. Run `pnpm test` — make sure nothing is broken (yes, all of them)
+5. Submit a PR — we promise to read it
 
 ---
 
