@@ -64,6 +64,8 @@ export function EditorSidebar({ portfolioId }: Props) {
 // ─── GitHub Panel ──────────────────────────────────────────────────────────
 
 function GitHubPanel({ portfolioId }: { portfolioId: string }) {
+  const { setPortfolio } = useEditorStore();
+
   const { data: status, mutate: mutateStatus } = useSWR('/github/status', githubApi.status, {
     revalidateOnFocus: false,
   });
@@ -89,7 +91,8 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
     if (selected.size === 0) return;
     setSyncing(true);
     try {
-      await githubApi.sync(portfolioId, Array.from(selected));
+      const updated = await githubApi.sync(portfolioId, Array.from(selected));
+      setPortfolio(updated.data);
       setSelected(new Set());
       setSyncDone(true);
       setTimeout(() => setSyncDone(false), 3000);
