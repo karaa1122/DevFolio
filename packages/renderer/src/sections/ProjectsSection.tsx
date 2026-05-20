@@ -23,7 +23,7 @@ export function ProjectsSection({ section, theme }: Props) {
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.background, color: colors.foreground, padding, fontFamily: theme.font }}
+      style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <h2

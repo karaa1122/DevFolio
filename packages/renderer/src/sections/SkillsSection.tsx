@@ -26,7 +26,7 @@ export function SkillsSection({ section, theme }: Props) {
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.card, color: colors.foreground, padding, fontFamily: theme.font }}
+      style={{ backgroundColor: colors.card, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', textAlign: 'center', marginBottom: '1rem' }}>

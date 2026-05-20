@@ -6,15 +6,18 @@ interface Props {
   theme: Theme;
 }
 
+const radiusMap: Record<string, string> = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '24px' };
+
 export function EducationSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
   const padding = theme.spacing === 'compact' ? '3rem 2rem' : theme.spacing === 'relaxed' ? '6rem 2rem' : '5rem 2rem';
+  const radius = radiusMap[theme.radius] ?? '12px';
 
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.card, color: colors.foreground, padding, fontFamily: theme.font }}
+      style={{ backgroundColor: colors.card, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', textAlign: 'center', marginBottom: '1rem' }}>
@@ -29,7 +32,7 @@ export function EducationSection({ section, theme }: Props) {
               style={{
                 backgroundColor: colors.background,
                 border: `1px solid ${colors.border}`,
-                borderRadius: '12px',
+                borderRadius: radius,
                 padding: '1.5rem',
                 display: 'flex',
                 gap: '1rem',

@@ -22,7 +22,6 @@ export function HeroSection({ section, theme }: Props) {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        fontFamily: theme.font,
       }}
     >
       <div style={{ maxWidth: '800px', width: '100%' }}>

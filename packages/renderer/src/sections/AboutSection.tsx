@@ -18,7 +18,6 @@ export function AboutSection({ section, theme }: Props) {
         backgroundColor: colors.card,
         color: colors.foreground,
         padding,
-        fontFamily: theme.font,
       }}
     >
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>

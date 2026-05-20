@@ -23,7 +23,7 @@ export function ContactSection({ section, theme }: Props) {
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.background, color: colors.foreground, padding, fontFamily: theme.font }}
+      style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
         <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', marginBottom: '1rem' }}>
