@@ -10,9 +10,6 @@ jobs:
   api:
     name: API — type-check & test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
 
     steps:
       - uses: actions/checkout@v4
@@ -26,20 +23,21 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --filter @devfolio/shared build
 
       - name: Type-check
-        run: pnpm type-check
+        run: pnpm --filter @devfolio/api type-check
 
       - name: Unit tests
-        run: pnpm test --passWithNoTests
+        run: pnpm --filter @devfolio/api test --passWithNoTests
 
   web:
     name: Web — type-check & build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
 
     steps:
       - uses: actions/checkout@v4
@@ -53,22 +51,24 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm --filter @devfolio/shared build && pnpm --filter @devfolio/renderer build
 
       - name: Type-check
-        run: pnpm type-check
+        run: pnpm --filter @devfolio/web type-check
 
       - name: Build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001
-        run: pnpm build
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+        run: pnpm --filter @devfolio/web build
 
   export-worker:
     name: Export Worker — type-check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: workers/export
 
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +82,11 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --filter @devfolio/shared build
 
       - name: Type-check
-        run: pnpm type-check
+        run: pnpm --filter @devfolio/export-worker type-check
