@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import { saveTokens } from '@/lib/utils';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -18,15 +17,13 @@ function CallbackInner() {
       return;
     }
 
+    // Exchange the one-time code; the API sets httpOnly auth cookies in the response.
     fetch(`${API_BASE}/api/v1/auth/github/exchange?code=${encodeURIComponent(code)}`, {
       method: 'POST',
+      credentials: 'include',
     })
       .then((res) => {
         if (!res.ok) throw new Error('Exchange failed');
-        return res.json();
-      })
-      .then((data: { accessToken: string; refreshToken: string }) => {
-        saveTokens(data.accessToken, data.refreshToken);
         router.replace('/dashboard');
       })
       .catch(() => {

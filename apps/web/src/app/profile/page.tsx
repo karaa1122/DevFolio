@@ -16,8 +16,6 @@ function NavHeader() {
     } catch {
       // token may already be expired
     }
-    localStorage.removeItem('devfolio_access_token');
-    localStorage.removeItem('devfolio_refresh_token');
     router.push('/login');
   };
 

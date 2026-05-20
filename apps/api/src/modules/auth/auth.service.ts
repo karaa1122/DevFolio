@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { User } from '../../database/entities/user.entity';
 import { EmailService } from './email.service';
+import { EncryptionService } from '../../common/services/encryption.service';
 import type { RegisterDto } from './dto/register.dto';
 import type { LoginDto } from './dto/login.dto';
 import type { AuthTokens } from '@devfolio/shared';
@@ -39,6 +40,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ message: string }> {
@@ -226,12 +228,14 @@ export class AuthService {
   }): Promise<AuthTokens & { user: Partial<User> }> {
     let user = await this.userRepo.findOne({ where: { githubId: profile.githubId } });
 
+    const encryptedToken = this.encryptionService.encrypt(profile.accessToken);
+
     if (!user) {
       user = await this.userRepo.findOne({ where: { email: profile.email } });
       if (user) {
         user.githubId = profile.githubId;
         user.githubUsername = profile.username;
-        user.githubAccessToken = profile.accessToken;
+        user.githubAccessToken = encryptedToken;
       } else {
         user = this.userRepo.create({
           email: profile.email,
@@ -239,13 +243,13 @@ export class AuthService {
           avatar: profile.avatar,
           githubId: profile.githubId,
           githubUsername: profile.username,
-          githubAccessToken: profile.accessToken,
+          githubAccessToken: encryptedToken,
           isEmailVerified: true, // GitHub already verified their email
         });
       }
       await this.userRepo.save(user);
     } else {
-      user.githubAccessToken = profile.accessToken;
+      user.githubAccessToken = encryptedToken;
       await this.userRepo.save(user);
     }
 

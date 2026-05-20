@@ -5,22 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function saveTokens(accessToken: string, refreshToken: string) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('devfolio_access_token', accessToken);
-  localStorage.setItem('devfolio_refresh_token', refreshToken);
-}
-
-export function clearTokens() {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('devfolio_access_token');
-  localStorage.removeItem('devfolio_refresh_token');
-}
-
-export function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('devfolio_access_token');
-}
+// Tokens are managed as httpOnly cookies set by the API.
+// These stubs exist for any callers not yet updated.
+export function saveTokens(_accessToken: string, _refreshToken: string) {}
+export function clearTokens() {}
 
 export function slugify(text: string): string {
   return text

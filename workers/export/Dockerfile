@@ -16,6 +16,7 @@ COPY packages/shared ./packages/shared
 COPY packages/renderer ./packages/renderer
 COPY workers/export ./workers/export
 
+
 RUN pnpm --filter @devfolio/shared build
 RUN pnpm --filter @devfolio/renderer build
 RUN pnpm --filter @devfolio/export-worker build

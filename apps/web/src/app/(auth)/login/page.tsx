@@ -4,7 +4,6 @@ import { Suspense, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api';
-import { saveTokens } from '@/lib/utils';
 
 function LoginForm() {
   const router = useRouter();
@@ -20,8 +19,7 @@ function LoginForm() {
     setError('');
     setLoading(true);
     try {
-      const { accessToken, refreshToken } = await authApi.login(form);
-      saveTokens(accessToken, refreshToken);
+      await authApi.login(form);
       router.push('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../database/entities/user.entity';
 import { Portfolio } from '../../database/entities/portfolio.entity';
+import { EncryptionService } from '../../common/services/encryption.service';
 import type { GitHubRepo } from '@devfolio/shared';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class GithubService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Portfolio) private readonly portfolioRepo: Repository<Portfolio>,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   async fetchUserRepos(userId: string): Promise<GitHubRepo[]> {
@@ -18,11 +20,13 @@ export class GithubService {
       throw new UnauthorizedException('GitHub account not connected');
     }
 
+    const plainToken = this.encryptionService.decrypt(user.githubAccessToken);
+
     const response = await fetch(
       'https://api.github.com/user/repos?sort=updated&per_page=50&type=owner',
       {
         headers: {
-          Authorization: `token ${user.githubAccessToken}`,
+          Authorization: `token ${plainToken}`,
           Accept: 'application/vnd.github.v3+json',
         },
       },

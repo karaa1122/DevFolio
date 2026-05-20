@@ -25,8 +25,6 @@ export default function DashboardPage() {
     } catch {
       /* expired token is fine */
     }
-    localStorage.removeItem('devfolio_access_token');
-    localStorage.removeItem('devfolio_refresh_token');
     router.push('/login');
   };
   const [showForm, setShowForm] = useState(false);

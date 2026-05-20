@@ -3,13 +3,15 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { JsonLogger } from './common/logger/json.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log'],
+    logger: new JsonLogger(),
   });
 
   const configService = app.get(ConfigService);
@@ -22,7 +24,7 @@ async function bootstrap() {
   // Dev fallbacks are intentionally weak; if they reach production the app
   // is completely insecure.
   if (isProd) {
-    const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL', 'IP_HASH_SALT'];
+    const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL', 'IP_HASH_SALT', 'ENCRYPTION_KEY'];
     const missing = required.filter((k) => !process.env[k]);
     if (missing.length) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
@@ -30,7 +32,28 @@ async function bootstrap() {
   }
 
   // Security
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'blob:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'none'"],
+          frameSrc: ["'none'"],
+          upgradeInsecureRequests: isProd ? [] : null,
+        },
+      },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
+
+  // Cookie parsing (required for httpOnly token cookies)
+  app.use(cookieParser());
 
   // Graceful shutdown — lets in-flight requests complete before the process exits.
   app.enableShutdownHooks();

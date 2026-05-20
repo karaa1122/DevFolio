@@ -1,7 +1,6 @@
 import type {
   Portfolio,
   PortfolioResponse,
-  AuthTokens,
   UserProfile,
   ExportJob,
   PortfolioAnalytics,
@@ -22,20 +21,17 @@ class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('devfolio_access_token');
-}
-
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}/api/v1${path}`, { ...options, headers });
+  const res = await fetch(`${API_BASE}/api/v1${path}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
 
   if (res.status === 204) return undefined as T;
 
@@ -48,10 +44,31 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       path !== '/auth/login' &&
       path !== '/auth/register'
     ) {
-      localStorage.removeItem('devfolio_access_token');
-      localStorage.removeItem('devfolio_refresh_token');
+      // Try silent refresh before giving up
+      if (path !== '/auth/refresh') {
+        try {
+          const refreshRes = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          });
+          if (refreshRes.ok) {
+            // Retry original request with the new access cookie
+            const retryRes = await fetch(`${API_BASE}/api/v1${path}`, {
+              ...options,
+              headers,
+              credentials: 'include',
+            });
+            if (retryRes.status === 204) return undefined as T;
+            const retryJson = await retryRes.json();
+            if (!retryRes.ok) throw new ApiError(retryRes.status, retryJson.message ?? 'Request failed', retryJson);
+            return (retryJson.data ?? retryJson) as T;
+          }
+        } catch {
+          // fall through to redirect
+        }
+      }
       window.location.href = '/login';
-      return undefined as T; // stop execution — navigation is in progress
+      return undefined as T;
     }
     throw new ApiError(res.status, json.message ?? 'Request failed', json);
   }
@@ -70,16 +87,12 @@ export const authApi = {
     }),
 
   login: (data: { email: string; password: string }) =>
-    request<AuthTokens & { user: UserProfile }>('/auth/login', {
+    request<{ user: UserProfile }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  refresh: (refreshToken: string) =>
-    request<AuthTokens>('/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    }),
+  refresh: () => request<void>('/auth/refresh', { method: 'POST' }),
 
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
 
