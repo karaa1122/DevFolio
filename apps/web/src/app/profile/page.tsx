@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { authApi, usersApi } from '@/lib/api';
@@ -27,7 +28,10 @@ function NavHeader() {
           DevFolio
         </Link>
         <nav className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors">
+          <Link
+            href="/dashboard"
+            className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
+          >
             Dashboard
           </Link>
           <Link href="/profile" className="text-slate-200 text-sm font-medium">
@@ -46,7 +50,11 @@ function NavHeader() {
 }
 
 export default function ProfilePage() {
-  const { data: user, mutate, isLoading } = useSWR('/users/me', usersApi.me, {
+  const {
+    data: user,
+    mutate,
+    isLoading,
+  } = useSWR('/users/me', usersApi.me, {
     revalidateOnFocus: false,
   });
 
@@ -72,7 +80,11 @@ export default function ProfilePage() {
     setError('');
     setSaved(false);
     try {
-      await usersApi.update({ name: name.trim() || undefined, bio: bio.trim() || undefined, avatar: avatar.trim() || undefined });
+      await usersApi.update({
+        name: name.trim() || undefined,
+        bio: bio.trim() || undefined,
+        avatar: avatar.trim() || undefined,
+      });
       await mutate();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -101,7 +113,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center">
                 {avatar ? (
-                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                  <Image src={avatar} alt={name} width={64} height={64} className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-2xl text-slate-500 font-bold select-none">
                     {(name || user?.name || '?')[0].toUpperCase()}
@@ -169,9 +181,7 @@ export default function ProfilePage() {
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
-                {saved && (
-                  <span className="text-green-400 text-sm">Saved!</span>
-                )}
+                {saved && <span className="text-green-400 text-sm">Saved!</span>}
               </div>
             </form>
 

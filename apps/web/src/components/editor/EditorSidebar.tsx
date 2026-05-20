@@ -50,11 +50,7 @@ export function EditorSidebar({ portfolioId }: Props) {
       <div className="flex-1 overflow-y-auto scrollbar-thin">
         {activePanel === 'sections' && (
           <>
-            {selectedSectionId ? (
-              <SectionEditor sectionId={selectedSectionId} />
-            ) : (
-              <SectionList />
-            )}
+            {selectedSectionId ? <SectionEditor sectionId={selectedSectionId} /> : <SectionList />}
           </>
         )}
         {activePanel === 'theme' && <ThemePanel />}
@@ -68,11 +64,9 @@ export function EditorSidebar({ portfolioId }: Props) {
 // ─── GitHub Panel ──────────────────────────────────────────────────────────
 
 function GitHubPanel({ portfolioId }: { portfolioId: string }) {
-  const { data: status, mutate: mutateStatus } = useSWR(
-    '/github/status',
-    githubApi.status,
-    { revalidateOnFocus: false },
-  );
+  const { data: status, mutate: mutateStatus } = useSWR('/github/status', githubApi.status, {
+    revalidateOnFocus: false,
+  });
   const { data: repos, isLoading: reposLoading } = useSWR<GitHubRepo[]>(
     status?.connected ? '/github/repos' : null,
     githubApi.repos,
@@ -124,7 +118,8 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
       <div className="p-4 space-y-4">
         <h3 className="text-sm font-semibold text-slate-300">GitHub Integration</h3>
         <p className="text-xs text-slate-500 leading-relaxed">
-          Connect your GitHub account to import repositories directly into your portfolio's projects section.
+          Connect your GitHub account to import repositories directly into your portfolio&apos;s projects
+          section.
         </p>
         <a
           href={`${API_BASE}/api/v1/auth/github`}
@@ -164,9 +159,7 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
         </div>
       ) : (
         <>
-          <p className="text-xs text-slate-500">
-            Select repos to add to your Projects section:
-          </p>
+          <p className="text-xs text-slate-500">Select repos to add to your Projects section:</p>
           <div className="space-y-1.5 max-h-72 overflow-y-auto">
             {(repos ?? []).map((repo) => (
               <label

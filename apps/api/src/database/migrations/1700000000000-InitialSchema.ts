@@ -85,12 +85,24 @@ export class InitialSchema1700000000000 implements MigrationInterface {
     `);
 
     // Indexes
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_portfolios_slug"        ON "portfolios"       ("slug")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_portfolios_userId"      ON "portfolios"       ("userId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_export_jobs_portfolioId" ON "export_jobs"     ("portfolioId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_export_jobs_status"     ON "export_jobs"      ("status")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_analytics_portfolioId"  ON "analytics_events" ("portfolioId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_analytics_portfolio_date" ON "analytics_events" ("portfolioId", "createdAt")`);
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_portfolios_slug"        ON "portfolios"       ("slug")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_portfolios_userId"      ON "portfolios"       ("userId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_export_jobs_portfolioId" ON "export_jobs"     ("portfolioId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_export_jobs_status"     ON "export_jobs"      ("status")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_analytics_portfolioId"  ON "analytics_events" ("portfolioId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_analytics_portfolio_date" ON "analytics_events" ("portfolioId", "createdAt")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

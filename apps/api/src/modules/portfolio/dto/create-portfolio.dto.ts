@@ -2,7 +2,10 @@ import { IsString, IsOptional, Matches, MinLength, MaxLength } from 'class-valid
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePortfolioDto {
-  @ApiProperty({ example: 'karaa', description: 'Unique URL slug (lowercase alphanumeric + hyphens)' })
+  @ApiProperty({
+    example: 'karaa',
+    description: 'Unique URL slug (lowercase alphanumeric + hyphens)',
+  })
   @IsString()
   @MinLength(3)
   @MaxLength(50)

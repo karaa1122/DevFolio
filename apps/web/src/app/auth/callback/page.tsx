@@ -3,17 +3,35 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { saveTokens } from '@/lib/utils';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 function CallbackInner() {
   const router = useRouter();
   const params = useSearchParams();
 
   useEffect(() => {
-    const token = params.get('token');
-    if (token) {
-      localStorage.setItem('devfolio_access_token', token);
+    const code = params.get('code');
+    if (!code) {
+      router.replace('/login?error=oauth_failed');
+      return;
     }
-    router.replace('/dashboard');
+
+    fetch(`${API_BASE}/api/v1/auth/github/exchange?code=${encodeURIComponent(code)}`, {
+      method: 'POST',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Exchange failed');
+        return res.json();
+      })
+      .then((data: { accessToken: string; refreshToken: string }) => {
+        saveTokens(data.accessToken, data.refreshToken);
+        router.replace('/dashboard');
+      })
+      .catch(() => {
+        router.replace('/login?error=oauth_failed');
+      });
   }, [params, router]);
 
   return (

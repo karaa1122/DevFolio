@@ -60,7 +60,9 @@ export class AuthService {
 
     this.emailService
       .sendVerificationEmail(user.email, user.name, emailVerificationToken)
-      .catch((err) => this.logger.error(`Verification email failed for ${user.email}: ${err.message}`));
+      .catch((err) =>
+        this.logger.error(`Verification email failed for ${user.email}: ${err.message}`),
+      );
 
     return { message: 'Account created. Check your email to verify before signing in.' };
   }
@@ -77,9 +79,10 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) {
       const attempts = (user.failedLoginAttempts ?? 0) + 1;
-      const lockout = attempts >= MAX_FAILED_ATTEMPTS
-        ? { lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS) }
-        : {};
+      const lockout =
+        attempts >= MAX_FAILED_ATTEMPTS
+          ? { lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS) }
+          : {};
       await this.userRepo.update(user.id, { failedLoginAttempts: attempts, ...lockout });
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -108,9 +111,7 @@ export class AuthService {
         });
       }
 
-      this.emailService
-        .sendVerificationEmail(user.email, user.name, token!)
-        .catch(() => {});
+      this.emailService.sendVerificationEmail(user.email, user.name, token!).catch(() => {});
 
       throw new ForbiddenException(
         'Please verify your email before signing in. A new verification link has been sent.',
@@ -128,7 +129,10 @@ export class AuthService {
 
     if (!user) throw new BadRequestException('Invalid or expired verification link');
 
-    if (!user.emailVerificationTokenExpiresAt || user.emailVerificationTokenExpiresAt < new Date()) {
+    if (
+      !user.emailVerificationTokenExpiresAt ||
+      user.emailVerificationTokenExpiresAt < new Date()
+    ) {
       throw new BadRequestException('Verification link has expired. Please request a new one.');
     }
 
@@ -151,7 +155,9 @@ export class AuthService {
 
     this.emailService
       .sendPasswordResetEmail(user.email, user.name, token)
-      .catch((err) => this.logger.error(`Password reset email failed for ${user.email}: ${err.message}`));
+      .catch((err) =>
+        this.logger.error(`Password reset email failed for ${user.email}: ${err.message}`),
+      );
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {

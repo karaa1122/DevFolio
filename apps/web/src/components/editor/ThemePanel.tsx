@@ -110,9 +110,7 @@ export function ThemePanel() {
             <div key={key} className="flex items-center justify-between">
               <span className="text-xs text-slate-400">{label}</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-mono">
-                  {theme.colors[key]}
-                </span>
+                <span className="text-xs text-slate-500 font-mono">{theme.colors[key]}</span>
                 <input
                   type="color"
                   value={theme.colors[key]}

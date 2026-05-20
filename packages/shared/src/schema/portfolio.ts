@@ -15,9 +15,7 @@ export const ThemeColorsSchema = z.object({
 
 export const ThemeSchema = z.object({
   colors: ThemeColorsSchema.default({}),
-  font: z
-    .enum(['inter', 'roboto', 'poppins', 'fira-code', 'jetbrains-mono'])
-    .default('inter'),
+  font: z.enum(['inter', 'roboto', 'poppins', 'fira-code', 'jetbrains-mono']).default('inter'),
   radius: z.enum(['none', 'sm', 'md', 'lg', 'full']).default('md'),
   darkMode: z.boolean().default(true),
   spacing: z.enum(['compact', 'normal', 'relaxed']).default('normal'),

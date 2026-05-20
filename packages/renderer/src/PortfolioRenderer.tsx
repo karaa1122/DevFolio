@@ -16,9 +16,11 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
   const fontUrl: Record<string, string> = {
     inter: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
     roboto: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
-    poppins: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
+    poppins:
+      'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
     'fira-code': 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap',
-    'jetbrains-mono': 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap',
+    'jetbrains-mono':
+      'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap',
   };
 
   const fontFamily: Record<string, string> = {
@@ -93,13 +95,7 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
       {orderedSections.map((section) => {
         const Component = sectionRegistry[section.type];
         if (!Component) return null;
-        return (
-          <Component
-            key={section.id}
-            section={section as never}
-            theme={theme}
-          />
-        );
+        return <Component key={section.id} section={section as never} theme={theme} />;
       })}
 
       {/* Footer */}
@@ -115,7 +111,10 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
           }}
         >
           Built with{' '}
-          <a href="https://devfolioapp.cloud" style={{ color: theme.colors.primary, textDecoration: 'none' }}>
+          <a
+            href="https://devfolioapp.cloud"
+            style={{ color: theme.colors.primary, textDecoration: 'none' }}
+          >
             DevFolio
           </a>
         </footer>

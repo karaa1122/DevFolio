@@ -16,7 +16,12 @@ export function HeroSection({ section, theme }: Props) {
       style={{
         backgroundColor: colors.background,
         color: colors.foreground,
-        padding: theme.spacing === 'compact' ? '4rem 2rem' : theme.spacing === 'relaxed' ? '8rem 2rem' : '6rem 2rem',
+        padding:
+          theme.spacing === 'compact'
+            ? '4rem 2rem'
+            : theme.spacing === 'relaxed'
+              ? '8rem 2rem'
+              : '6rem 2rem',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -132,7 +137,16 @@ export function HeroSection({ section, theme }: Props) {
               backgroundColor: data.cta.variant === 'outline' ? 'transparent' : colors.primary,
               color: data.cta.variant === 'outline' ? colors.primary : colors.foreground,
               border: `2px solid ${colors.primary}`,
-              borderRadius: theme.radius === 'none' ? '0' : theme.radius === 'sm' ? '4px' : theme.radius === 'md' ? '8px' : theme.radius === 'lg' ? '12px' : '999px',
+              borderRadius:
+                theme.radius === 'none'
+                  ? '0'
+                  : theme.radius === 'sm'
+                    ? '4px'
+                    : theme.radius === 'md'
+                      ? '8px'
+                      : theme.radius === 'lg'
+                        ? '12px'
+                        : '999px',
               textDecoration: 'none',
               fontWeight: '600',
               fontSize: '1rem',

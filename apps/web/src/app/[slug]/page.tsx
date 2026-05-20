@@ -62,7 +62,10 @@ export default async function PublicPortfolioPage({ params }: Props) {
   return (
     <>
       <PortfolioViewTracker portfolioId={entity.id} />
-      <SectionViewTracker portfolioId={entity.id} sectionIds={entity.data.sections.map((s: { id: string }) => s.id)} />
+      <SectionViewTracker
+        portfolioId={entity.id}
+        sectionIds={entity.data.sections.map((s: { id: string }) => s.id)}
+      />
       <PortfolioRenderer portfolio={entity.data} />
     </>
   );

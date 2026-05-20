@@ -6,12 +6,23 @@ interface Props {
   theme: Theme;
 }
 
-const radiusMap: Record<string, string> = { none: '0', sm: '6px', md: '12px', lg: '20px', full: '24px' };
+const radiusMap: Record<string, string> = {
+  none: '0',
+  sm: '6px',
+  md: '12px',
+  lg: '20px',
+  full: '24px',
+};
 
 export function ExperienceSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding = theme.spacing === 'compact' ? '3rem 2rem' : theme.spacing === 'relaxed' ? '6rem 2rem' : '5rem 2rem';
+  const padding =
+    theme.spacing === 'compact'
+      ? '3rem 2rem'
+      : theme.spacing === 'relaxed'
+        ? '6rem 2rem'
+        : '5rem 2rem';
   const radius = radiusMap[theme.radius] ?? '12px';
 
   return (
@@ -20,10 +31,25 @@ export function ExperienceSection({ section, theme }: Props) {
       style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', textAlign: 'center', marginBottom: '1rem' }}>
+        <h2
+          style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: '1rem',
+          }}
+        >
           {data.heading}
         </h2>
-        <div style={{ width: '3rem', height: '4px', backgroundColor: colors.primary, margin: '0 auto 3rem', borderRadius: '2px' }} />
+        <div
+          style={{
+            width: '3rem',
+            height: '4px',
+            backgroundColor: colors.primary,
+            margin: '0 auto 3rem',
+            borderRadius: '2px',
+          }}
+        />
 
         <div
           style={{
@@ -75,16 +101,48 @@ export function ExperienceSection({ section, theme }: Props) {
                 />
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                  marginBottom: '0.25rem',
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   {item.logo && (
-                    <img src={item.logo} alt={item.company} style={{ width: '2.5rem', height: '2.5rem', borderRadius: '6px', objectFit: 'contain' }} />
+                    <img
+                      src={item.logo}
+                      alt={item.company}
+                      style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        borderRadius: '6px',
+                        objectFit: 'contain',
+                      }}
+                    />
                   )}
                   <div>
-                    <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: colors.foreground, margin: 0 }}>
+                    <h3
+                      style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '700',
+                        color: colors.foreground,
+                        margin: 0,
+                      }}
+                    >
                       {item.role}
                     </h3>
-                    <p style={{ color: colors.primary, fontWeight: '600', margin: '0.125rem 0', fontSize: '0.9rem' }}>
+                    <p
+                      style={{
+                        color: colors.primary,
+                        fontWeight: '600',
+                        margin: '0.125rem 0',
+                        fontSize: '0.9rem',
+                      }}
+                    >
                       {item.company}
                     </p>
                   </div>
@@ -120,16 +178,43 @@ export function ExperienceSection({ section, theme }: Props) {
               )}
 
               {item.description && (
-                <p style={{ color: colors.muted, fontSize: '0.9rem', lineHeight: '1.7', marginBottom: item.highlights.length > 0 ? '0.75rem' : 0 }}>
+                <p
+                  style={{
+                    color: colors.muted,
+                    fontSize: '0.9rem',
+                    lineHeight: '1.7',
+                    marginBottom: item.highlights.length > 0 ? '0.75rem' : 0,
+                  }}
+                >
                   {item.description}
                 </p>
               )}
 
               {item.highlights.length > 0 && (
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.375rem',
+                  }}
+                >
                   {item.highlights.map((h, i) => (
-                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: colors.muted, fontSize: '0.875rem' }}>
-                      <span style={{ color: colors.primary, flexShrink: 0, marginTop: '0.1rem' }}>▸</span>
+                    <li
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.5rem',
+                        color: colors.muted,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      <span style={{ color: colors.primary, flexShrink: 0, marginTop: '0.1rem' }}>
+                        ▸
+                      </span>
                       {h}
                     </li>
                   ))}

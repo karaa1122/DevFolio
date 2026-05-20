@@ -13,7 +13,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="text-xl font-bold text-violet-400">DevFolio</span>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-slate-400 hover:text-white text-sm transition-colors">
+            <Link
+              href="/login"
+              className="text-slate-400 hover:text-white text-sm transition-colors"
+            >
               Sign in
             </Link>
             <Link
@@ -34,8 +37,7 @@ export default function LandingPage() {
             Open Source · Built for Developers
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            Your Portfolio,{' '}
-            <span className="text-violet-400">Built Different</span>
+            Your Portfolio, <span className="text-violet-400">Built Different</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
             DevFolio is a JSON-first portfolio builder. Design visually, own your data, export
@@ -115,9 +117,7 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="py-24 px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl font-bold text-slate-100 mb-4">
-            Ready to stand out?
-          </h2>
+          <h2 className="text-4xl font-bold text-slate-100 mb-4">Ready to stand out?</h2>
           <p className="text-slate-400 mb-8">
             Join developers who ship portfolios that get noticed.
           </p>

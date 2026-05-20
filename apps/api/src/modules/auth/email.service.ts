@@ -12,7 +12,10 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {
     this.resend = new Resend(configService.get<string>('RESEND_API_KEY', ''));
-    this.fromEmail = configService.get<string>('NOTIFICATION_FROM_EMAIL', 'noreply@devfolioapp.clouda');
+    this.fromEmail = configService.get<string>(
+      'NOTIFICATION_FROM_EMAIL',
+      'noreply@devfolioapp.cloud',
+    );
     this.enabled = configService.get<string>('NOTIFICATION_EMAIL_ENABLED', 'false') === 'true';
     this.frontendUrl = configService.get<string>('frontend.url') ?? 'http://localhost:3000';
   }

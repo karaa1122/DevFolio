@@ -134,7 +134,11 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   @ApiOperation({ summary: 'GitHub OAuth callback' })
   async githubCallback(@Req() req: Request, @Res() res: Response) {
-    const tokens = req.user as ReturnType<typeof this.authService.sanitizeUser> & { accessToken: string; refreshToken: string; expiresIn: number };
+    const tokens = req.user as ReturnType<typeof this.authService.sanitizeUser> & {
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    };
     const frontendUrl = this.configService.get<string>('frontend.url') ?? 'http://localhost:3000';
     // Issue a short-lived one-time code instead of passing the token in the URL.
     // The frontend calls POST /auth/github/exchange within 30 s to swap it for real tokens.

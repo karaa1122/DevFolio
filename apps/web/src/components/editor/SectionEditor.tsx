@@ -4,9 +4,17 @@ import { useState } from 'react';
 import { useEditorStore } from '@/store/editor.store';
 import type {
   Section,
-  HeroSection, AboutSection, ContactSection,
-  ExperienceSection, EducationSection, ProjectsSection, SkillsSection,
-  ExperienceItem, EducationItem, Project, Skill,
+  HeroSection,
+  AboutSection,
+  ContactSection,
+  ExperienceSection,
+  EducationSection,
+  ProjectsSection,
+  SkillsSection,
+  ExperienceItem,
+  EducationItem,
+  Project,
+  Skill,
 } from '@devfolio/shared';
 import { generateId } from '@/lib/utils';
 
@@ -51,15 +59,31 @@ function SectionForm({ section, onUpdate }: FormProps) {
     case 'about':
       return <AboutForm data={section.data} onUpdate={onUpdate as Update<AboutSection['data']>} />;
     case 'contact':
-      return <ContactForm data={section.data} onUpdate={onUpdate as Update<ContactSection['data']>} />;
+      return (
+        <ContactForm data={section.data} onUpdate={onUpdate as Update<ContactSection['data']>} />
+      );
     case 'experience':
-      return <ExperienceForm data={section.data} onUpdate={onUpdate as Update<ExperienceSection['data']>} />;
+      return (
+        <ExperienceForm
+          data={section.data}
+          onUpdate={onUpdate as Update<ExperienceSection['data']>}
+        />
+      );
     case 'education':
-      return <EducationForm data={section.data} onUpdate={onUpdate as Update<EducationSection['data']>} />;
+      return (
+        <EducationForm
+          data={section.data}
+          onUpdate={onUpdate as Update<EducationSection['data']>}
+        />
+      );
     case 'projects':
-      return <ProjectsForm data={section.data} onUpdate={onUpdate as Update<ProjectsSection['data']>} />;
+      return (
+        <ProjectsForm data={section.data} onUpdate={onUpdate as Update<ProjectsSection['data']>} />
+      );
     case 'skills':
-      return <SkillsForm data={section.data} onUpdate={onUpdate as Update<SkillsSection['data']>} />;
+      return (
+        <SkillsForm data={section.data} onUpdate={onUpdate as Update<SkillsSection['data']>} />
+      );
     default:
       return null;
   }
@@ -79,7 +103,15 @@ function FieldWrapper({ label, children }: { label: string; children: React.Reac
 const inputCls =
   'w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500';
 
-function TextInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function TextInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
   return (
     <input
       type="text"
@@ -91,7 +123,17 @@ function TextInput({ value, onChange, placeholder }: { value: string; onChange: 
   );
 }
 
-function TextareaInput({ value, onChange, placeholder, rows = 3 }: { value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
+function TextareaInput({
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
   return (
     <textarea
       value={value}
@@ -103,7 +145,15 @@ function TextareaInput({ value, onChange, placeholder, rows = 3 }: { value: stri
   );
 }
 
-function SelectInput({ value, onChange, children }: { value: string; onChange: (v: string) => void; children: React.ReactNode }) {
+function SelectInput({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
       {children}
@@ -136,7 +186,10 @@ function ItemHeader({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-750" onClick={onToggle}>
+    <div
+      className="flex items-center justify-between p-3 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-750"
+      onClick={onToggle}
+    >
       <div className="min-w-0">
         <p className="text-sm text-slate-200 truncate">{title || '(untitled)'}</p>
         {subtitle && <p className="text-xs text-slate-500 truncate">{subtitle}</p>}
@@ -144,7 +197,10 @@ function ItemHeader({
       <div className="flex items-center gap-1 ml-2 shrink-0">
         <span className="text-slate-500 text-xs">{expanded ? '▲' : '▼'}</span>
         <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
           className="text-slate-600 hover:text-red-400 transition-colors text-sm px-1"
           title="Remove"
         >
@@ -157,23 +213,50 @@ function ItemHeader({
 
 // ─── Hero ──────────────────────────────────────────────────────────────────
 
-function HeroForm({ data, onUpdate }: { data: HeroSection['data']; onUpdate: Update<HeroSection['data']> }) {
+function HeroForm({
+  data,
+  onUpdate,
+}: {
+  data: HeroSection['data'];
+  onUpdate: Update<HeroSection['data']>;
+}) {
   return (
     <div className="space-y-4">
       <FieldWrapper label="Full Name">
-        <TextInput value={data.name} onChange={(v) => onUpdate({ name: v })} placeholder="Your Name" />
+        <TextInput
+          value={data.name}
+          onChange={(v) => onUpdate({ name: v })}
+          placeholder="Your Name"
+        />
       </FieldWrapper>
       <FieldWrapper label="Title / Role">
-        <TextInput value={data.title} onChange={(v) => onUpdate({ title: v })} placeholder="Backend Engineer" />
+        <TextInput
+          value={data.title}
+          onChange={(v) => onUpdate({ title: v })}
+          placeholder="Backend Engineer"
+        />
       </FieldWrapper>
       <FieldWrapper label="Subtitle">
-        <TextInput value={data.subtitle ?? ''} onChange={(v) => onUpdate({ subtitle: v })} placeholder="NestJS · Django · Microservices" />
+        <TextInput
+          value={data.subtitle ?? ''}
+          onChange={(v) => onUpdate({ subtitle: v })}
+          placeholder="NestJS · Django · Microservices"
+        />
       </FieldWrapper>
       <FieldWrapper label="Bio">
-        <TextareaInput value={data.bio ?? ''} onChange={(v) => onUpdate({ bio: v })} placeholder="A short bio about yourself..." rows={4} />
+        <TextareaInput
+          value={data.bio ?? ''}
+          onChange={(v) => onUpdate({ bio: v })}
+          placeholder="A short bio about yourself..."
+          rows={4}
+        />
       </FieldWrapper>
       <FieldWrapper label="Location">
-        <TextInput value={data.location ?? ''} onChange={(v) => onUpdate({ location: v })} placeholder="Erbil, Kurdistan" />
+        <TextInput
+          value={data.location ?? ''}
+          onChange={(v) => onUpdate({ location: v })}
+          placeholder="Erbil, Kurdistan"
+        />
       </FieldWrapper>
       <div className="flex items-center gap-3">
         <input
@@ -183,7 +266,9 @@ function HeroForm({ data, onUpdate }: { data: HeroSection['data']; onUpdate: Upd
           onChange={(e) => onUpdate({ availableForWork: e.target.checked })}
           className="w-4 h-4 rounded accent-violet-500"
         />
-        <label htmlFor="available" className="text-sm text-slate-400">Available for work</label>
+        <label htmlFor="available" className="text-sm text-slate-400">
+          Available for work
+        </label>
       </div>
     </div>
   );
@@ -191,14 +276,25 @@ function HeroForm({ data, onUpdate }: { data: HeroSection['data']; onUpdate: Upd
 
 // ─── About ─────────────────────────────────────────────────────────────────
 
-function AboutForm({ data, onUpdate }: { data: AboutSection['data']; onUpdate: Update<AboutSection['data']> }) {
+function AboutForm({
+  data,
+  onUpdate,
+}: {
+  data: AboutSection['data'];
+  onUpdate: Update<AboutSection['data']>;
+}) {
   return (
     <div className="space-y-4">
       <FieldWrapper label="Heading">
         <TextInput value={data.heading} onChange={(v) => onUpdate({ heading: v })} />
       </FieldWrapper>
       <FieldWrapper label="Bio">
-        <TextareaInput value={data.bio} onChange={(v) => onUpdate({ bio: v })} placeholder="Tell your story..." rows={6} />
+        <TextareaInput
+          value={data.bio}
+          onChange={(v) => onUpdate({ bio: v })}
+          placeholder="Tell your story..."
+          rows={6}
+        />
       </FieldWrapper>
     </div>
   );
@@ -206,26 +302,48 @@ function AboutForm({ data, onUpdate }: { data: AboutSection['data']; onUpdate: U
 
 // ─── Contact ───────────────────────────────────────────────────────────────
 
-function ContactForm({ data, onUpdate }: { data: ContactSection['data']; onUpdate: Update<ContactSection['data']> }) {
+function ContactForm({
+  data,
+  onUpdate,
+}: {
+  data: ContactSection['data'];
+  onUpdate: Update<ContactSection['data']>;
+}) {
   return (
     <div className="space-y-4">
       <FieldWrapper label="Heading">
         <TextInput value={data.heading} onChange={(v) => onUpdate({ heading: v })} />
       </FieldWrapper>
       <FieldWrapper label="Email">
-        <TextInput value={data.email ?? ''} onChange={(v) => onUpdate({ email: v })} placeholder="you@example.com" />
+        <TextInput
+          value={data.email ?? ''}
+          onChange={(v) => onUpdate({ email: v })}
+          placeholder="you@example.com"
+        />
       </FieldWrapper>
       <FieldWrapper label="Location">
         <TextInput value={data.location ?? ''} onChange={(v) => onUpdate({ location: v })} />
       </FieldWrapper>
       <FieldWrapper label="GitHub URL">
-        <TextInput value={data.socials?.github ?? ''} onChange={(v) => onUpdate({ socials: { ...data.socials, github: v } })} placeholder="https://github.com/..." />
+        <TextInput
+          value={data.socials?.github ?? ''}
+          onChange={(v) => onUpdate({ socials: { ...data.socials, github: v } })}
+          placeholder="https://github.com/..."
+        />
       </FieldWrapper>
       <FieldWrapper label="LinkedIn URL">
-        <TextInput value={data.socials?.linkedin ?? ''} onChange={(v) => onUpdate({ socials: { ...data.socials, linkedin: v } })} placeholder="https://linkedin.com/in/..." />
+        <TextInput
+          value={data.socials?.linkedin ?? ''}
+          onChange={(v) => onUpdate({ socials: { ...data.socials, linkedin: v } })}
+          placeholder="https://linkedin.com/in/..."
+        />
       </FieldWrapper>
       <FieldWrapper label="Twitter / X">
-        <TextInput value={data.socials?.twitter ?? ''} onChange={(v) => onUpdate({ socials: { ...data.socials, twitter: v } })} placeholder="https://twitter.com/..." />
+        <TextInput
+          value={data.socials?.twitter ?? ''}
+          onChange={(v) => onUpdate({ socials: { ...data.socials, twitter: v } })}
+          placeholder="https://twitter.com/..."
+        />
       </FieldWrapper>
       <div className="flex items-center gap-3">
         <input
@@ -235,7 +353,9 @@ function ContactForm({ data, onUpdate }: { data: ContactSection['data']; onUpdat
           onChange={(e) => onUpdate({ showContactForm: e.target.checked })}
           className="w-4 h-4 rounded accent-violet-500"
         />
-        <label htmlFor="showForm" className="text-sm text-slate-400">Show contact form</label>
+        <label htmlFor="showForm" className="text-sm text-slate-400">
+          Show contact form
+        </label>
       </div>
     </div>
   );
@@ -243,7 +363,13 @@ function ContactForm({ data, onUpdate }: { data: ContactSection['data']; onUpdat
 
 // ─── Experience ────────────────────────────────────────────────────────────
 
-function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; onUpdate: Update<ExperienceSection['data']> }) {
+function ExperienceForm({
+  data,
+  onUpdate,
+}: {
+  data: ExperienceSection['data'];
+  onUpdate: Update<ExperienceSection['data']>;
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const items: ExperienceItem[] = data.items ?? [];
@@ -254,7 +380,18 @@ function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; o
 
   const addItem = () => {
     const id = generateId();
-    const newItem: ExperienceItem = { id, company: '', role: '', startDate: '', endDate: '', current: false, description: '', highlights: [], location: '', type: 'full-time' };
+    const newItem: ExperienceItem = {
+      id,
+      company: '',
+      role: '',
+      startDate: '',
+      endDate: '',
+      current: false,
+      description: '',
+      highlights: [],
+      location: '',
+      type: 'full-time',
+    };
     onUpdate({ items: [...items, newItem] });
     setExpandedId(id);
   };
@@ -267,10 +404,16 @@ function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; o
   return (
     <div className="space-y-4">
       <FieldWrapper label="Heading">
-        <TextInput value={data.heading ?? 'Experience'} onChange={(v) => onUpdate({ heading: v })} />
+        <TextInput
+          value={data.heading ?? 'Experience'}
+          onChange={(v) => onUpdate({ heading: v })}
+        />
       </FieldWrapper>
       <FieldWrapper label="Layout">
-        <SelectInput value={data.layout ?? 'timeline'} onChange={(v) => onUpdate({ layout: v as ExperienceSection['data']['layout'] })}>
+        <SelectInput
+          value={data.layout ?? 'timeline'}
+          onChange={(v) => onUpdate({ layout: v as ExperienceSection['data']['layout'] })}
+        >
           <option value="timeline">Timeline</option>
           <option value="cards">Cards</option>
         </SelectInput>
@@ -289,13 +432,24 @@ function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; o
             {expandedId === item.id && (
               <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
                 <FieldWrapper label="Company">
-                  <TextInput value={item.company} onChange={(v) => updateItem(item.id, { company: v })} placeholder="Acme Corp" />
+                  <TextInput
+                    value={item.company}
+                    onChange={(v) => updateItem(item.id, { company: v })}
+                    placeholder="Acme Corp"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Role / Title">
-                  <TextInput value={item.role} onChange={(v) => updateItem(item.id, { role: v })} placeholder="Senior Engineer" />
+                  <TextInput
+                    value={item.role}
+                    onChange={(v) => updateItem(item.id, { role: v })}
+                    placeholder="Senior Engineer"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Type">
-                  <SelectInput value={item.type ?? 'full-time'} onChange={(v) => updateItem(item.id, { type: v as ExperienceItem['type'] })}>
+                  <SelectInput
+                    value={item.type ?? 'full-time'}
+                    onChange={(v) => updateItem(item.id, { type: v as ExperienceItem['type'] })}
+                  >
                     <option value="full-time">Full-time</option>
                     <option value="part-time">Part-time</option>
                     <option value="contract">Contract</option>
@@ -304,27 +458,49 @@ function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; o
                   </SelectInput>
                 </FieldWrapper>
                 <FieldWrapper label="Location">
-                  <TextInput value={item.location ?? ''} onChange={(v) => updateItem(item.id, { location: v })} placeholder="Remote" />
+                  <TextInput
+                    value={item.location ?? ''}
+                    onChange={(v) => updateItem(item.id, { location: v })}
+                    placeholder="Remote"
+                  />
                 </FieldWrapper>
                 <div className="grid grid-cols-2 gap-2">
                   <FieldWrapper label="Start Date">
-                    <TextInput value={item.startDate} onChange={(v) => updateItem(item.id, { startDate: v })} placeholder="Jan 2022" />
+                    <TextInput
+                      value={item.startDate}
+                      onChange={(v) => updateItem(item.id, { startDate: v })}
+                      placeholder="Jan 2022"
+                    />
                   </FieldWrapper>
                   <FieldWrapper label="End Date">
-                    <TextInput value={item.endDate ?? ''} onChange={(v) => updateItem(item.id, { endDate: v })} placeholder="Present" />
+                    <TextInput
+                      value={item.endDate ?? ''}
+                      onChange={(v) => updateItem(item.id, { endDate: v })}
+                      placeholder="Present"
+                    />
                   </FieldWrapper>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={item.current}
-                    onChange={(e) => updateItem(item.id, { current: e.target.checked, endDate: e.target.checked ? '' : item.endDate })}
+                    onChange={(e) =>
+                      updateItem(item.id, {
+                        current: e.target.checked,
+                        endDate: e.target.checked ? '' : item.endDate,
+                      })
+                    }
                     className="w-4 h-4 rounded accent-violet-500"
                   />
                   <span className="text-xs text-slate-400">Currently working here</span>
                 </div>
                 <FieldWrapper label="Description">
-                  <TextareaInput value={item.description ?? ''} onChange={(v) => updateItem(item.id, { description: v })} placeholder="What you did..." rows={3} />
+                  <TextareaInput
+                    value={item.description ?? ''}
+                    onChange={(v) => updateItem(item.id, { description: v })}
+                    placeholder="What you did..."
+                    rows={3}
+                  />
                 </FieldWrapper>
               </div>
             )}
@@ -338,7 +514,13 @@ function ExperienceForm({ data, onUpdate }: { data: ExperienceSection['data']; o
 
 // ─── Education ─────────────────────────────────────────────────────────────
 
-function EducationForm({ data, onUpdate }: { data: EducationSection['data']; onUpdate: Update<EducationSection['data']> }) {
+function EducationForm({
+  data,
+  onUpdate,
+}: {
+  data: EducationSection['data'];
+  onUpdate: Update<EducationSection['data']>;
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const items: EducationItem[] = data.items ?? [];
@@ -349,7 +531,17 @@ function EducationForm({ data, onUpdate }: { data: EducationSection['data']; onU
 
   const addItem = () => {
     const id = generateId();
-    const newItem: EducationItem = { id, institution: '', degree: '', field: '', startDate: '', endDate: '', current: false, gpa: '', description: '' };
+    const newItem: EducationItem = {
+      id,
+      institution: '',
+      degree: '',
+      field: '',
+      startDate: '',
+      endDate: '',
+      current: false,
+      gpa: '',
+      description: '',
+    };
     onUpdate({ items: [...items, newItem] });
     setExpandedId(id);
   };
@@ -378,20 +570,40 @@ function EducationForm({ data, onUpdate }: { data: EducationSection['data']; onU
             {expandedId === item.id && (
               <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
                 <FieldWrapper label="Institution">
-                  <TextInput value={item.institution} onChange={(v) => updateItem(item.id, { institution: v })} placeholder="MIT" />
+                  <TextInput
+                    value={item.institution}
+                    onChange={(v) => updateItem(item.id, { institution: v })}
+                    placeholder="MIT"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Degree">
-                  <TextInput value={item.degree} onChange={(v) => updateItem(item.id, { degree: v })} placeholder="Bachelor of Science" />
+                  <TextInput
+                    value={item.degree}
+                    onChange={(v) => updateItem(item.id, { degree: v })}
+                    placeholder="Bachelor of Science"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Field of Study">
-                  <TextInput value={item.field ?? ''} onChange={(v) => updateItem(item.id, { field: v })} placeholder="Computer Science" />
+                  <TextInput
+                    value={item.field ?? ''}
+                    onChange={(v) => updateItem(item.id, { field: v })}
+                    placeholder="Computer Science"
+                  />
                 </FieldWrapper>
                 <div className="grid grid-cols-2 gap-2">
                   <FieldWrapper label="Start Date">
-                    <TextInput value={item.startDate} onChange={(v) => updateItem(item.id, { startDate: v })} placeholder="Sep 2018" />
+                    <TextInput
+                      value={item.startDate}
+                      onChange={(v) => updateItem(item.id, { startDate: v })}
+                      placeholder="Sep 2018"
+                    />
                   </FieldWrapper>
                   <FieldWrapper label="End Date">
-                    <TextInput value={item.endDate ?? ''} onChange={(v) => updateItem(item.id, { endDate: v })} placeholder="Jun 2022" />
+                    <TextInput
+                      value={item.endDate ?? ''}
+                      onChange={(v) => updateItem(item.id, { endDate: v })}
+                      placeholder="Jun 2022"
+                    />
                   </FieldWrapper>
                 </div>
                 <div className="flex items-center gap-2">
@@ -404,10 +616,19 @@ function EducationForm({ data, onUpdate }: { data: EducationSection['data']; onU
                   <span className="text-xs text-slate-400">Currently studying here</span>
                 </div>
                 <FieldWrapper label="GPA">
-                  <TextInput value={item.gpa ?? ''} onChange={(v) => updateItem(item.id, { gpa: v })} placeholder="3.8 / 4.0" />
+                  <TextInput
+                    value={item.gpa ?? ''}
+                    onChange={(v) => updateItem(item.id, { gpa: v })}
+                    placeholder="3.8 / 4.0"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Description">
-                  <TextareaInput value={item.description ?? ''} onChange={(v) => updateItem(item.id, { description: v })} placeholder="Notable achievements..." rows={2} />
+                  <TextareaInput
+                    value={item.description ?? ''}
+                    onChange={(v) => updateItem(item.id, { description: v })}
+                    placeholder="Notable achievements..."
+                    rows={2}
+                  />
                 </FieldWrapper>
               </div>
             )}
@@ -421,7 +642,13 @@ function EducationForm({ data, onUpdate }: { data: EducationSection['data']; onU
 
 // ─── Projects ──────────────────────────────────────────────────────────────
 
-function ProjectsForm({ data, onUpdate }: { data: ProjectsSection['data']; onUpdate: Update<ProjectsSection['data']> }) {
+function ProjectsForm({
+  data,
+  onUpdate,
+}: {
+  data: ProjectsSection['data'];
+  onUpdate: Update<ProjectsSection['data']>;
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const items: Project[] = data.items ?? [];
@@ -432,7 +659,17 @@ function ProjectsForm({ data, onUpdate }: { data: ProjectsSection['data']; onUpd
 
   const addItem = () => {
     const id = generateId();
-    const newItem: Project = { id, title: '', description: '', tags: [], liveUrl: '', repoUrl: '', featured: false, status: 'completed', year: new Date().getFullYear() };
+    const newItem: Project = {
+      id,
+      title: '',
+      description: '',
+      tags: [],
+      liveUrl: '',
+      repoUrl: '',
+      featured: false,
+      status: 'completed',
+      year: new Date().getFullYear(),
+    };
     onUpdate({ items: [...items, newItem] });
     setExpandedId(id);
   };
@@ -448,11 +685,18 @@ function ProjectsForm({ data, onUpdate }: { data: ProjectsSection['data']; onUpd
         <TextInput value={data.heading ?? 'Projects'} onChange={(v) => onUpdate({ heading: v })} />
       </FieldWrapper>
       <FieldWrapper label="Subheading">
-        <TextInput value={data.subheading ?? ''} onChange={(v) => onUpdate({ subheading: v })} placeholder="Things I've built" />
+        <TextInput
+          value={data.subheading ?? ''}
+          onChange={(v) => onUpdate({ subheading: v })}
+          placeholder="Things I've built"
+        />
       </FieldWrapper>
       <div className="grid grid-cols-2 gap-2">
         <FieldWrapper label="Layout">
-          <SelectInput value={data.layout ?? 'grid'} onChange={(v) => onUpdate({ layout: v as ProjectsSection['data']['layout'] })}>
+          <SelectInput
+            value={data.layout ?? 'grid'}
+            onChange={(v) => onUpdate({ layout: v as ProjectsSection['data']['layout'] })}
+          >
             <option value="grid">Grid</option>
             <option value="list">List</option>
             <option value="masonry">Masonry</option>
@@ -484,30 +728,61 @@ function ProjectsForm({ data, onUpdate }: { data: ProjectsSection['data']; onUpd
             {expandedId === item.id && (
               <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
                 <FieldWrapper label="Title">
-                  <TextInput value={item.title} onChange={(v) => updateItem(item.id, { title: v })} placeholder="My Awesome Project" />
+                  <TextInput
+                    value={item.title}
+                    onChange={(v) => updateItem(item.id, { title: v })}
+                    placeholder="My Awesome Project"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Description">
-                  <TextareaInput value={item.description} onChange={(v) => updateItem(item.id, { description: v })} placeholder="What this project does..." rows={3} />
+                  <TextareaInput
+                    value={item.description}
+                    onChange={(v) => updateItem(item.id, { description: v })}
+                    placeholder="What this project does..."
+                    rows={3}
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Tags (comma-separated)">
                   <TextInput
                     value={(item.tags ?? []).join(', ')}
-                    onChange={(v) => updateItem(item.id, { tags: v.split(',').map((t: string) => t.trim()).filter(Boolean) })}
+                    onChange={(v) =>
+                      updateItem(item.id, {
+                        tags: v
+                          .split(',')
+                          .map((t: string) => t.trim())
+                          .filter(Boolean),
+                      })
+                    }
                     placeholder="React, Node.js, PostgreSQL"
                   />
                 </FieldWrapper>
                 <FieldWrapper label="Live URL">
-                  <TextInput value={item.liveUrl ?? ''} onChange={(v) => updateItem(item.id, { liveUrl: v })} placeholder="https://myproject.com" />
+                  <TextInput
+                    value={item.liveUrl ?? ''}
+                    onChange={(v) => updateItem(item.id, { liveUrl: v })}
+                    placeholder="https://myproject.com"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Repo URL">
-                  <TextInput value={item.repoUrl ?? ''} onChange={(v) => updateItem(item.id, { repoUrl: v })} placeholder="https://github.com/..." />
+                  <TextInput
+                    value={item.repoUrl ?? ''}
+                    onChange={(v) => updateItem(item.id, { repoUrl: v })}
+                    placeholder="https://github.com/..."
+                  />
                 </FieldWrapper>
                 <div className="grid grid-cols-2 gap-2">
                   <FieldWrapper label="Year">
-                    <TextInput value={item.year?.toString() ?? ''} onChange={(v) => updateItem(item.id, { year: parseInt(v) || undefined })} placeholder="2024" />
+                    <TextInput
+                      value={item.year?.toString() ?? ''}
+                      onChange={(v) => updateItem(item.id, { year: parseInt(v) || undefined })}
+                      placeholder="2024"
+                    />
                   </FieldWrapper>
                   <FieldWrapper label="Status">
-                    <SelectInput value={item.status ?? 'completed'} onChange={(v) => updateItem(item.id, { status: v as Project['status'] })}>
+                    <SelectInput
+                      value={item.status ?? 'completed'}
+                      onChange={(v) => updateItem(item.id, { status: v as Project['status'] })}
+                    >
                       <option value="completed">Completed</option>
                       <option value="in-progress">In Progress</option>
                       <option value="archived">Archived</option>
@@ -535,7 +810,13 @@ function ProjectsForm({ data, onUpdate }: { data: ProjectsSection['data']; onUpd
 
 // ─── Skills ────────────────────────────────────────────────────────────────
 
-function SkillsForm({ data, onUpdate }: { data: SkillsSection['data']; onUpdate: Update<SkillsSection['data']> }) {
+function SkillsForm({
+  data,
+  onUpdate,
+}: {
+  data: SkillsSection['data'];
+  onUpdate: Update<SkillsSection['data']>;
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const items: Skill[] = data.items ?? [];
@@ -562,11 +843,18 @@ function SkillsForm({ data, onUpdate }: { data: SkillsSection['data']; onUpdate:
         <TextInput value={data.heading ?? 'Skills'} onChange={(v) => onUpdate({ heading: v })} />
       </FieldWrapper>
       <FieldWrapper label="Subheading">
-        <TextInput value={data.subheading ?? ''} onChange={(v) => onUpdate({ subheading: v })} placeholder="Technologies I work with" />
+        <TextInput
+          value={data.subheading ?? ''}
+          onChange={(v) => onUpdate({ subheading: v })}
+          placeholder="Technologies I work with"
+        />
       </FieldWrapper>
       <div className="grid grid-cols-2 gap-2">
         <FieldWrapper label="Layout">
-          <SelectInput value={data.layout ?? 'tags'} onChange={(v) => onUpdate({ layout: v as SkillsSection['data']['layout'] })}>
+          <SelectInput
+            value={data.layout ?? 'tags'}
+            onChange={(v) => onUpdate({ layout: v as SkillsSection['data']['layout'] })}
+          >
             <option value="tags">Tags</option>
             <option value="bars">Bars</option>
             <option value="grid">Grid</option>
@@ -598,10 +886,18 @@ function SkillsForm({ data, onUpdate }: { data: SkillsSection['data']; onUpdate:
             {expandedId === item.id && (
               <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
                 <FieldWrapper label="Skill Name">
-                  <TextInput value={item.name} onChange={(v) => updateItem(item.id, { name: v })} placeholder="TypeScript" />
+                  <TextInput
+                    value={item.name}
+                    onChange={(v) => updateItem(item.id, { name: v })}
+                    placeholder="TypeScript"
+                  />
                 </FieldWrapper>
                 <FieldWrapper label="Category">
-                  <TextInput value={item.category ?? ''} onChange={(v) => updateItem(item.id, { category: v })} placeholder="Languages" />
+                  <TextInput
+                    value={item.category ?? ''}
+                    onChange={(v) => updateItem(item.id, { category: v })}
+                    placeholder="Languages"
+                  />
                 </FieldWrapper>
                 {(data.showLevels ?? false) && (
                   <FieldWrapper label={`Proficiency: ${item.level ?? 80}%`}>

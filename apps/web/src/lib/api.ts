@@ -27,10 +27,7 @@ function getToken(): string | null {
   return localStorage.getItem('devfolio_access_token');
 }
 
-async function request<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -84,11 +81,9 @@ export const authApi = {
       body: JSON.stringify({ refreshToken }),
     }),
 
-  logout: () =>
-    request<void>('/auth/logout', { method: 'POST' }),
+  logout: () => request<void>('/auth/logout', { method: 'POST' }),
 
-  me: () =>
-    request<UserProfile>('/auth/me'),
+  me: () => request<UserProfile>('/auth/me'),
 
   verifyEmail: (token: string) =>
     request<{ message: string }>('/auth/verify-email', {
@@ -124,14 +119,11 @@ export const portfolioApi = {
       body: JSON.stringify(data),
     }),
 
-  list: () =>
-    request<PortfolioResponse[]>('/portfolios/mine'),
+  list: () => request<PortfolioResponse[]>('/portfolios/mine'),
 
-  getById: (id: string) =>
-    request<PortfolioResponse>(`/portfolios/${id}`),
+  getById: (id: string) => request<PortfolioResponse>(`/portfolios/${id}`),
 
-  getBySlug: (slug: string) =>
-    request<PortfolioResponse>(`/portfolios/by-slug/${slug}`),
+  getBySlug: (slug: string) => request<PortfolioResponse>(`/portfolios/by-slug/${slug}`),
 
   update: (id: string, data: Partial<Portfolio>) =>
     request<PortfolioResponse>(`/portfolios/${id}`, {
@@ -145,8 +137,7 @@ export const portfolioApi = {
   unpublish: (id: string) =>
     request<PortfolioResponse>(`/portfolios/${id}/unpublish`, { method: 'POST' }),
 
-  delete: (id: string) =>
-    request<void>(`/portfolios/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => request<void>(`/portfolios/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Exports ───────────────────────────────────────────────────────────────
@@ -158,8 +149,7 @@ export const exportApi = {
       body: JSON.stringify({ portfolioId }),
     }),
 
-  getStatus: (jobId: string) =>
-    request<ExportJob>(`/exports/${jobId}`),
+  getStatus: (jobId: string) => request<ExportJob>(`/exports/${jobId}`),
 
   listByPortfolio: (portfolioId: string) =>
     request<ExportJob[]>(`/exports/portfolio/${portfolioId}`),
@@ -168,11 +158,9 @@ export const exportApi = {
 // ─── GitHub ────────────────────────────────────────────────────────────────
 
 export const githubApi = {
-  status: () =>
-    request<{ connected: boolean; username?: string }>('/github/status'),
+  status: () => request<{ connected: boolean; username?: string }>('/github/status'),
 
-  repos: () =>
-    request<GitHubRepo[]>('/github/repos'),
+  repos: () => request<GitHubRepo[]>('/github/repos'),
 
   sync: (portfolioId: string, repoIds: number[]) =>
     request<PortfolioResponse>('/github/sync', {
@@ -180,8 +168,7 @@ export const githubApi = {
       body: JSON.stringify({ portfolioId, repoIds }),
     }),
 
-  disconnect: () =>
-    request<void>('/github/disconnect', { method: 'DELETE' }),
+  disconnect: () => request<void>('/github/disconnect', { method: 'DELETE' }),
 };
 
 // ─── Analytics ─────────────────────────────────────────────────────────────
@@ -205,8 +192,7 @@ export const analyticsApi = {
 // ─── Users ─────────────────────────────────────────────────────────────────
 
 export const usersApi = {
-  me: () =>
-    request<UserProfile>('/users/me'),
+  me: () => request<UserProfile>('/users/me'),
 
   update: (data: { name?: string; bio?: string; avatar?: string }) =>
     request<UserProfile>('/users/me', {
@@ -214,15 +200,13 @@ export const usersApi = {
       body: JSON.stringify(data),
     }),
 
-  delete: () =>
-    request<void>('/users/me', { method: 'DELETE' }),
+  delete: () => request<void>('/users/me', { method: 'DELETE' }),
 };
 
 // ─── Themes ────────────────────────────────────────────────────────────────
 
 export const themesApi = {
-  list: () =>
-    request<ThemePreset[]>('/themes'),
+  list: () => request<ThemePreset[]>('/themes'),
 };
 
 export { ApiError };

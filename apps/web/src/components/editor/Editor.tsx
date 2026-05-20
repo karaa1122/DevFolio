@@ -27,7 +27,9 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
   const [showExportPanel, setShowExportPanel] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => { setPublished(isPublished); }, [isPublished]);
+  useEffect(() => {
+    setPublished(isPublished);
+  }, [isPublished]);
 
   useEditorAutoSave();
 
@@ -45,7 +47,10 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
         if (pollRef.current) clearInterval(pollRef.current);
       }
     }, 2000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exportJob?.id, exportJob?.status]);
 
   const handleManualSave = async () => {
@@ -89,8 +94,7 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
 
   if (!portfolio) return null;
 
-  const exportInProgress =
-    exportJob?.status === 'pending' || exportJob?.status === 'processing';
+  const exportInProgress = exportJob?.status === 'pending' || exportJob?.status === 'processing';
 
   return (
     <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
@@ -131,9 +135,7 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
               key={m}
               onClick={() => setMode(m)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${
-                mode === m
-                  ? 'bg-slate-700 text-slate-100'
-                  : 'text-slate-500 hover:text-slate-300'
+                mode === m ? 'bg-slate-700 text-slate-100' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
               {m}
@@ -205,7 +207,10 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
                     Contains index.html, styles.css — host anywhere
                   </p>
                   <button
-                    onClick={() => { setExportJob(null); setShowExportPanel(false); }}
+                    onClick={() => {
+                      setExportJob(null);
+                      setShowExportPanel(false);
+                    }}
                     className="w-full text-xs text-slate-600 hover:text-slate-400 transition-colors"
                   >
                     Dismiss
@@ -214,9 +219,14 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-red-400">Export failed</p>
-                  <p className="text-xs text-slate-500">{exportJob.errorMessage ?? 'Unknown error'}</p>
+                  <p className="text-xs text-slate-500">
+                    {exportJob.errorMessage ?? 'Unknown error'}
+                  </p>
                   <button
-                    onClick={() => { setExportJob(null); handleExport(); }}
+                    onClick={() => {
+                      setExportJob(null);
+                      handleExport();
+                    }}
                     className="w-full text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 py-1.5 rounded-lg transition-colors"
                   >
                     Retry

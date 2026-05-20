@@ -17,6 +17,43 @@ import type { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 
 const CACHE_TTL_SECONDS = 300;
 
+const RESERVED_SLUGS = new Set([
+  'api',
+  'admin',
+  'dashboard',
+  'auth',
+  'login',
+  'logout',
+  'register',
+  'signup',
+  'signin',
+  'profile',
+  'editor',
+  'settings',
+  'account',
+  'portfolio',
+  'portfolios',
+  'export',
+  'exports',
+  'analytics',
+  'health',
+  'status',
+  'docs',
+  'about',
+  'contact',
+  'help',
+  'support',
+  'blog',
+  'terms',
+  'privacy',
+  'legal',
+  'www',
+  'mail',
+  'ftp',
+  'dev',
+  'staging',
+]);
+
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -26,6 +63,8 @@ export class PortfolioService {
   ) {}
 
   async create(userId: string, dto: CreatePortfolioDto): Promise<Portfolio> {
+    if (RESERVED_SLUGS.has(dto.slug)) throw new ConflictException(`Slug "${dto.slug}" is reserved`);
+
     const userPortfolioCount = await this.portfolioRepo.count({ where: { userId } });
     if (userPortfolioCount >= 1) throw new ConflictException('You can only have one portfolio');
 

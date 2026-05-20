@@ -9,14 +9,23 @@ interface Props {
 export function ProjectsSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding = theme.spacing === 'compact' ? '3rem 2rem' : theme.spacing === 'relaxed' ? '6rem 2rem' : '5rem 2rem';
+  const padding =
+    theme.spacing === 'compact'
+      ? '3rem 2rem'
+      : theme.spacing === 'relaxed'
+        ? '6rem 2rem'
+        : '5rem 2rem';
 
-  const items = data.showFeaturedOnly
-    ? data.items.filter((p) => p.featured)
-    : data.items;
+  const items = data.showFeaturedOnly ? data.items.filter((p) => p.featured) : data.items;
 
   const getBorderRadius = () => {
-    const map: Record<string, string> = { none: '0', sm: '6px', md: '10px', lg: '16px', full: '20px' };
+    const map: Record<string, string> = {
+      none: '0',
+      sm: '6px',
+      md: '10px',
+      lg: '16px',
+      full: '20px',
+    };
     return map[theme.radius] ?? '10px';
   };
 
@@ -55,7 +64,12 @@ export function ProjectsSection({ section, theme }: Props) {
           style={{
             display: data.layout === 'list' ? 'flex' : 'grid',
             flexDirection: data.layout === 'list' ? 'column' : undefined,
-            gridTemplateColumns: data.layout === 'grid' ? 'repeat(auto-fill, minmax(320px, 1fr))' : data.layout === 'masonry' ? 'repeat(auto-fill, minmax(280px, 1fr))' : undefined,
+            gridTemplateColumns:
+              data.layout === 'grid'
+                ? 'repeat(auto-fill, minmax(320px, 1fr))'
+                : data.layout === 'masonry'
+                  ? 'repeat(auto-fill, minmax(280px, 1fr))'
+                  : undefined,
             gap: '1.5rem',
           }}
         >
@@ -85,23 +99,60 @@ export function ProjectsSection({ section, theme }: Props) {
                 />
               )}
               <div style={{ padding: '1.5rem', flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: colors.foreground, margin: 0 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: '1.125rem',
+                      fontWeight: '700',
+                      color: colors.foreground,
+                      margin: 0,
+                    }}
+                  >
                     {project.title}
                   </h3>
                   {project.featured && (
-                    <span style={{ backgroundColor: `${colors.primary}20`, color: colors.primary, padding: '0.125rem 0.5rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '600' }}>
+                    <span
+                      style={{
+                        backgroundColor: `${colors.primary}20`,
+                        color: colors.primary,
+                        padding: '0.125rem 0.5rem',
+                        borderRadius: '999px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                      }}
+                    >
                       Featured
                     </span>
                   )}
                 </div>
 
-                <p style={{ color: colors.muted, fontSize: '0.875rem', lineHeight: '1.6', marginBottom: '1rem' }}>
+                <p
+                  style={{
+                    color: colors.muted,
+                    fontSize: '0.875rem',
+                    lineHeight: '1.6',
+                    marginBottom: '1rem',
+                  }}
+                >
                   {project.description}
                 </p>
 
                 {project.tags.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '1rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.375rem',
+                      marginBottom: '1rem',
+                    }}
+                  >
                     {project.tags.map((tag) => (
                       <span
                         key={tag}
@@ -125,7 +176,12 @@ export function ProjectsSection({ section, theme }: Props) {
                       href={project.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: colors.primary, fontSize: '0.875rem', fontWeight: '600', textDecoration: 'none' }}
+                      style={{
+                        color: colors.primary,
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        textDecoration: 'none',
+                      }}
                     >
                       Live Demo ↗
                     </a>

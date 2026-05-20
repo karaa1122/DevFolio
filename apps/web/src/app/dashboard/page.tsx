@@ -13,16 +13,18 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 export default function DashboardPage() {
   const router = useRouter();
   const { portfolios, isLoading, mutate } = usePortfolioList();
-  const { data: githubStatus, mutate: mutateGithub } = useSWR(
-    '/github/status',
-    githubApi.status,
-    { revalidateOnFocus: false },
-  );
+  const { data: githubStatus, mutate: mutateGithub } = useSWR('/github/status', githubApi.status, {
+    revalidateOnFocus: false,
+  });
 
   const [creating, setCreating] = useState(false);
 
   const handleLogout = async () => {
-    try { await authApi.logout(); } catch { /* expired token is fine */ }
+    try {
+      await authApi.logout();
+    } catch {
+      /* expired token is fine */
+    }
     localStorage.removeItem('devfolio_access_token');
     localStorage.removeItem('devfolio_refresh_token');
     router.push('/login');
@@ -63,7 +65,10 @@ export default function DashboardPage() {
             <Link href="/dashboard" className="text-slate-200 text-sm font-medium">
               Dashboard
             </Link>
-            <Link href="/profile" className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors">
+            <Link
+              href="/profile"
+              className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
+            >
               Profile
             </Link>
             <button
@@ -106,7 +111,9 @@ export default function DashboardPage() {
               <div className="flex gap-3">
                 <div className="flex-1">
                   <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-                    <span className="text-slate-500 text-sm pl-4 pr-1 whitespace-nowrap">devfolioapp.cloud/</span>
+                    <span className="text-slate-500 text-sm pl-4 pr-1 whitespace-nowrap">
+                      devfolioapp.cloud/
+                    </span>
                     <input
                       type="text"
                       value={newSlug}
@@ -176,7 +183,8 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="text-xs text-slate-600 mb-5">
-                    {portfolio.data?.sections?.length ?? 0} sections · v{portfolio.data?.version ?? 1}
+                    {portfolio.data?.sections?.length ?? 0} sections · v
+                    {portfolio.data?.version ?? 1}
                   </div>
 
                   <div className="flex gap-2">
@@ -202,12 +210,11 @@ export default function DashboardPage() {
           )}
         </div>
 
-
         {/* GitHub section */}
         <div>
           <h2 className="text-xl font-bold text-slate-100 mb-1">GitHub</h2>
           <p className="text-slate-500 text-sm mb-4">
-            Connect once here, then import repos inside the editor's{' '}
+            Connect once here, then import repos inside the editor&apos;s{' '}
             <span className="text-violet-400 font-medium">GitHub tab</span>.
           </p>
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
@@ -238,9 +245,12 @@ export default function DashboardPage() {
             ) : (
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-200">Connect your GitHub account</p>
+                  <p className="text-sm font-semibold text-slate-200">
+                    Connect your GitHub account
+                  </p>
                   <p className="text-xs text-slate-500 mt-1 max-w-sm">
-                    Import your repositories as portfolio projects automatically — stars, language, description included.
+                    Import your repositories as portfolio projects automatically — stars, language,
+                    description included.
                   </p>
                 </div>
                 <a
@@ -257,4 +267,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

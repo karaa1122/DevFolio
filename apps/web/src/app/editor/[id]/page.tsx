@@ -41,11 +41,5 @@ export default function EditorPage() {
     );
   }
 
-  return (
-    <Editor
-      portfolioId={id}
-      isPublished={portfolio.isPublished}
-      onPublishChange={mutate}
-    />
-  );
+  return <Editor portfolioId={id} isPublished={portfolio.isPublished} onPublishChange={mutate} />;
 }

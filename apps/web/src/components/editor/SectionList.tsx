@@ -111,8 +111,15 @@ export function SectionList() {
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">
             Active Sections
           </p>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={orderedSections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={orderedSections.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
               {orderedSections.map((section) => (
                 <SortableSectionRow
                   key={section.id}

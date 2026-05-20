@@ -18,7 +18,12 @@ const socialLinks = [
 export function ContactSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding = theme.spacing === 'compact' ? '3rem 2rem' : theme.spacing === 'relaxed' ? '6rem 2rem' : '5rem 2rem';
+  const padding =
+    theme.spacing === 'compact'
+      ? '3rem 2rem'
+      : theme.spacing === 'relaxed'
+        ? '6rem 2rem'
+        : '5rem 2rem';
 
   return (
     <section
@@ -26,31 +31,78 @@ export function ContactSection({ section, theme }: Props) {
       style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
     >
       <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', marginBottom: '1rem' }}>
+        <h2
+          style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+            fontWeight: '700',
+            marginBottom: '1rem',
+          }}
+        >
           {data.heading}
         </h2>
         {data.subheading && (
-          <p style={{ color: colors.muted, marginBottom: '1rem', fontSize: '1.1rem' }}>{data.subheading}</p>
+          <p style={{ color: colors.muted, marginBottom: '1rem', fontSize: '1.1rem' }}>
+            {data.subheading}
+          </p>
         )}
-        <div style={{ width: '3rem', height: '4px', backgroundColor: colors.primary, margin: '0 auto 3rem', borderRadius: '2px' }} />
+        <div
+          style={{
+            width: '3rem',
+            height: '4px',
+            backgroundColor: colors.primary,
+            margin: '0 auto 3rem',
+            borderRadius: '2px',
+          }}
+        />
 
         {/* Contact info */}
-        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '2rem', marginBottom: '2.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: '2rem',
+            marginBottom: '2.5rem',
+          }}
+        >
           {data.email && (
             <a
               href={`mailto:${data.email}`}
-              style={{ color: colors.muted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}
+              style={{
+                color: colors.muted,
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.95rem',
+              }}
             >
               <span style={{ color: colors.primary }}>✉</span> {data.email}
             </a>
           )}
           {data.phone && (
-            <span style={{ color: colors.muted, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+            <span
+              style={{
+                color: colors.muted,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.95rem',
+              }}
+            >
               <span style={{ color: colors.primary }}>📞</span> {data.phone}
             </span>
           )}
           {data.location && (
-            <span style={{ color: colors.muted, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+            <span
+              style={{
+                color: colors.muted,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.95rem',
+              }}
+            >
               <span style={{ color: colors.primary }}>📍</span> {data.location}
             </span>
           )}
@@ -58,7 +110,15 @@ export function ContactSection({ section, theme }: Props) {
 
         {/* Social links */}
         {data.socials && Object.values(data.socials).some(Boolean) && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              marginBottom: '2.5rem',
+              flexWrap: 'wrap',
+            }}
+          >
             {socialLinks.map(({ key, label, icon }) => {
               const href = data.socials?.[key];
               if (!href) return null;
@@ -108,7 +168,16 @@ export function ContactSection({ section, theme }: Props) {
           >
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', color: colors.muted, fontSize: '0.85rem', marginBottom: '0.375rem' }}>Name</label>
+                <label
+                  style={{
+                    display: 'block',
+                    color: colors.muted,
+                    fontSize: '0.85rem',
+                    marginBottom: '0.375rem',
+                  }}
+                >
+                  Name
+                </label>
                 <input
                   type="text"
                   placeholder="Your name"
@@ -125,7 +194,16 @@ export function ContactSection({ section, theme }: Props) {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', color: colors.muted, fontSize: '0.85rem', marginBottom: '0.375rem' }}>Email</label>
+                <label
+                  style={{
+                    display: 'block',
+                    color: colors.muted,
+                    fontSize: '0.85rem',
+                    marginBottom: '0.375rem',
+                  }}
+                >
+                  Email
+                </label>
                 <input
                   type="email"
                   placeholder="your@email.com"
@@ -143,7 +221,16 @@ export function ContactSection({ section, theme }: Props) {
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: colors.muted, fontSize: '0.85rem', marginBottom: '0.375rem' }}>Message</label>
+              <label
+                style={{
+                  display: 'block',
+                  color: colors.muted,
+                  fontSize: '0.85rem',
+                  marginBottom: '0.375rem',
+                }}
+              >
+                Message
+              </label>
               <textarea
                 placeholder="Your message..."
                 rows={5}

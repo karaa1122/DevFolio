@@ -58,7 +58,6 @@ const initialState: EditorState = {
 export const useEditorStore = create<EditorStore>()(
   temporal(
     immer<EditorStore>((set) => ({
-
       ...initialState,
 
       setPortfolio: (portfolio) =>

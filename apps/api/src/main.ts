@@ -22,7 +22,7 @@ async function bootstrap() {
   // Dev fallbacks are intentionally weak; if they reach production the app
   // is completely insecure.
   if (isProd) {
-    const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL'];
+    const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL', 'IP_HASH_SALT'];
     const missing = required.filter((k) => !process.env[k]);
     if (missing.length) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);

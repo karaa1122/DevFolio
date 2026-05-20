@@ -77,7 +77,11 @@ describe('AuthService', () => {
       userRepo.create.mockReturnValue(user);
       userRepo.save.mockResolvedValue(user);
 
-      const result = await service.register({ name: 'Test', email: 'test@example.com', password: 'pass123' });
+      const result = await service.register({
+        name: 'Test',
+        email: 'test@example.com',
+        password: 'pass123',
+      });
 
       expect(result).toHaveProperty('message');
       expect(typeof result.message).toBe('string');

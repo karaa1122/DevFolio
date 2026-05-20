@@ -9,7 +9,12 @@ interface Props {
 export function AboutSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding = theme.spacing === 'compact' ? '3rem 2rem' : theme.spacing === 'relaxed' ? '6rem 2rem' : '5rem 2rem';
+  const padding =
+    theme.spacing === 'compact'
+      ? '3rem 2rem'
+      : theme.spacing === 'relaxed'
+        ? '6rem 2rem'
+        : '5rem 2rem';
 
   return (
     <section
@@ -98,7 +103,16 @@ export function AboutSection({ section, theme }: Props) {
               alt={data.heading}
               style={{
                 width: '100%',
-                borderRadius: theme.radius === 'none' ? '0' : theme.radius === 'sm' ? '8px' : theme.radius === 'md' ? '12px' : theme.radius === 'lg' ? '20px' : '50%',
+                borderRadius:
+                  theme.radius === 'none'
+                    ? '0'
+                    : theme.radius === 'sm'
+                      ? '8px'
+                      : theme.radius === 'md'
+                        ? '12px'
+                        : theme.radius === 'lg'
+                          ? '20px'
+                          : '50%',
                 objectFit: 'cover',
                 maxHeight: '400px',
               }}
