@@ -5,12 +5,17 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { PortfolioService } from './portfolio.service';
 import { Portfolio } from '../../database/entities/portfolio.entity';
 
+const USER_UUID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+const PORTFOLIO_UUID = 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12';
+const OTHER_USER_UUID = 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13';
+const DATA_UUID = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15';
+
 const mockPortfolioEntity = (overrides: Partial<Portfolio> = {}): Portfolio => ({
-  id: 'portfolio-uuid',
+  id: PORTFOLIO_UUID,
   slug: 'test-user',
-  userId: 'user-uuid',
+  userId: USER_UUID,
   data: {
-    id: 'data-uuid',
+    id: DATA_UUID,
     slug: 'test-user',
     version: 1,
     theme: { colors: {} as any, font: 'inter', radius: 'md', darkMode: true, spacing: 'normal' },
@@ -67,7 +72,7 @@ describe('PortfolioService', () => {
       portfolioRepo.create.mockReturnValue(entity);
       portfolioRepo.save.mockResolvedValue(entity);
 
-      const result = await service.create('user-uuid', { slug: 'test-user' });
+      const result = await service.create(USER_UUID, { slug: 'test-user' });
 
       expect(result.slug).toBe('test-user');
     });
@@ -75,7 +80,7 @@ describe('PortfolioService', () => {
     it('enforces 1-portfolio-per-user limit', async () => {
       portfolioRepo.count.mockResolvedValue(1);
 
-      await expect(service.create('user-uuid', { slug: 'second-portfolio' })).rejects.toThrow(
+      await expect(service.create(USER_UUID, { slug: 'second-portfolio' })).rejects.toThrow(
         ConflictException,
       );
     });
@@ -84,7 +89,7 @@ describe('PortfolioService', () => {
       portfolioRepo.count.mockResolvedValue(0);
       portfolioRepo.findOne.mockResolvedValue(mockPortfolioEntity());
 
-      await expect(service.create('user-uuid', { slug: 'taken-slug' })).rejects.toThrow(
+      await expect(service.create(USER_UUID, { slug: 'taken-slug' })).rejects.toThrow(
         ConflictException,
       );
     });
@@ -94,21 +99,21 @@ describe('PortfolioService', () => {
     it('returns the portfolio when found and user matches', async () => {
       portfolioRepo.findOne.mockResolvedValue(mockPortfolioEntity());
 
-      const result = await service.findById('portfolio-uuid', 'user-uuid');
+      const result = await service.findById(PORTFOLIO_UUID, USER_UUID);
 
-      expect(result.id).toBe('portfolio-uuid');
+      expect(result.id).toBe(PORTFOLIO_UUID);
     });
 
     it('throws NotFoundException when portfolio does not exist', async () => {
       portfolioRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findById('bad-id', 'user-uuid')).rejects.toThrow(NotFoundException);
+      await expect(service.findById(PORTFOLIO_UUID, USER_UUID)).rejects.toThrow(NotFoundException);
     });
 
     it('throws ForbiddenException when portfolio belongs to another user', async () => {
-      portfolioRepo.findOne.mockResolvedValue(mockPortfolioEntity({ userId: 'other-user' }));
+      portfolioRepo.findOne.mockResolvedValue(mockPortfolioEntity({ userId: OTHER_USER_UUID }));
 
-      await expect(service.findById('portfolio-uuid', 'user-uuid')).rejects.toThrow(
+      await expect(service.findById(PORTFOLIO_UUID, USER_UUID)).rejects.toThrow(
         ForbiddenException,
       );
     });
@@ -139,7 +144,7 @@ describe('PortfolioService', () => {
       portfolioRepo.findOne.mockResolvedValue(entity);
       portfolioRepo.save.mockResolvedValue({ ...entity, isPublished: true });
 
-      const result = await service.publish('portfolio-uuid', 'user-uuid');
+      const result = await service.publish(PORTFOLIO_UUID, USER_UUID);
 
       expect(result.isPublished).toBe(true);
     });
@@ -149,7 +154,7 @@ describe('PortfolioService', () => {
       portfolioRepo.findOne.mockResolvedValue(entity);
       portfolioRepo.save.mockResolvedValue({ ...entity, isPublished: false });
 
-      const result = await service.unpublish('portfolio-uuid', 'user-uuid');
+      const result = await service.unpublish(PORTFOLIO_UUID, USER_UUID);
 
       expect(result.isPublished).toBe(false);
     });

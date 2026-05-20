@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { EmailService } from './email.service';
+import { EncryptionService } from '../../common/services/encryption.service';
 import { User } from '../../database/entities/user.entity';
 
 const mockUser = (overrides: Partial<User> = {}): User => ({
@@ -55,6 +56,11 @@ describe('AuthService', () => {
     sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
   };
 
+  const encryptionService = {
+    encrypt: jest.fn().mockReturnValue('encrypted'),
+    decrypt: jest.fn().mockReturnValue('decrypted'),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -63,6 +69,7 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: jwtService },
         { provide: ConfigService, useValue: configService },
         { provide: EmailService, useValue: emailService },
+        { provide: EncryptionService, useValue: encryptionService },
       ],
     }).compile();
 
@@ -144,10 +151,11 @@ describe('AuthService', () => {
   describe('logout', () => {
     it('clears the refresh token hash', async () => {
       userRepo.update.mockResolvedValue({});
+      const userId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
 
-      await service.logout('user-uuid');
+      await service.logout(userId);
 
-      expect(userRepo.update).toHaveBeenCalledWith('user-uuid', { refreshTokenHash: null });
+      expect(userRepo.update).toHaveBeenCalledWith(userId, { refreshTokenHash: null });
     });
   });
 });
