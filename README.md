@@ -528,23 +528,6 @@ Contributions are welcome. Here's how to get involved without losing your mind.
 | Docs | `docs/description` |
 | Refactor | `refactor/description` |
 
-### Coding standards
-
-- TypeScript everywhere — no `any` unless you have a very good excuse
-- Zod for validation at boundaries — don't invent your own validation logic
-- No raw SQL — use TypeORM query builder or entities
-- Keep PRs focused — one thing per PR is always better than a 3,000-line diff
-
-### Good first issues
-
-Not sure where to start? Look for issues tagged:
-- `good first issue` — scoped, well-defined, low risk
-- `help wanted` — we know what needs doing but haven't gotten to it
-- `docs` — documentation improvements, always appreciated
-
-No contribution is too small. Fixing a typo in the README counts.
-
----
 
 ## License
 
