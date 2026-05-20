@@ -33,7 +33,7 @@ jobs:
         run: pnpm --filter @devfolio/api type-check
 
       - name: Unit tests
-        run: pnpm --filter @devfolio/api test --passWithNoTests
+        run: pnpm --filter @devfolio/api test -- --passWithNoTests
 
   web:
     name: Web — type-check & build
@@ -85,8 +85,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build shared package
-        run: pnpm --filter @devfolio/shared build
+      - name: Build shared packages
+        run: pnpm --filter @devfolio/shared build && pnpm --filter @devfolio/renderer build
 
       - name: Type-check
         run: pnpm --filter @devfolio/export-worker type-check
