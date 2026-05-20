@@ -11,11 +11,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "type-check": "tsc --noEmit",
-    "migration:run": "typeorm migration:run -d dist/database/data-source.js",
-    "migration:run:dev": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+    "migration:run": "sh -c 'if [ -f src/database/migrate.ts ]; then ts-node src/database/migrate.ts; else node dist/database/migrate.js; fi'",
+    "migration:revert": "sh -c 'if [ -f src/database/migrate.ts ]; then ts-node src/database/migrate.ts revert; else node dist/database/migrate.js revert; fi'",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate src/database/migrations/Migration -d src/database/data-source.ts",
-    "migration:revert": "typeorm migration:revert -d dist/database/data-source.js",
-    "migration:revert:dev": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts"
+    "migration:create": "sh -c 'typeorm-ts-node-commonjs migration:create src/database/migrations/${1:-Migration}' sh"
   },
   "dependencies": {
     "@devfolio/shared": "workspace:*",

@@ -21,8 +21,5 @@ export const AppDataSource = new DataSource({
   entities: [User, Portfolio, ExportJob, AnalyticsEvent],
   migrations: migrationsPath,
   synchronize: false,
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });

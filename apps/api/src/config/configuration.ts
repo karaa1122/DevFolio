@@ -5,6 +5,7 @@ export default () => ({
   },
   database: {
     url: process.env.DATABASE_URL ?? 'postgresql://devfolio:devfolio@localhost:5432/devfolio',
+    ssl: process.env.DATABASE_SSL === 'true',
   },
   redis: {
     url: process.env.REDIS_URL ?? 'redis://localhost:6379',

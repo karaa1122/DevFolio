@@ -33,7 +33,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
         synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         logging: cfg.get<string>('app.env') === 'development',
-        ssl: cfg.get<string>('app.env') === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: cfg.get<string>('database.ssl') ? { rejectUnauthorized: false } : false,
       }),
     }),
 

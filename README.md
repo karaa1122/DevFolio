@@ -145,9 +145,17 @@ The rest of the defaults (database URL, Redis, ports) work out of the box with D
 docker compose up postgres redis -d
 ```
 
-This starts PostgreSQL on port `5432` and Redis on port `6379`. The API will create all tables automatically on first run (TypeORM `synchronize: true` in development — yes, we know, migrations exist for production).
+This starts PostgreSQL on port `15432` (host) and Redis on port `6379`.
 
-### Step 4 — Run everything
+### Step 4 — Run migrations
+
+```bash
+pnpm --filter @devfolio/api migration:run
+```
+
+This applies all pending migrations to your local database. Run this once on first setup, and again any time you pull changes that include new migration files.
+
+### Step 5 — Run everything
 
 ```bash
 pnpm dev
@@ -162,7 +170,7 @@ Turborepo starts all services in parallel:
 | **Swagger** | http://localhost:3001/api/docs | Interactive API docs |
 | **Export Worker** | (background) | Processes export jobs from BullMQ |
 
-### Step 5 — Create your account
+### Step 6 — Create your account
 
 1. Go to http://localhost:3000
 2. Click **Register** — fill in name, email, password
@@ -182,6 +190,12 @@ docker compose up --build -d
 ```
 
 All 5 services start with proper health checks and restart policies. The web app will be at http://localhost:3000.
+
+**Run migrations after the first build** (postgres is exposed on port `15432`):
+
+```bash
+DATABASE_URL=postgresql://devfolio:devfolio@localhost:15432/devfolio pnpm --filter @devfolio/api migration:run
+```
 
 To check logs:
 
@@ -247,19 +261,24 @@ Once you've created a portfolio:
 
 ## Database Migrations
 
-In development, TypeORM auto-syncs the schema. In production, run migrations manually:
+Migrations are never run automatically — always run them manually. All commands work against your local DB by default (uses `DATABASE_URL` from `.env`).
 
 ```bash
-cd apps/api
+# Apply all pending migrations
+pnpm --filter @devfolio/api migration:run
 
-# Run pending migrations
-pnpm migration:run
+# Generate a migration file from entity changes
+pnpm --filter @devfolio/api migration:generate -- --name DescribeYourChange
 
-# Generate a new migration after changing an entity
-pnpm migration:generate
+# Create an empty migration file to write manually
+pnpm --filter @devfolio/api migration:create -- DescribeYourChange
+# omit the name to get a timestamped default: migration:create
+
+# Revert the last applied migration
+pnpm --filter @devfolio/api migration:revert
 ```
 
-The initial migration (`1700000000000-InitialSchema.ts`) creates all tables and indexes from scratch. Run it when setting up a fresh production database.
+Migration files live in `apps/api/src/database/migrations/` and are always prefixed with a timestamp (e.g. `1748000000000-AddUserTable.ts`). Commit them — they are the source of truth for your schema.
 
 ---
 
@@ -293,7 +312,7 @@ apps/api/src/
 │   └── analytics/      Event tracking, per-portfolio stats
 ├── database/
 │   ├── entities/       TypeORM entities (User, Portfolio, ExportJob, AnalyticsEvent)
-│   ├── migrations/     SQL migrations
+│   ├── migrations/     Migration files (timestamped, committed to source control)
 │   └── data-source.ts  TypeORM DataSource for CLI
 └── common/
     ├── guards/         JwtAuthGuard, ThrottlerGuard (global)
