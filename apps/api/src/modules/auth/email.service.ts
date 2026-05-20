@@ -7,7 +7,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly resend: Resend;
   private readonly fromEmail: string;
-  private readonly enabled: boolean;
+  readonly enabled: boolean;
   private readonly frontendUrl: string;
 
   constructor(private readonly configService: ConfigService) {

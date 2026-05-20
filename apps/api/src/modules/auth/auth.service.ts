@@ -51,22 +51,31 @@ export class AuthService {
     const emailVerificationToken = randomBytes(32).toString('hex');
     const emailVerificationTokenExpiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS);
 
+    const emailDisabled = !this.emailService.enabled;
+
     const user = this.userRepo.create({
       email: dto.email,
       name: dto.name,
       passwordHash,
-      emailVerificationToken,
-      emailVerificationTokenExpiresAt,
+      isEmailVerified: emailDisabled,
+      emailVerificationToken: emailDisabled ? null as unknown as string : emailVerificationToken,
+      emailVerificationTokenExpiresAt: emailDisabled ? null as unknown as Date : emailVerificationTokenExpiresAt,
     });
     await this.userRepo.save(user);
 
-    this.emailService
-      .sendVerificationEmail(user.email, user.name, emailVerificationToken)
-      .catch((err) =>
-        this.logger.error(`Verification email failed for ${user.email}: ${err.message}`),
-      );
+    if (!emailDisabled) {
+      this.emailService
+        .sendVerificationEmail(user.email, user.name, emailVerificationToken)
+        .catch((err) =>
+          this.logger.error(`Verification email failed for ${user.email}: ${err.message}`),
+        );
+    }
 
-    return { message: 'Account created. Check your email to verify before signing in.' };
+    return {
+      message: emailDisabled
+        ? 'Account created. You can sign in immediately.'
+        : 'Account created. Check your email to verify before signing in.',
+    };
   }
 
   async login(dto: LoginDto): Promise<AuthTokens & { user: Partial<User> }> {
