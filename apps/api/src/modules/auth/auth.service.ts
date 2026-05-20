@@ -20,10 +20,19 @@ import type { AuthTokens } from '@devfolio/shared';
 
 const SALT_ROUNDS = 12;
 const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const OAUTH_CODE_TTL_MS = 30_000; // 30 seconds — one-time use
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+interface OAuthCodeEntry {
+  tokens: AuthTokens & { user: Partial<User> };
+  expiresAt: number;
+}
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly oauthCodes = new Map<string, OAuthCodeEntry>();
 
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
@@ -60,8 +69,28 @@ export class AuthService {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (!user || !user.passwordHash) throw new UnauthorizedException('Invalid credentials');
 
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      const seconds = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 1000);
+      throw new UnauthorizedException(`Account locked. Try again in ${seconds} seconds.`);
+    }
+
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    if (!valid) {
+      const attempts = (user.failedLoginAttempts ?? 0) + 1;
+      const lockout = attempts >= MAX_FAILED_ATTEMPTS
+        ? { lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS) }
+        : {};
+      await this.userRepo.update(user.id, { failedLoginAttempts: attempts, ...lockout });
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Reset lockout on successful credential check (before email verification gate)
+    if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+      await this.userRepo.update(user.id, {
+        failedLoginAttempts: 0,
+        lockedUntil: null as unknown as Date,
+      });
+    }
 
     if (!user.isEmailVerified) {
       // Regenerate token if missing or expired, then resend
@@ -253,5 +282,25 @@ export class AuthService {
       ...rest
     } = user;
     return rest;
+  }
+
+  createOAuthCode(tokens: AuthTokens & { user: Partial<User> }): string {
+    const code = randomBytes(32).toString('hex');
+    this.oauthCodes.set(code, { tokens, expiresAt: Date.now() + OAUTH_CODE_TTL_MS });
+    // Clean up expired codes lazily to avoid memory leaks
+    for (const [k, v] of this.oauthCodes) {
+      if (v.expiresAt < Date.now()) this.oauthCodes.delete(k);
+    }
+    return code;
+  }
+
+  exchangeOAuthCode(code: string): AuthTokens & { user: Partial<User> } {
+    const entry = this.oauthCodes.get(code);
+    if (!entry || entry.expiresAt < Date.now()) {
+      this.oauthCodes.delete(code);
+      throw new UnauthorizedException('Invalid or expired OAuth code');
+    }
+    this.oauthCodes.delete(code);
+    return entry.tokens;
   }
 }

@@ -1,3 +1,17 @@
+const WEAK_JWT_SECRET = 'dev-secret-change-in-production';
+const WEAK_JWT_REFRESH_SECRET = 'dev-refresh-secret-change-in-production';
+
+if (process.env.NODE_ENV === 'production') {
+  const jwtSecret = process.env.JWT_SECRET;
+  const jwtRefresh = process.env.JWT_REFRESH_SECRET;
+  if (!jwtSecret || jwtSecret === WEAK_JWT_SECRET) {
+    throw new Error('JWT_SECRET must be set to a strong random value in production');
+  }
+  if (!jwtRefresh || jwtRefresh === WEAK_JWT_REFRESH_SECRET) {
+    throw new Error('JWT_REFRESH_SECRET must be set to a strong random value in production');
+  }
+}
+
 export default () => ({
   app: {
     env: process.env.NODE_ENV ?? 'development',

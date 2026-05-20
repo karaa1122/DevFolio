@@ -1,6 +1,6 @@
 import {
   Controller, Post, Get, Param, UseGuards, Body,
-  Res, NotFoundException, StreamableFile,
+  Res, NotFoundException, ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,7 +11,6 @@ import JSZip = require('jszip');
 import { ExportService } from './export.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
 import { ExportJob } from '../../database/entities/export-job.entity';
 import { Portfolio } from '../../database/entities/portfolio.entity';
 import type { User } from '../../database/entities/user.entity';
@@ -46,19 +45,16 @@ export class ExportController {
   }
 
   // Must be defined before :id to avoid route shadowing
-  @Public()
   @Get('download/:filename')
   @ApiOperation({ summary: 'Download a ZIP file by filename (new format)' })
   async downloadByFilename(
+    @CurrentUser() user: User,
     @Param('filename') filename: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // Fallback: look up by filename pattern portfolioId in job
-    // For the new worker format: filename = portfolio-{slug}-{jobId}.zip
-    // We regenerate on-demand since there's no shared disk between containers
     const jobIdMatch = filename.match(/portfolio-.+-([0-9a-f-]{36})\.zip$/);
     if (!jobIdMatch) throw new NotFoundException('Invalid filename');
-    return this.streamZipForJob(jobIdMatch[1], filename, res);
+    return this.streamZipForJob(jobIdMatch[1], filename, res, user.id);
   }
 
   @Get(':id')
@@ -67,24 +63,25 @@ export class ExportController {
     return this.exportService.findJobById(id, user.id);
   }
 
-  @Public()
   @Get(':id/download')
   @ApiOperation({ summary: 'Download an exported portfolio as a ZIP' })
   async downloadById(
+    @CurrentUser() user: User,
     @Param('id') jobId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.streamZipForJob(jobId, `portfolio-export-${jobId}.zip`, res);
+    return this.streamZipForJob(jobId, `portfolio-export-${jobId}.zip`, res, user.id);
   }
 
   // ─── Shared ZIP generation ───────────────────────────────────────────────
 
-  private async streamZipForJob(jobId: string, _zipName: string, res: Response) {
+  private async streamZipForJob(jobId: string, _zipName: string, res: Response, requestingUserId: string) {
     const job = await this.exportJobRepo.findOne({ where: { id: jobId } });
     if (!job) throw new NotFoundException('Export job not found');
 
     const entity = await this.portfolioRepo.findOne({ where: { id: job.portfolioId } });
     if (!entity) throw new NotFoundException('Portfolio not found');
+    if (entity.userId !== requestingUserId) throw new ForbiddenException('Access denied');
 
     const zipBuffer = await buildPortfolioZip(entity.data);
 

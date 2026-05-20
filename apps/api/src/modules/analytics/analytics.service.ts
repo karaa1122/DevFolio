@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
+import { createHash } from 'crypto';
 import type { Request } from 'express';
 import { AnalyticsEvent } from '../../database/entities/analytics-event.entity';
 import { Portfolio } from '../../database/entities/portfolio.entity';
@@ -26,13 +27,20 @@ export class AnalyticsService {
     });
     if (!exists) return;
 
+    const rawIp = req.ip ?? '';
+    // One-way hash — preserves uniqueness for visitor counting without storing PII
+    const hashedIp = createHash('sha256')
+      .update(rawIp + (process.env.IP_HASH_SALT ?? 'devfolio-ip-salt'))
+      .digest('hex')
+      .slice(0, 16);
+
     const event = this.eventRepo.create({
       portfolioId: dto.portfolioId,
       type: dto.type,
       sectionId: dto.sectionId,
       referrer: req.headers['referer'],
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
+      userAgent: (req.headers['user-agent'] ?? '').slice(0, 200),
+      ip: hashedIp,
       metadata: dto.metadata,
     });
     await this.eventRepo.save(event);

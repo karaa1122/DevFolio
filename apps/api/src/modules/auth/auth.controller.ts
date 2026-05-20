@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Req,
   Res,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
@@ -133,8 +134,20 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   @ApiOperation({ summary: 'GitHub OAuth callback' })
   async githubCallback(@Req() req: Request, @Res() res: Response) {
-    const tokens = req.user as { accessToken: string };
+    const tokens = req.user as ReturnType<typeof this.authService.sanitizeUser> & { accessToken: string; refreshToken: string; expiresIn: number };
     const frontendUrl = this.configService.get<string>('frontend.url') ?? 'http://localhost:3000';
-    res.redirect(`${frontendUrl}/auth/callback?token=${tokens.accessToken}`);
+    // Issue a short-lived one-time code instead of passing the token in the URL.
+    // The frontend calls POST /auth/github/exchange within 30 s to swap it for real tokens.
+    const code = this.authService.createOAuthCode(tokens as any);
+    res.redirect(`${frontendUrl}/auth/callback?code=${code}`);
+  }
+
+  @Public()
+  @Post('github/exchange')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: 'Exchange a one-time OAuth code for tokens (30 s TTL)' })
+  exchangeOAuthCode(@Query('code') code: string) {
+    return this.authService.exchangeOAuthCode(code);
   }
 }

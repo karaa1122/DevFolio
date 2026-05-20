@@ -55,6 +55,12 @@ export class User {
   @Column({ nullable: true })
   refreshTokenHash: string;
 
+  @Column({ default: 0 })
+  failedLoginAttempts: number;
+
+  @Column({ nullable: true })
+  lockedUntil: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
