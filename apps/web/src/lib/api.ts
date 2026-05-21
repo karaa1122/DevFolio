@@ -6,6 +6,7 @@ import type {
   PortfolioAnalytics,
   GitHubRepo,
   ThemePreset,
+  Resume,
 } from '@devfolio/shared';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -226,6 +227,41 @@ export const usersApi = {
 
 export const themesApi = {
   list: () => request<ThemePreset[]>('/themes'),
+};
+
+// ─── Resumes ───────────────────────────────────────────────────────────────
+
+export interface ResumeRecord {
+  id: string;
+  userId: string;
+  portfolioId?: string;
+  data: Resume;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const resumeApi = {
+  create: (data: { title?: string; portfolioId?: string }) =>
+    request<ResumeRecord>('/resumes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  list: () => request<ResumeRecord[]>('/resumes'),
+
+  getById: (id: string) => request<ResumeRecord>(`/resumes/${id}`),
+
+  update: (id: string, data: Partial<Resume>) =>
+    request<ResumeRecord>(`/resumes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ data }),
+    }),
+
+  delete: (id: string) => request<void>(`/resumes/${id}`, { method: 'DELETE' }),
+
+  export: (id: string) => request<ExportJob>(`/resumes/${id}/export`, { method: 'POST' }),
+
+  listExports: (id: string) => request<ExportJob[]>(`/resumes/${id}/exports`),
 };
 
 export { ApiError };

@@ -16,9 +16,15 @@ export class ExportJob {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ default: 'portfolio' })
+  type: 'portfolio' | 'resume';
+
   @Index()
-  @Column()
+  @Column({ nullable: true })
   portfolioId: string;
+
+  @Column({ nullable: true })
+  resumeId: string;
 
   @Index()
   @Column({
@@ -46,7 +52,7 @@ export class ExportJob {
   @Column({ nullable: true })
   completedAt: Date;
 
-  @ManyToOne(() => Portfolio, (portfolio) => portfolio.exportJobs, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Portfolio, (portfolio) => portfolio.exportJobs, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'portfolioId' })
   portfolio: Portfolio;
 }

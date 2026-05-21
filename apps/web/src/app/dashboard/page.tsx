@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePortfolioList } from '@/hooks/usePortfolio';
-import { portfolioApi, githubApi, authApi } from '@/lib/api';
+import { portfolioApi, githubApi, authApi, resumeApi, type ResumeRecord } from '@/lib/api';
 import { slugify } from '@/lib/utils';
 import useSWR from 'swr';
 
@@ -17,7 +17,14 @@ export default function DashboardPage() {
     revalidateOnFocus: false,
   });
 
+  const { data: resumes, isLoading: resumesLoading, mutate: mutateResumes } = useSWR(
+    'resumes',
+    resumeApi.list,
+    { revalidateOnFocus: false },
+  );
+
   const [creating, setCreating] = useState(false);
+  const [creatingResume, setCreatingResume] = useState(false);
   const [editingSlugId, setEditingSlugId] = useState<string | null>(null);
   const [slugInput, setSlugInput] = useState('');
   const [slugError, setSlugError] = useState('');
@@ -74,6 +81,29 @@ export default function DashboardPage() {
   const handleDisconnectGithub = async () => {
     await githubApi.disconnect();
     mutateGithub();
+  };
+
+  const handleCreateResume = async (portfolioId?: string) => {
+    setCreatingResume(true);
+    try {
+      const record = await resumeApi.create({ title: 'My Resume', portfolioId });
+      await mutateResumes();
+      router.push(`/resume/${record.id}`);
+    } catch (err) {
+      console.error('Failed to create resume:', err);
+    } finally {
+      setCreatingResume(false);
+    }
+  };
+
+  const handleDeleteResume = async (id: string) => {
+    if (!confirm('Delete this resume?')) return;
+    try {
+      await resumeApi.delete(id);
+      await mutateResumes();
+    } catch (err) {
+      console.error('Failed to delete resume:', err);
+    }
   };
 
   return (
@@ -271,6 +301,104 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Resumes section */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-100">My Resumes</h2>
+              <p className="text-slate-400 mt-1 text-sm">Build ATS-friendly PDF resumes</p>
+            </div>
+            <button
+              onClick={() => handleCreateResume()}
+              disabled={creatingResume}
+              className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              {creatingResume ? 'Creating...' : '+ New Resume'}
+            </button>
+          </div>
+
+          {resumesLoading ? (
+            <div className="text-center py-10 text-slate-500">Loading...</div>
+          ) : !resumes?.length ? (
+            <div className="text-center py-16 border-2 border-dashed border-slate-800 rounded-2xl">
+              <div className="text-4xl mb-4">📄</div>
+              <h3 className="text-lg font-bold text-slate-300 mb-2">No resumes yet</h3>
+              <p className="text-slate-500 mb-6 text-sm">
+                Create a blank resume or import sections from your portfolio
+              </p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <button
+                  onClick={() => handleCreateResume()}
+                  disabled={creatingResume}
+                  className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  Start blank
+                </button>
+                {portfolios.length > 0 && (
+                  <button
+                    onClick={() => handleCreateResume(portfolios[0].id)}
+                    disabled={creatingResume}
+                    className="border border-slate-700 hover:border-violet-600 text-slate-300 hover:text-violet-400 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+                  >
+                    Import from portfolio
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(resumes as ResumeRecord[]).map((record) => (
+                <div
+                  key={record.id}
+                  className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-violet-800/50 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-slate-100">{record.data?.title ?? 'Resume'}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {record.data?.sections?.length ?? 0} sections ·{' '}
+                        {record.data?.theme?.template ?? 'classic'}
+                      </p>
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-500 font-medium shrink-0">
+                      PDF
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 mb-4">
+                    Updated {new Date(record.updatedAt).toLocaleDateString()}
+                  </p>
+
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/resume/${record.id}`}
+                      className="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium py-2 rounded-lg transition-colors"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteResume(record.id)}
+                      className="text-slate-600 hover:text-red-400 border border-slate-800 hover:border-red-900 text-sm px-3 py-2 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                onClick={() => handleCreateResume()}
+                disabled={creatingResume}
+                className="border-2 border-dashed border-slate-800 hover:border-violet-800/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-violet-400 transition-all disabled:opacity-50"
+              >
+                <span className="text-2xl">+</span>
+                <span className="text-sm font-medium">New Resume</span>
+              </button>
             </div>
           )}
         </div>

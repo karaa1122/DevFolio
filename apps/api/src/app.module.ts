@@ -15,10 +15,12 @@ import { ExportModule } from './modules/export/export.module';
 import { GithubModule } from './modules/github/github.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
+import { ResumeModule } from './modules/resume/resume.module';
 import { User } from './database/entities/user.entity';
 import { Portfolio } from './database/entities/portfolio.entity';
 import { ExportJob } from './database/entities/export-job.entity';
 import { AnalyticsEvent } from './database/entities/analytics-event.entity';
+import { Resume } from './database/entities/resume.entity';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
       useFactory: (cfg: ConfigService) => ({
         type: 'postgres',
         url: cfg.get<string>('database.url'),
-        entities: [User, Portfolio, ExportJob, AnalyticsEvent],
+        entities: [User, Portfolio, ExportJob, AnalyticsEvent, Resume],
         synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         logging: cfg.get<string>('app.env') === 'development',
@@ -82,6 +84,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
     GithubModule,
     AnalyticsModule,
     HealthModule,
+    ResumeModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

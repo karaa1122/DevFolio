@@ -138,5 +138,30 @@ export interface ThemePreset {
   theme: Theme;
 }
 
+// ─── Resume Response ────────────────────────────────────────────────────────
+
+export interface ResumeResponse {
+  id: string;
+  userId: string;
+  portfolioId?: string;
+  data: import('../schema/resume').Resume;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Re-export from schema for convenience
 export type { Portfolio, Section, Theme, SectionType } from '../schema/portfolio';
+export type {
+  Resume,
+  ResumeTheme,
+  ResumeSection,
+  ResumeSectionType,
+  ResumeSummarySection,
+  ResumeExperienceSection,
+  ResumeEducationSection,
+  ResumeSkillsSection,
+  ResumeProjectsSection,
+  ResumeCertificationsSection,
+  ResumeContactSection,
+  ResumeCertification,
+} from '../schema/resume';
