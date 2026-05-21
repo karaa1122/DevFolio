@@ -33,6 +33,7 @@ services:
     restart: unless-stopped
 
   api:
+    image: ${IMAGE_API:-devfolio-api}
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -59,6 +60,7 @@ services:
     restart: unless-stopped
 
   web:
+    image: ${IMAGE_WEB:-devfolio-web}
     build:
       context: .
       dockerfile: apps/web/Dockerfile

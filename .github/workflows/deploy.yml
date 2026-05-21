@@ -4,10 +4,59 @@ on:
   push:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_WEB: ghcr.io/${{ github.repository_owner }}/devfolio-web
+  IMAGE_API: ghcr.io/${{ github.repository_owner }}/devfolio-api
+
 jobs:
+  build-and-push:
+    name: Build & push images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push web
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_WEB }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+
+      - name: Build & push api
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_API }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
+    needs: build-and-push
 
     steps:
       - name: Deploy via SSH
@@ -20,7 +69,7 @@ jobs:
             cd ~/DevFolio
             git fetch origin main
             git reset --hard origin/main
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }} \
-            docker compose up --build -d
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            IMAGE_WEB=${{ env.IMAGE_WEB }}:latest IMAGE_API=${{ env.IMAGE_API }}:latest docker compose pull
+            IMAGE_WEB=${{ env.IMAGE_WEB }}:latest IMAGE_API=${{ env.IMAGE_API }}:latest docker compose up -d --no-build
             docker compose exec -T api node dist/database/migrate.js
