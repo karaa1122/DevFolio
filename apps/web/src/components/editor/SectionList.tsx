@@ -142,7 +142,7 @@ export function SectionList() {
             <button
               key={type}
               onClick={() => handleAddSection(type)}
-              disabled={type === 'hero' && existingTypes.has('hero')}
+              disabled={(['hero', 'about', 'contact', 'skills'] as SectionType[]).includes(type) && existingTypes.has(type)}
               className="flex items-center gap-2 p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-700 hover:border-violet-700 rounded-lg text-left transition-colors text-xs"
             >
               <span>{SECTION_ICONS[type]}</span>

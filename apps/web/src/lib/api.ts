@@ -150,6 +150,12 @@ export const portfolioApi = {
   unpublish: (id: string) =>
     request<PortfolioResponse>(`/portfolios/${id}/unpublish`, { method: 'POST' }),
 
+  updateSlug: (id: string, slug: string) =>
+    request<PortfolioResponse>(`/portfolios/${id}/slug`, {
+      method: 'PATCH',
+      body: JSON.stringify({ slug }),
+    }),
+
   delete: (id: string) => request<void>(`/portfolios/${id}`, { method: 'DELETE' }),
 };
 

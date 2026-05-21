@@ -18,6 +18,31 @@ export default function DashboardPage() {
   });
 
   const [creating, setCreating] = useState(false);
+  const [editingSlugId, setEditingSlugId] = useState<string | null>(null);
+  const [slugInput, setSlugInput] = useState('');
+  const [slugError, setSlugError] = useState('');
+  const [slugSaving, setSlugSaving] = useState(false);
+
+  const startEditSlug = (id: string, current: string) => {
+    setEditingSlugId(id);
+    setSlugInput(current);
+    setSlugError('');
+  };
+
+  const saveSlug = async (id: string) => {
+    if (!slugInput.trim() || slugInput === '') return;
+    setSlugSaving(true);
+    setSlugError('');
+    try {
+      await portfolioApi.updateSlug(id, slugInput.trim());
+      await mutate();
+      setEditingSlugId(null);
+    } catch (err: unknown) {
+      setSlugError(err instanceof Error ? err.message : 'Failed to update slug');
+    } finally {
+      setSlugSaving(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -161,13 +186,55 @@ export default function DashboardPage() {
                   className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-violet-800/50 transition-all"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div>
+                    <div className="flex-1 min-w-0 mr-3">
                       <h3 className="font-bold text-slate-100 text-lg">
                         {portfolio.data?.metadata?.title ?? portfolio.data?.slug}
                       </h3>
-                      <p className="text-violet-400 text-sm font-mono mt-0.5">
-                        devfolioapp.cloud/{portfolio.data?.slug}
-                      </p>
+                      {editingSlugId === portfolio.id ? (
+                        <div className="mt-1.5">
+                          <div className="flex items-center bg-slate-800 border border-violet-500 rounded-lg overflow-hidden text-sm">
+                            <span className="text-slate-500 pl-2.5 pr-1 whitespace-nowrap">devfolioapp.cloud/</span>
+                            <input
+                              autoFocus
+                              value={slugInput}
+                              onChange={(e) => setSlugInput(slugify(e.target.value))}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') saveSlug(portfolio.id);
+                                if (e.key === 'Escape') setEditingSlugId(null);
+                              }}
+                              className="flex-1 bg-transparent py-1.5 pr-2 text-slate-100 focus:outline-none min-w-0"
+                            />
+                          </div>
+                          {slugError && <p className="text-red-400 text-xs mt-1">{slugError}</p>}
+                          <div className="flex gap-2 mt-1.5">
+                            <button
+                              onClick={() => saveSlug(portfolio.id)}
+                              disabled={slugSaving || !slugInput}
+                              className="text-xs bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-3 py-1 rounded-md transition-colors"
+                            >
+                              {slugSaving ? 'Saving…' : 'Save'}
+                            </button>
+                            <button
+                              onClick={() => setEditingSlugId(null)}
+                              className="text-xs text-slate-500 hover:text-slate-300 px-2 py-1 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => startEditSlug(portfolio.id, portfolio.data?.slug ?? '')}
+                          className="group flex items-center gap-1.5 mt-0.5"
+                        >
+                          <span className="text-violet-400 text-sm font-mono">
+                            devfolioapp.cloud/{portfolio.data?.slug}
+                          </span>
+                          <svg className="w-3 h-3 text-slate-600 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${

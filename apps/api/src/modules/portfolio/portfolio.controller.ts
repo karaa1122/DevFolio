@@ -14,6 +14,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger'
 import { PortfolioService } from './portfolio.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
+import { UpdateSlugDto } from './dto/update-slug.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
@@ -54,6 +55,14 @@ export class PortfolioController {
   @ApiOperation({ summary: 'Update portfolio JSON' })
   update(@CurrentUser() user: User, @Param('id') id: string, @Body() dto: UpdatePortfolioDto) {
     return this.portfolioService.update(id, user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Patch(':id/slug')
+  @ApiOperation({ summary: 'Update portfolio slug' })
+  updateSlug(@CurrentUser() user: User, @Param('id') id: string, @Body() dto: UpdateSlugDto) {
+    return this.portfolioService.updateSlug(id, user.id, dto.slug);
   }
 
   @UseGuards(JwtAuthGuard)

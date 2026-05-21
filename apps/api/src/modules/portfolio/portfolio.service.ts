@@ -112,6 +112,24 @@ export class PortfolioService {
     return portfolio;
   }
 
+  async updateSlug(id: string, userId: string, newSlug: string): Promise<Portfolio> {
+    if (RESERVED_SLUGS.has(newSlug)) throw new ConflictException(`Slug "${newSlug}" is reserved`);
+
+    const existing = await this.portfolioRepo.findOne({ where: { slug: newSlug } });
+    if (existing && existing.id !== id) throw new ConflictException(`Slug "${newSlug}" is already taken`);
+
+    const portfolio = await this.findById(id, userId);
+    const oldSlug = portfolio.slug;
+
+    portfolio.slug = newSlug;
+    portfolio.data = { ...portfolio.data, slug: newSlug };
+
+    const saved = await this.portfolioRepo.save(portfolio);
+    await this.invalidateCache(oldSlug);
+    await this.invalidateCache(newSlug);
+    return saved;
+  }
+
   async update(id: string, userId: string, dto: UpdatePortfolioDto): Promise<Portfolio> {
     const portfolio = await this.findById(id, userId);
 

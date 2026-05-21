@@ -145,6 +145,39 @@ function TextareaInput({
   );
 }
 
+function TagsInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string[];
+  onChange: (tags: string[]) => void;
+  placeholder?: string;
+}) {
+  const [raw, setRaw] = useState(value.join(', '));
+
+  const parse = (str: string) =>
+    str.split(',').map((t) => t.trim()).filter(Boolean);
+
+  return (
+    <input
+      type="text"
+      value={raw}
+      onChange={(e) => {
+        setRaw(e.target.value);
+        onChange(parse(e.target.value));
+      }}
+      onBlur={() => {
+        const tags = parse(raw);
+        setRaw(tags.join(', '));
+        onChange(tags);
+      }}
+      placeholder={placeholder}
+      className={inputCls}
+    />
+  );
+}
+
 function SelectInput({
   value,
   onChange,
@@ -743,16 +776,9 @@ function ProjectsForm({
                   />
                 </FieldWrapper>
                 <FieldWrapper label="Tags (comma-separated)">
-                  <TextInput
-                    value={(item.tags ?? []).join(', ')}
-                    onChange={(v) =>
-                      updateItem(item.id, {
-                        tags: v
-                          .split(',')
-                          .map((t: string) => t.trim())
-                          .filter(Boolean),
-                      })
-                    }
+                  <TagsInput
+                    value={item.tags ?? []}
+                    onChange={(tags) => updateItem(item.id, { tags })}
                     placeholder="React, Node.js, PostgreSQL"
                   />
                 </FieldWrapper>
