@@ -34,7 +34,9 @@ export interface UserProfile {
   name: string;
   avatar?: string;
   bio?: string;
+  githubId?: string;
   githubUsername?: string;
+  googleId?: string;
   isEmailVerified: boolean;
   createdAt: string;
   updatedAt: string;

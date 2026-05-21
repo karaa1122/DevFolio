@@ -8,6 +8,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'github.com' },
       { protocol: 'https', hostname: '*.cloudinary.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: '*.googleusercontent.com' },
     ],
   },
   async headers() {

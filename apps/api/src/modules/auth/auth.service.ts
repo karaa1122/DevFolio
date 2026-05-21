@@ -227,6 +227,35 @@ export class AuthService {
     await this.userRepo.update(userId, { refreshTokenHash: null as unknown as string });
   }
 
+  async findOrCreateGoogleUser(profile: {
+    googleId: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  }): Promise<AuthTokens & { user: Partial<User> }> {
+    let user = await this.userRepo.findOne({ where: { googleId: profile.googleId } });
+
+    if (!user) {
+      user = await this.userRepo.findOne({ where: { email: profile.email } });
+      if (user) {
+        user.googleId = profile.googleId;
+      } else {
+        user = this.userRepo.create({
+          email: profile.email,
+          name: profile.name,
+          avatar: profile.avatar,
+          googleId: profile.googleId,
+          isEmailVerified: true,
+        });
+      }
+      await this.userRepo.save(user);
+    }
+
+    const tokens = await this.generateTokens(user);
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+    return { ...tokens, user: this.sanitizeUser(user) };
+  }
+
   async findOrCreateGithubUser(profile: {
     githubId: string;
     username: string;

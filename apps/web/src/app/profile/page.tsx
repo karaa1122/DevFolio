@@ -161,14 +161,29 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs text-slate-500 mb-1.5">Avatar URL</label>
-                <input
-                  type="url"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
-                  placeholder="https://github.com/yourname.png"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
-                />
+                <label className="block text-xs text-slate-500 mb-1.5">Profile Photo</label>
+                {(user?.googleId || user?.githubId) && avatar ? (
+                  <div className="flex items-center justify-between bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5">
+                    <span className="text-xs text-slate-400">
+                      Synced from {user?.googleId ? 'Google' : 'GitHub'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAvatar('')}
+                      className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <input
+                    type="url"
+                    value={avatar}
+                    onChange={(e) => setAvatar(e.target.value)}
+                    placeholder="https://example.com/photo.png"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
+                  />
+                )}
               </div>
 
               <div className="flex items-center gap-3 pt-2">

@@ -159,7 +159,25 @@ export class AuthController {
   async githubCallback(@Req() req: Request, @Res() res: Response) {
     const tokens = req.user as AuthTokens & { user: Partial<User> };
     const frontendUrl = this.configService.get<string>('frontend.url') ?? 'http://localhost:3000';
-    // Issue a short-lived one-time code; frontend calls POST /auth/github/exchange within 30 s.
+    const code = this.authService.createOAuthCode(tokens);
+    res.redirect(`${frontendUrl}/auth/callback?code=${code}`);
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Initiate Google OAuth flow' })
+  googleAuth() {
+    // Handled by passport
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const tokens = req.user as AuthTokens & { user: Partial<User> };
+    const frontendUrl = this.configService.get<string>('frontend.url') ?? 'http://localhost:3000';
     const code = this.authService.createOAuthCode(tokens);
     res.redirect(`${frontendUrl}/auth/callback?code=${code}`);
   }

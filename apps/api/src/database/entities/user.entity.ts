@@ -37,6 +37,9 @@ export class User {
   @Column({ nullable: true })
   githubAccessToken: string;
 
+  @Column({ nullable: true })
+  googleId: string;
+
   @Column({ default: false })
   isEmailVerified: boolean;
 

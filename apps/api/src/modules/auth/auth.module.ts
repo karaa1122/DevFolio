@@ -8,6 +8,7 @@ import { EmailService } from './email.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { EncryptionService } from '../../common/services/encryption.service';
 import { User } from '../../database/entities/user.entity';
 
@@ -19,7 +20,7 @@ import { User } from '../../database/entities/user.entity';
     ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailService, JwtStrategy, GithubStrategy, EncryptionService],
+  providers: [AuthService, EmailService, JwtStrategy, GithubStrategy, GoogleStrategy, EncryptionService],
   exports: [AuthService, EncryptionService],
 })
 export class AuthModule {}

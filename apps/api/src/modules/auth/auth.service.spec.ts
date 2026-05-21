@@ -20,6 +20,7 @@ const mockUser = (overrides: Partial<User> = {}): User => ({
   githubId: null as unknown as string,
   githubUsername: null as unknown as string,
   githubAccessToken: null as unknown as string,
+  googleId: null as unknown as string,
   isEmailVerified: true,
   emailVerificationToken: null as unknown as string,
   emailVerificationTokenExpiresAt: null as unknown as Date,
