@@ -12,9 +12,15 @@
     "type-check": "turbo run type-check",
     "docker:up": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:down": "docker-compose -f docker-compose.dev.yml down",
-    "docker:prod": "docker-compose up -d"
+    "docker:prod": "docker-compose up -d",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:report": "playwright show-report e2e/report",
+    "e2e:seed": "npx tsx e2e/setup/seed-test-user.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^20.19.41",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",

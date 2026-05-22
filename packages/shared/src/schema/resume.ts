@@ -11,8 +11,33 @@ import {
 export const ResumeThemeSchema = z.object({
   template: z.enum(['classic', 'modern', 'minimal']).default('classic'),
   accent: z.string().default('#2563eb'),
-  font: z.enum(['inter', 'georgia', 'roboto']).default('inter'),
-  fontSize: z.enum(['compact', 'normal', 'comfortable']).default('normal'),
+
+  // Typography
+  font: z.string().default('inter'),
+  fontSize: z.number().min(7).max(18).default(11.5),
+  lineHeight: z.number().min(1.0).max(2.5).default(1.55),
+
+  // Spacing (px for preview; marginH/V converted to mm for PDF)
+  marginH: z.number().min(10).max(80).default(52),
+  marginV: z.number().min(10).max(80).default(48),
+  entrySpacing: z.number().min(0).max(32).default(11),
+
+  // Section heading style
+  headingStyle: z.enum([
+    'underline',   // colored line below text
+    'overline',    // colored line above text
+    'filled',      // accent background, white text
+    'leftbar',     // left accent border
+    'simple',      // bold only, no decoration
+    'double',      // double bottom border
+    'dashed',      // dashed underline
+    'none',        // plain text
+  ]).default('underline'),
+  headingSize: z.enum(['xs', 's', 'm', 'l']).default('s'),
+  headingCase: z.enum(['normal', 'capitalize', 'uppercase']).default('uppercase'),
+  headingAlign: z.enum(['left', 'center']).default('left'),
+
+  // Page
   pageSize: z.enum(['a4', 'letter']).default('a4'),
 });
 
@@ -93,12 +118,27 @@ export const ResumeContactSectionSchema = z.object({
   visible: z.boolean().default(true),
   data: z.object({
     name: z.string().default(''),
+    title: z.string().optional(),
     email: z.string().optional(),
     phone: z.string().optional(),
     location: z.string().optional(),
     website: z.string().optional(),
     linkedin: z.string().optional(),
     github: z.string().optional(),
+
+    // Profile photo (base64 data URL)
+    photo: z.string().optional(),
+    photoShape: z.enum(['circle', 'square', 'rounded']).default('circle'),
+    photoPosition: z.enum(['left', 'right']).default('right'),
+
+    // Extra personal details
+    dob: z.string().optional(),
+    nationality: z.string().optional(),
+    maritalStatus: z.string().optional(),
+    availability: z.string().optional(),
+
+    // Layout
+    nameAlign: z.enum(['left', 'center']).default('center'),
   }),
 });
 

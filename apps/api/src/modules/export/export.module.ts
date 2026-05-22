@@ -6,10 +6,11 @@ import { ExportController } from './export.controller';
 import { ExportProcessor, EXPORT_QUEUE } from './export.processor';
 import { ExportJob } from '../../database/entities/export-job.entity';
 import { Portfolio } from '../../database/entities/portfolio.entity';
+import { Resume } from '../../database/entities/resume.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ExportJob, Portfolio]),
+    TypeOrmModule.forFeature([ExportJob, Portfolio, Resume]),
     BullModule.registerQueue({ name: EXPORT_QUEUE }),
   ],
   controllers: [ExportController],

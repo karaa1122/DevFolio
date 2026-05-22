@@ -31,7 +31,7 @@ export class ResumeService {
 
   async create(userId: string, dto: CreateResumeDto): Promise<ResumeEntity> {
     const existing = await this.resumeRepo.count({ where: { userId } });
-    if (existing >= 10) throw new ConflictException('Maximum 10 resumes per user');
+    if (existing >= 1) throw new ConflictException('Only one resume is allowed per account. Edit or delete your existing resume.');
 
     const sections: ResumeSection[] = [];
     const sectionsOrder: string[] = [];
@@ -49,7 +49,7 @@ export class ResumeService {
       const eduId = uuidv4();
       const skillsId = uuidv4();
       sections.push(
-        { id: contactId, type: 'contact', visible: true, data: { name: '', email: '', phone: '', location: '', website: '', linkedin: '', github: '' } },
+        { id: contactId, type: 'contact', visible: true, data: { name: '', email: '', phone: '', location: '', website: '', linkedin: '', github: '', photoShape: 'circle' as const, photoPosition: 'right' as const, nameAlign: 'center' as const } },
         { id: summaryId, type: 'summary', visible: true, data: { heading: 'Professional Summary', text: '' } },
         { id: expId, type: 'experience', visible: true, data: { heading: 'Experience', items: [] } },
         { id: eduId, type: 'education', visible: true, data: { heading: 'Education', items: [] } },
@@ -143,7 +143,7 @@ export class ResumeService {
     order: string[],
   ): void {
     const contactId = uuidv4();
-    out.push({ id: contactId, type: 'contact', visible: true, data: { name: '', email: '', phone: '', location: '' } });
+    out.push({ id: contactId, type: 'contact', visible: true, data: { name: '', email: '', phone: '', location: '', photoShape: 'circle' as const, photoPosition: 'right' as const, nameAlign: 'center' as const } });
     order.push(contactId);
 
     const summaryId = uuidv4();

@@ -468,7 +468,7 @@ function ExperienceForm({
                   <TextInput
                     value={item.company}
                     onChange={(v) => updateItem(item.id, { company: v })}
-                    placeholder="Acme Corp"
+                    placeholder="Google"
                   />
                 </FieldWrapper>
                 <FieldWrapper label="Role / Title">

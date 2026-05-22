@@ -46,6 +46,8 @@ services:
       REDIS_HOST: redis
     ports:
       - '3001:3001'
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy

@@ -14,14 +14,19 @@ import { Repository } from 'typeorm';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import type { Response } from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
 import JSZip from 'jszip';
 import { ExportService } from './export.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ExportJob } from '../../database/entities/export-job.entity';
 import { Portfolio } from '../../database/entities/portfolio.entity';
+import { Resume } from '../../database/entities/resume.entity';
 import type { User } from '../../database/entities/user.entity';
 import type { Portfolio as PortfolioData } from '@devfolio/shared';
+
+const UPLOADS_DIR = process.env.STORAGE_LOCAL_PATH ?? path.join(process.cwd(), 'uploads');
 
 class CreateExportJobDto {
   @IsString()
@@ -37,6 +42,7 @@ export class ExportController {
     private readonly exportService: ExportService,
     @InjectRepository(ExportJob) private readonly exportJobRepo: Repository<ExportJob>,
     @InjectRepository(Portfolio) private readonly portfolioRepo: Repository<Portfolio>,
+    @InjectRepository(Resume) private readonly resumeRepo: Repository<Resume>,
   ) {}
 
   @Post()
@@ -53,15 +59,19 @@ export class ExportController {
 
   // Must be defined before :id to avoid route shadowing
   @Get('download/:filename')
-  @ApiOperation({ summary: 'Download a ZIP file by filename (new format)' })
+  @ApiOperation({ summary: 'Download a ZIP or PDF export file by filename' })
   async downloadByFilename(
     @CurrentUser() user: User,
     @Param('filename') filename: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const jobIdMatch = filename.match(/portfolio-.+-([0-9a-f-]{36})\.zip$/);
-    if (!jobIdMatch) throw new NotFoundException('Invalid filename');
-    return this.streamZipForJob(jobIdMatch[1], filename, res, user.id);
+    const zipMatch = filename.match(/portfolio-.+-([0-9a-f-]{36})\.zip$/);
+    if (zipMatch) return this.streamZipForJob(zipMatch[1], filename, res, user.id);
+
+    const pdfMatch = filename.match(/^resume-([0-9a-f-]{36})\.pdf$/);
+    if (pdfMatch) return this.streamPdfForJob(pdfMatch[1], filename, res, user.id);
+
+    throw new NotFoundException('Invalid filename');
   }
 
   @Get(':id')
@@ -78,6 +88,35 @@ export class ExportController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.streamZipForJob(jobId, `portfolio-export-${jobId}.zip`, res, user.id);
+  }
+
+  // ─── PDF serving ─────────────────────────────────────────────────────────
+
+  private async streamPdfForJob(
+    jobId: string,
+    filename: string,
+    res: Response,
+    requestingUserId: string,
+  ) {
+    const job = await this.exportJobRepo.findOne({ where: { id: jobId } });
+    if (!job || job.type !== 'resume' || job.status !== 'completed') {
+      throw new NotFoundException('PDF not found');
+    }
+
+    const resume = await this.resumeRepo.findOne({ where: { id: job.resumeId } });
+    if (!resume) throw new NotFoundException('Resume not found');
+    if (resume.userId !== requestingUserId) throw new ForbiddenException('Access denied');
+
+    const filePath = path.join(UPLOADS_DIR, filename);
+    if (!fs.existsSync(filePath)) throw new NotFoundException('PDF file not found');
+
+    const stat = fs.statSync(filePath);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="resume-${resume.data.title ?? 'export'}.pdf"`,
+      'Content-Length': stat.size,
+    });
+    fs.createReadStream(filePath).pipe(res as unknown as NodeJS.WritableStream);
   }
 
   // ─── Shared ZIP generation ───────────────────────────────────────────────

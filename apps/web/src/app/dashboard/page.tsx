@@ -84,6 +84,9 @@ export default function DashboardPage() {
   };
 
   const handleCreateResume = async (portfolioId?: string) => {
+    // If resume already exists, navigate to it
+    const existing = (resumes as ResumeRecord[] | undefined)?.[0];
+    if (existing) { router.push(`/resume/${existing.id}`); return; }
     setCreatingResume(true);
     try {
       const record = await resumeApi.create({ title: 'My Resume', portfolioId });
