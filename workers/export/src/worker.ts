@@ -2,12 +2,20 @@ import { Worker, type Job } from 'bullmq';
 import { Pool } from 'pg';
 import IORedis from 'ioredis';
 import { processExport } from './processors/export.processor';
-import type { Portfolio } from '@devfolio/shared';
+import { processResumePdfExport } from './processors/resume-pdf.processor';
+import { closeBrowser } from './pdf/browser';
+import type { Portfolio, Resume } from '@devfolio/shared';
 
-const QUEUE_NAME = 'export-portfolio';
+const PORTFOLIO_QUEUE = 'export-portfolio';
+const RESUME_PDF_QUEUE = 'export-resume-pdf';
 
-interface ExportJobData {
+interface PortfolioExportJobData {
   portfolioId: string;
+  exportJobId: string;
+}
+
+interface ResumePdfJobData {
+  resumeId: string;
   exportJobId: string;
 }
 
@@ -34,6 +42,12 @@ async function getPortfolio(portfolioId: string): Promise<Portfolio> {
   return result.rows[0].data as Portfolio;
 }
 
+async function getResume(resumeId: string): Promise<Resume> {
+  const result = await db.query('SELECT data FROM resumes WHERE id = $1', [resumeId]);
+  if (result.rows.length === 0) throw new Error(`Resume ${resumeId} not found`);
+  return result.rows[0].data as Resume;
+}
+
 async function updateExportJob(
   jobId: string,
   status: 'processing' | 'completed' | 'failed',
@@ -56,19 +70,16 @@ async function updateExportJob(
     values.push(updates.completedAt);
   }
 
-  await db.query(
-    `UPDATE export_jobs SET ${sets.join(', ')} WHERE id = $1`,
-    values,
-  );
+  await db.query(`UPDATE export_jobs SET ${sets.join(', ')} WHERE id = $1`, values);
 }
 
-// ─── Worker ────────────────────────────────────────────────────────────────
+// ─── Portfolio (ZIP) worker ────────────────────────────────────────────────
 
-const worker = new Worker<ExportJobData>(
-  QUEUE_NAME,
-  async (job: Job<ExportJobData>) => {
+const portfolioWorker = new Worker<PortfolioExportJobData>(
+  PORTFOLIO_QUEUE,
+  async (job: Job<PortfolioExportJobData>) => {
     const { portfolioId, exportJobId } = job.data;
-    console.log(`[Export Worker] Processing job ${exportJobId} for portfolio ${portfolioId}`);
+    console.log(`[Export] portfolio job ${exportJobId} for portfolio ${portfolioId}`);
 
     await updateExportJob(exportJobId, 'processing');
     await job.updateProgress(10);
@@ -86,7 +97,7 @@ const worker = new Worker<ExportJobData>(
     await job.updateProgress(100);
 
     console.log(
-      `[Export Worker] Job ${exportJobId} completed. File: ${result.fileUrl} (${(result.sizeByes / 1024).toFixed(1)} KB)`,
+      `[Export] portfolio job ${exportJobId} done. File: ${result.fileUrl} (${(result.sizeByes / 1024).toFixed(1)} KB)`,
     );
 
     return { fileUrl: result.fileUrl };
@@ -94,27 +105,70 @@ const worker = new Worker<ExportJobData>(
   {
     connection: redis,
     concurrency: 3,
-    limiter: { max: 10, duration: 60000 },
+    limiter: { max: 10, duration: 60_000 },
   },
 );
 
-worker.on('failed', async (job, err) => {
-  if (!job) return;
-  console.error(`[Export Worker] Job ${job.data.exportJobId} failed:`, err.message);
-  await updateExportJob(job.data.exportJobId, 'failed', {
-    errorMessage: err.message,
-  }).catch(console.error);
-});
+// ─── Resume PDF worker ─────────────────────────────────────────────────────
 
-worker.on('error', (err) => {
-  console.error('[Export Worker] Worker error:', err);
-});
+const resumePdfWorker = new Worker<ResumePdfJobData>(
+  RESUME_PDF_QUEUE,
+  async (job: Job<ResumePdfJobData>) => {
+    const { resumeId, exportJobId } = job.data;
+    console.log(`[Export] resume-pdf job ${exportJobId} for resume ${resumeId}`);
+
+    await updateExportJob(exportJobId, 'processing');
+    await job.updateProgress(10);
+
+    const resume = await getResume(resumeId);
+    await job.updateProgress(30);
+
+    const result = await processResumePdfExport(resume, exportJobId);
+    await job.updateProgress(90);
+
+    await updateExportJob(exportJobId, 'completed', {
+      fileUrl: result.fileUrl,
+      completedAt: new Date(),
+    });
+    await job.updateProgress(100);
+
+    console.log(
+      `[Export] resume-pdf job ${exportJobId} done. File: ${result.fileUrl} (${(result.sizeBytes / 1024).toFixed(1)} KB)`,
+    );
+
+    return { fileUrl: result.fileUrl };
+  },
+  {
+    connection: redis,
+    // Chromium is heavy — keep concurrency low per worker process.
+    concurrency: 2,
+    limiter: { max: 6, duration: 60_000 },
+  },
+);
+
+const onFailed = (workerName: string) => async (job: Job | undefined, err: Error) => {
+  if (!job) return;
+  const exportJobId = (job.data as { exportJobId?: string }).exportJobId;
+  console.error(`[${workerName}] Job ${exportJobId ?? job.id} failed:`, err.message);
+  if (exportJobId) {
+    await updateExportJob(exportJobId, 'failed', {
+      errorMessage: err.message,
+    }).catch(console.error);
+  }
+};
+
+portfolioWorker.on('failed', onFailed('Export/portfolio'));
+resumePdfWorker.on('failed', onFailed('Export/resume-pdf'));
+
+portfolioWorker.on('error', (err) => console.error('[Export/portfolio] worker error:', err));
+resumePdfWorker.on('error', (err) => console.error('[Export/resume-pdf] worker error:', err));
 
 // ─── Graceful shutdown ─────────────────────────────────────────────────────
 
 async function shutdown() {
   console.log('[Export Worker] Shutting down...');
-  await worker.close();
+  await Promise.allSettled([portfolioWorker.close(), resumePdfWorker.close()]);
+  await closeBrowser();
   await redis.quit();
   await db.end();
   process.exit(0);
@@ -123,5 +177,7 @@ async function shutdown() {
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-console.log(`[Export Worker] Listening on queue: ${QUEUE_NAME}`);
-console.log(`[Export Worker] Redis: ${process.env.REDIS_HOST ?? 'localhost'}:${process.env.REDIS_PORT ?? 6379}`);
+console.log(`[Export Worker] Listening on queues: ${PORTFOLIO_QUEUE}, ${RESUME_PDF_QUEUE}`);
+console.log(
+  `[Export Worker] Redis: ${process.env.REDIS_HOST ?? 'localhost'}:${process.env.REDIS_PORT ?? 6379}`,
+);

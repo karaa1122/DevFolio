@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePortfolioList } from '@/hooks/usePortfolio';
+import { useResumeList } from '@/hooks/useResume';
 import { portfolioApi, githubApi, authApi } from '@/lib/api';
 import { slugify } from '@/lib/utils';
 import useSWR from 'swr';
@@ -13,6 +14,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 export default function DashboardPage() {
   const router = useRouter();
   const { portfolios, isLoading, mutate } = usePortfolioList();
+  const { resumes, isLoading: resumesLoading } = useResumeList();
   const { data: githubStatus, mutate: mutateGithub } = useSWR('/github/status', githubApi.status, {
     revalidateOnFocus: false,
   });
@@ -87,6 +89,12 @@ export default function DashboardPage() {
           <nav className="flex items-center gap-4">
             <Link href="/dashboard" className="text-slate-200 text-sm font-medium">
               Dashboard
+            </Link>
+            <Link
+              href="/resume"
+              className="text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
+            >
+              Resumes
             </Link>
             <Link
               href="/profile"
@@ -271,6 +279,95 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Resumes section */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-100">My Resumes</h2>
+              <p className="text-slate-500 text-sm mt-1">
+                One per application — each exports to a print-perfect PDF.
+              </p>
+            </div>
+            <Link
+              href="/resume"
+              className="text-sm text-slate-400 hover:text-violet-300 px-3 py-1.5 rounded-lg border border-slate-800 hover:border-violet-500/40 transition-colors"
+            >
+              View all →
+            </Link>
+          </div>
+
+          {resumesLoading ? (
+            <div className="text-slate-500 text-sm py-8 text-center">Loading…</div>
+          ) : resumes.length === 0 ? (
+            <Link
+              href="/resume"
+              className="block text-center py-12 border-2 border-dashed border-slate-800 hover:border-violet-500/40 rounded-2xl group transition-colors"
+            >
+              <div className="text-3xl mb-3 transition-transform group-hover:scale-110">📄</div>
+              <h3 className="text-base font-semibold text-slate-300 group-hover:text-violet-200 mb-1 transition-colors">
+                No resumes yet
+              </h3>
+              <p className="text-slate-500 text-xs">
+                Click to create your first resume
+              </p>
+            </Link>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {resumes.slice(0, 6).map((r) => {
+                const resumeTitle = r.data.metadata?.title ?? r.slug;
+                const role = r.data.metadata?.targetRole;
+                return (
+                  <Link
+                    key={r.id}
+                    href={`/resume/${r.id}`}
+                    className="group bg-slate-900 hover:bg-slate-900/70 border border-slate-800 hover:border-violet-500/40 rounded-2xl p-5 transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-12 rounded-md bg-white/95 shadow-lg shadow-violet-500/10 shrink-0 flex flex-col gap-0.5 p-1.5">
+                        <div className="h-1 w-3/4 rounded-full bg-slate-300" />
+                        <div className="h-0.5 w-1/2 rounded-full bg-slate-300" />
+                        <div className="mt-1 h-0.5 w-full rounded-full bg-slate-200" />
+                        <div className="h-0.5 w-5/6 rounded-full bg-slate-200" />
+                        <div className="h-0.5 w-4/6 rounded-full bg-slate-200" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-slate-100 truncate group-hover:text-violet-100 transition-colors">
+                          {resumeTitle}
+                        </h3>
+                        <p className="text-xs text-slate-600 font-mono truncate mt-0.5">
+                          {r.slug}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 text-[11px] text-slate-500">
+                      <span className="capitalize px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                        {r.data.template}
+                      </span>
+                      <span>·</span>
+                      <span>{r.data.sections.length} sections</span>
+                      {role && (
+                        <>
+                          <span>·</span>
+                          <span className="truncate">{role}</span>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+              {resumes.length < 6 && (
+                <Link
+                  href="/resume"
+                  className="flex flex-col items-center justify-center min-h-[120px] rounded-2xl border-2 border-dashed border-slate-800 hover:border-violet-500/40 text-slate-500 hover:text-violet-300 transition-colors"
+                >
+                  <span className="text-2xl mb-1">+</span>
+                  <span className="text-xs font-medium">New resume</span>
+                </Link>
+              )}
             </div>
           )}
         </div>

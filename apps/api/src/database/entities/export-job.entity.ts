@@ -8,8 +8,9 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import type { ExportJobStatus } from '@devfolio/shared';
+import type { ExportJobStatus, ExportTargetType } from '@devfolio/shared';
 import { Portfolio } from './portfolio.entity';
+import { Resume } from './resume.entity';
 
 @Entity('export_jobs')
 export class ExportJob {
@@ -17,8 +18,19 @@ export class ExportJob {
   id: string;
 
   @Index()
-  @Column()
-  portfolioId: string;
+  @Column({ nullable: true })
+  portfolioId: string | null;
+
+  @Index()
+  @Column({ nullable: true })
+  resumeId: string | null;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: 'portfolio',
+  })
+  targetType: ExportTargetType;
 
   @Index()
   @Column({
@@ -46,7 +58,17 @@ export class ExportJob {
   @Column({ nullable: true })
   completedAt: Date;
 
-  @ManyToOne(() => Portfolio, (portfolio) => portfolio.exportJobs, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Portfolio, (portfolio) => portfolio.exportJobs, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   @JoinColumn({ name: 'portfolioId' })
-  portfolio: Portfolio;
+  portfolio: Portfolio | null;
+
+  @ManyToOne(() => Resume, (resume) => resume.exportJobs, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'resumeId' })
+  resume: Resume | null;
 }

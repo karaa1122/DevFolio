@@ -1,3 +1,6 @@
+import type { Theme, Portfolio } from '../schema/portfolio';
+import type { Resume } from '../schema/resume';
+
 // ─── API Response Shapes ───────────────────────────────────────────────────
 
 export interface ApiResponse<T> {
@@ -67,13 +70,38 @@ export interface PortfolioListItem {
   viewCount?: number;
 }
 
+// ─── Resume Entity Response ─────────────────────────────────────────────────
+
+export interface ResumeResponse {
+  id: string;
+  slug: string;
+  userId: string;
+  data: Resume;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResumeListItem {
+  id: string;
+  slug: string;
+  title?: string;
+  template: string;
+  targetRole?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Export Job ─────────────────────────────────────────────────────────────
 
 export type ExportJobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
+export type ExportTargetType = 'portfolio' | 'resume-pdf';
+
 export interface ExportJob {
   id: string;
   portfolioId: string;
+  targetType?: ExportTargetType;
+  targetId?: string;
   status: ExportJobStatus;
   fileUrl?: string;
   errorMessage?: string;
@@ -129,14 +157,9 @@ export interface GitHubRepo {
 
 // ─── Theme presets ─────────────────────────────────────────────────────────
 
-import type { Theme, Portfolio } from '../schema/portfolio';
-
 export interface ThemePreset {
   id: string;
   name: string;
   preview: string;
   theme: Theme;
 }
-
-// Re-export from schema for convenience
-export type { Portfolio, Section, Theme, SectionType } from '../schema/portfolio';

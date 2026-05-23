@@ -14,6 +14,8 @@ import { Repository } from 'typeorm';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import type { Response } from 'express';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import JSZip from 'jszip';
 import { ExportService } from './export.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -23,9 +25,16 @@ import { Portfolio } from '../../database/entities/portfolio.entity';
 import type { User } from '../../database/entities/user.entity';
 import type { Portfolio as PortfolioData } from '@devfolio/shared';
 
+const UPLOADS_DIR = process.env.STORAGE_LOCAL_PATH ?? path.join(process.cwd(), 'uploads');
+
 class CreateExportJobDto {
   @IsString()
   portfolioId: string;
+}
+
+class CreateResumeExportJobDto {
+  @IsString()
+  resumeId: string;
 }
 
 @ApiTags('exports')
@@ -45,6 +54,12 @@ export class ExportController {
     return this.exportService.createExportJob(dto.portfolioId, user.id);
   }
 
+  @Post('resume')
+  @ApiOperation({ summary: 'Queue a new PDF export job for a resume' })
+  createResume(@CurrentUser() user: User, @Body() dto: CreateResumeExportJobDto) {
+    return this.exportService.createResumePdfJob(dto.resumeId, user.id);
+  }
+
   @Get('portfolio/:portfolioId')
   @ApiOperation({ summary: 'List export jobs for a portfolio' })
   findByPortfolio(@CurrentUser() user: User, @Param('portfolioId') portfolioId: string) {
@@ -53,15 +68,21 @@ export class ExportController {
 
   // Must be defined before :id to avoid route shadowing
   @Get('download/:filename')
-  @ApiOperation({ summary: 'Download a ZIP file by filename (new format)' })
+  @ApiOperation({ summary: 'Download an export by filename (ZIP or PDF)' })
   async downloadByFilename(
     @CurrentUser() user: User,
     @Param('filename') filename: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const jobIdMatch = filename.match(/portfolio-.+-([0-9a-f-]{36})\.zip$/);
-    if (!jobIdMatch) throw new NotFoundException('Invalid filename');
-    return this.streamZipForJob(jobIdMatch[1], filename, res, user.id);
+    const resumeMatch = filename.match(/^resume-.+-([0-9a-f-]{36})\.pdf$/);
+    if (resumeMatch) {
+      return this.streamResumePdf(resumeMatch[1], filename, res, user.id);
+    }
+    const portfolioMatch = filename.match(/portfolio-.+-([0-9a-f-]{36})\.zip$/);
+    if (portfolioMatch) {
+      return this.streamZipForJob(portfolioMatch[1], filename, res, user.id);
+    }
+    throw new NotFoundException('Invalid filename');
   }
 
   @Get(':id')
@@ -80,6 +101,44 @@ export class ExportController {
     return this.streamZipForJob(jobId, `portfolio-export-${jobId}.zip`, res, user.id);
   }
 
+  // ─── Resume PDF streaming ────────────────────────────────────────────────
+
+  private async streamResumePdf(
+    jobId: string,
+    filename: string,
+    res: Response,
+    requestingUserId: string,
+  ) {
+    const job = await this.exportJobRepo.findOne({
+      where: { id: jobId },
+      relations: ['resume'],
+    });
+    if (!job) throw new NotFoundException('Export job not found');
+    if (!job.resume) throw new NotFoundException('Resume not found');
+    if (job.resume.userId !== requestingUserId) throw new ForbiddenException('Access denied');
+
+    const filePath = path.join(UPLOADS_DIR, filename);
+    let buffer: Buffer;
+    try {
+      buffer = await fs.readFile(filePath);
+    } catch {
+      throw new NotFoundException('PDF file not found on disk — it may have been cleaned up');
+    }
+
+    const fileNameBase = (job.resume.data.metadata?.fileName ?? job.resume.slug)
+      .replace(/\.pdf$/i, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-');
+    const downloadName = `${fileNameBase}.pdf`;
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${downloadName}"`,
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
   // ─── Shared ZIP generation ───────────────────────────────────────────────
 
   private async streamZipForJob(
@@ -90,6 +149,7 @@ export class ExportController {
   ) {
     const job = await this.exportJobRepo.findOne({ where: { id: jobId } });
     if (!job) throw new NotFoundException('Export job not found');
+    if (!job.portfolioId) throw new NotFoundException('Export job is not a portfolio export');
 
     const entity = await this.portfolioRepo.findOne({ where: { id: job.portfolioId } });
     if (!entity) throw new NotFoundException('Portfolio not found');

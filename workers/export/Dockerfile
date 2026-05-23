@@ -22,8 +22,16 @@ RUN pnpm --filter @devfolio/renderer build
 RUN pnpm --filter @devfolio/export-worker build
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+# Playwright's official image ships Chromium, fonts, and required runtime
+# libs (libnss, libatk, etc.) baked in — avoiding the long tail of "missing
+# .so" issues you hit on bare Alpine.
+# NOTE: this tag MUST match the playwright version in workers/export/package.json.
+# The bundled Chromium revision is keyed to the package version, so bump both together.
+FROM mcr.microsoft.com/playwright:v1.60.0-jammy AS runner
 WORKDIR /app
+
+ENV PNPM_HOME=/root/.local/share/pnpm
+ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 

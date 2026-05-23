@@ -44,6 +44,9 @@ services:
       DATABASE_URL: postgresql://devfolio:devfolio@postgres:5432/devfolio
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
+      STORAGE_LOCAL_PATH: /app/uploads
+    volumes:
+      - uploads:/app/uploads
     ports:
       - '3001:3001'
     depends_on:
@@ -87,6 +90,7 @@ services:
       DATABASE_URL: postgresql://devfolio:devfolio@postgres:5432/devfolio
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
+      STORAGE_LOCAL_PATH: /app/uploads
     volumes:
       - uploads:/app/uploads
     depends_on:

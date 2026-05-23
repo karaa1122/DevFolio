@@ -31,6 +31,7 @@ const mockUser = (overrides: Partial<User> = {}): User => ({
   createdAt: new Date(),
   updatedAt: new Date(),
   portfolios: [],
+  resumes: [],
   ...overrides,
 });
 

@@ -10,6 +10,7 @@ import configuration from './config/configuration';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
+import { ResumeModule } from './modules/resume/resume.module';
 import { ThemesModule } from './modules/themes/themes.module';
 import { ExportModule } from './modules/export/export.module';
 import { GithubModule } from './modules/github/github.module';
@@ -17,6 +18,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
 import { User } from './database/entities/user.entity';
 import { Portfolio } from './database/entities/portfolio.entity';
+import { Resume } from './database/entities/resume.entity';
 import { ExportJob } from './database/entities/export-job.entity';
 import { AnalyticsEvent } from './database/entities/analytics-event.entity';
 
@@ -29,7 +31,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
       useFactory: (cfg: ConfigService) => ({
         type: 'postgres',
         url: cfg.get<string>('database.url'),
-        entities: [User, Portfolio, ExportJob, AnalyticsEvent],
+        entities: [User, Portfolio, Resume, ExportJob, AnalyticsEvent],
         synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         logging: cfg.get<string>('app.env') === 'development',
@@ -77,6 +79,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
     AuthModule,
     UsersModule,
     PortfolioModule,
+    ResumeModule,
     ThemesModule,
     ExportModule,
     GithubModule,

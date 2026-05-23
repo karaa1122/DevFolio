@@ -1,6 +1,8 @@
 import type {
   Portfolio,
   PortfolioResponse,
+  Resume,
+  ResumeResponse,
   UserProfile,
   ExportJob,
   PortfolioAnalytics,
@@ -159,6 +161,40 @@ export const portfolioApi = {
   delete: (id: string) => request<void>(`/portfolios/${id}`, { method: 'DELETE' }),
 };
 
+// ─── Resumes ───────────────────────────────────────────────────────────────
+
+export const resumeApi = {
+  create: (data: { slug: string; title?: string; template?: string; targetRole?: string }) =>
+    request<ResumeResponse>('/resumes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  list: () => request<ResumeResponse[]>('/resumes/mine'),
+
+  getById: (id: string) => request<ResumeResponse>(`/resumes/${id}`),
+
+  update: (id: string, data: Partial<Resume>) =>
+    request<ResumeResponse>(`/resumes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ data }),
+    }),
+
+  updateSlug: (id: string, slug: string) =>
+    request<ResumeResponse>(`/resumes/${id}/slug`, {
+      method: 'PATCH',
+      body: JSON.stringify({ slug }),
+    }),
+
+  duplicate: (id: string, data: { slug: string; title?: string; targetRole?: string }) =>
+    request<ResumeResponse>(`/resumes/${id}/duplicate`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) => request<void>(`/resumes/${id}`, { method: 'DELETE' }),
+};
+
 // ─── Exports ───────────────────────────────────────────────────────────────
 
 export const exportApi = {
@@ -166,6 +202,12 @@ export const exportApi = {
     request<ExportJob>('/exports', {
       method: 'POST',
       body: JSON.stringify({ portfolioId }),
+    }),
+
+  createResumePdf: (resumeId: string) =>
+    request<ExportJob>('/exports/resume', {
+      method: 'POST',
+      body: JSON.stringify({ resumeId }),
     }),
 
   getStatus: (jobId: string) => request<ExportJob>(`/exports/${jobId}`),

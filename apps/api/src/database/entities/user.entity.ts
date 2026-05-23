@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Portfolio } from './portfolio.entity';
+import { Resume } from './resume.entity';
 
 @Entity('users')
 export class User {
@@ -72,4 +73,7 @@ export class User {
 
   @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
   portfolios: Portfolio[];
+
+  @OneToMany(() => Resume, (resume) => resume.user)
+  resumes: Resume[];
 }

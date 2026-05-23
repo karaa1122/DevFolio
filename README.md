@@ -2,9 +2,9 @@
 
 # DevFolio
 
-**The portfolio builder for developers who have been meaning to update their portfolio since 2019.**
+**Portfolio + ATS-friendly resume builder for developers who have been meaning to update both since 2019.**
 
-Build it once. Publish in minutes. Never touch a CSS file again.
+Build them once. Publish your portfolio in minutes. Export a print-perfect PDF resume. Never touch a CSS file again.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
@@ -22,23 +22,25 @@ Build it once. Publish in minutes. Never touch a CSS file again.
 
 ## What Is This?
 
-DevFolio is a **visual portfolio editor** for developers. You log in, drag sections around, pick a theme, write your bio, and publish. Your portfolio gets a public URL. Done. It's almost suspicious how simple that is.
+DevFolio is a **visual portfolio + resume editor** for developers. You log in, drag sections around, pick a theme, write your bio, and publish. Your portfolio gets a public URL. Your resume exports to a print-perfect PDF that survives ATS parsers. Done. It's almost suspicious how simple that is.
 
-No Webflow subscription. No WordPress plugin hell. No "I'll update my portfolio this weekend" for the 47th weekend in a row.
+No Webflow subscription. No WordPress plugin hell. No Word document that breaks every time you change a bullet. No "I'll update my portfolio and resume this weekend" for the 47th weekend in a row.
 
 **Key ideas:**
-- Your entire portfolio is one **JSON object** in the database — no HTML stored, ever
-- The editor is a live preview — what you see is literally what gets rendered publicly
-- Export to a static **ZIP file** (HTML + CSS) and host it anywhere for free
+- Both portfolio and resume are stored as **JSON objects** in the database — no HTML stored, ever
+- The editor is a live preview — what you see is literally what gets rendered publicly (or printed to PDF)
+- **Portfolio** → publish to a public URL, or export to a static **ZIP file** (HTML + CSS) and host it anywhere for free
+- **Resume** → 6 templates, 6 skill layouts, server-side Chromium PDF export with selectable text and ATS-safe mode
 - Connect GitHub to auto-import your repos as portfolio projects
+- Tiptap-powered rich text editor for summaries and bullets — bold, italic, underline, lists, links, alignment
 
 ---
 
 ## Why DevFolio?
 
-Most portfolio tools make you choose between control and convenience. You either get a drag-and-drop builder that locks you in forever, or a blank HTML file and a prayer.
+Most portfolio tools make you choose between control and convenience. You either get a drag-and-drop builder that locks you in forever, or a blank HTML file and a prayer. Resume tools are even worse — pay $10/month to download a single PDF, or fight Word for 4 hours just to align two columns.
 
-DevFolio gives you both. Edit visually. Own your data. Export anytime. Your portfolio should not require emotional recovery to update.
+DevFolio gives you both, in one app. Edit visually. Own your data. Export anytime. Your career documents should not require emotional recovery to update.
 
 | Pain | DevFolio |
 |---|---|
@@ -46,6 +48,9 @@ DevFolio gives you both. Edit visually. Own your data. Export anytime. Your port
 | "My portfolio is stuck on some platform I can't leave" | Export to static ZIP, host anywhere |
 | "Setting up a portfolio takes a whole weekend" | Running in under 10 minutes |
 | "I have to update my GitHub AND my portfolio separately" | GitHub integration syncs repos automatically |
+| "I need a different resume for every job application" | Duplicate a resume in one click, tweak per role |
+| "My resume looks great on screen, broken in the PDF" | Same renderer for preview and Chromium-rendered PDF — pixel-perfect |
+| "ATS parsers eat my fancy two-column resume alive" | One-click ATS mode → single column, system font, parser-friendly |
 
 ---
 
@@ -103,11 +108,14 @@ devfolio/
 |---|---|
 | **Frontend** | Next.js 14 (App Router), React 18, Tailwind CSS |
 | **Editor state** | Zustand + zundo (50-step undo/redo) + @dnd-kit drag & drop |
+| **Rich text** | Tiptap 3 (ProseMirror) — bold/italic/underline/lists/links/alignment, stored as sanitized HTML |
 | **Backend** | NestJS 10, TypeORM, PostgreSQL (JSONB), class-validator |
 | **Auth** | JWT access + refresh tokens in httpOnly cookies, bcrypt, GitHub OAuth via Passport.js |
 | **Cache** | Redis + cache-manager (portfolio pages cached 5 min) |
-| **Queue** | BullMQ — export jobs, retry logic, concurrency control |
-| **Export** | JSZip — generates self-contained HTML+CSS ZIP on-demand |
+| **Queue** | BullMQ — portfolio ZIP + resume PDF jobs, retry logic, concurrency control |
+| **Portfolio export** | JSZip — self-contained HTML+CSS ZIP on-demand |
+| **Resume export** | Playwright + headless Chromium — server-rendered React → PDF with selectable text |
+| **Sanitization** | sanitize-html — whitelisted-tag HTML rendering for user-authored rich text |
 | **Monorepo** | pnpm workspaces + Turborepo |
 | **Containers** | Docker + Docker Compose |
 
@@ -115,11 +123,11 @@ devfolio/
 
 ## ✨ Why JSON?
 
-Most portfolio tools store HTML in the database. DevFolio stores a single **JSONB object** per portfolio. This is a deliberate architectural choice with real consequences:
+Most portfolio tools store HTML in the database. DevFolio stores a single **JSONB object** per portfolio AND per resume. This is a deliberate architectural choice with real consequences:
 
-**Renderer independence.** The JSON schema is the contract. The renderer (`packages/renderer`) is a separate React package that consumes it. Want a completely different visual style? Swap the renderer — the data doesn't move.
+**Renderer independence.** The JSON schema is the contract. The renderer (`packages/renderer`) is a separate React package that consumes it — same package powers both the live editor preview and the headless-Chromium PDF worker. Want a completely different visual style? Swap the renderer — the data doesn't move.
 
-**Export portability.** Because your portfolio is data, not markup, the export worker can render it to any target format. Today that's a static HTML+CSS ZIP. Tomorrow it could be PDF, a different framework, or a third-party template marketplace.
+**Export portability.** Because your portfolio is data, not markup, the export worker can render it to any target format. Portfolio → static HTML+CSS ZIP. Resume → PDF (via Chromium), HTML, or eventually DOCX. The same data fuels every output.
 
 **Schema validation.** Every portfolio write is validated against a Zod schema before it touches the database. Malformed data cannot enter the system — the schema is the single source of truth for both the API and the frontend.
 
@@ -134,12 +142,16 @@ Most portfolio tools store HTML in the database. DevFolio stores a single **JSON
 ```mermaid
 flowchart LR
     A[Editor] -->|PATCH /portfolios/:id| B[NestJS API]
+    AA[Resume Editor] -->|PATCH /resumes/:id| B
     B -->|TypeORM| C[(PostgreSQL JSONB)]
     C -->|GET /portfolios/by-slug/:slug| D[Renderer]
     D --> E[Public Portfolio Page]
 
-    B -->|BullMQ job| F[Export Worker]
-    F -->|JSZip| G[Static ZIP\nindex.html + styles.css]
+    B -->|BullMQ: export-portfolio| F[Export Worker]
+    F -->|JSZip| G[Static ZIP<br/>index.html + styles.css]
+
+    B -->|BullMQ: export-resume-pdf| F
+    F -->|ReactDOMServer + Playwright| H[Resume PDF<br/>selectable text, A4/Letter]
 ```
 
 **Request path for a public portfolio visit:**
@@ -147,6 +159,12 @@ flowchart LR
 2. Next.js SSR fetches portfolio JSON from the API
 3. The `@devfolio/renderer` package renders it to React
 4. Redis cache serves repeat visitors without hitting the database
+
+**Request path for a resume PDF export:**
+1. User clicks Export PDF in the editor
+2. API flushes any in-flight autosave, then enqueues a `export-resume-pdf` BullMQ job
+3. Worker reads the resume JSON, server-renders it with `@devfolio/renderer` (same React tree as the editor preview), boots headless Chromium via Playwright, prints to PDF with `@page` rules driving margins and pagination
+4. PDF lands in `uploads/`, the editor polls until the job finishes and serves the download link
 
 ---
 
@@ -182,6 +200,92 @@ flowchart LR
 ### Analytics
 - Page view tracking on every public portfolio visit
 - Dashboard shows total views, unique visitors, views-per-day sparkline
+
+---
+
+## 📄 Resume Builder
+
+A full second product, in the same app, on the same data layer. Tailor a separate resume per application — each one exports to a print-perfect PDF that recruiters AND ATS parsers can both read.
+
+![Resume Editor](./screenshots/resume.PNG)
+
+### Editor
+
+- **Click-to-edit modal** for prose fields (FlowCV-style) with a full toolbar — **B / I / U / S**, **bulleted + numbered lists**, **link**, **left / center / right / justify alignment**
+- **Inline rich text** per bullet row (Tiptap, no modal needed for one-liners)
+- **Drag & drop** to reorder sections and items
+- **Per-section show/hide** with one click
+- **Duplicate section** for similar entries (two roles at the same company, etc.)
+- **Auto-save** with a save indicator that turns red and shows the error if the API rejects your edit
+- **50-step undo/redo** (Ctrl+Z / Ctrl+Shift+Z)
+- **Ctrl+S** flushes the autosave immediately
+- **Live multi-page paginator** — the canvas shows real A4 / Letter page breaks as you type
+- **Zoom controls** — 50% / 75% / 100% / 125% / 150% + page indicator + 1:1 + Fit
+
+### Templates (6)
+
+| Template | Best for |
+|---|---|
+| **Classic** | The recruiter-default. Centered name, single column, accent rule under each section |
+| **Modern** | Accent bar on the left of section headings, oversized name, accent-colored role titles |
+| **Compact** | Senior people with 10+ years to fit on one page — tighter line-height, ~30% denser |
+| **Sidebar** | Two columns with an accent-tinted left rail for skills / languages / certs |
+| **Two-column** | Centered header, 60/40 split — chronological narrative left, supporting material right |
+| **Dev Focus** | Monospace headings with `>` prefix, bordered tech chips, dashed rule under header |
+
+### Skill layouts (6)
+
+The skills section reshapes itself based on what's selected — same data, six visual modes:
+
+| Layout | Looks like |
+|---|---|
+| **Grouped** | `Category | comma-separated skills` — classic resume style |
+| **Tags** | Bordered chips grouped under each category |
+| **Bars** | Skill name + filled progress bar (uses level when present) |
+| **Compact** | One long inline run separated by dots — most space-efficient |
+| **Grid** | Two-column card grid with accent-color category titles |
+| **Minimal** | `Category: skill, skill, skill` — pure text, optimised for ATS parsers |
+
+### Resume sections
+
+| Section | What goes in it |
+|---|---|
+| **Header** | Name, title, email, phone, location, website, GitHub / LinkedIn / X / dev.to / Stack Overflow / portfolio — rendered as brand-icon contact rows |
+| **Summary** | 2–3 sentences of rich text |
+| **Experience** | Role, company, location, dates (current toggle), summary, rich-text bullets, technologies |
+| **Projects** | Name, tagline, live + repo URLs, year, bullets, technologies |
+| **Education** | Institution, degree, field, location, dates, GPA, details |
+| **Skills** | Grouped categories with drag-to-reorder, drag chip skills, 6 render layouts |
+| **Certifications** | Name, issuer, date, expiry, credential ID, URL |
+| **Awards** | Name, issuer, date, description |
+| **Languages** | Name + proficiency (elementary → native), rendered as a two-column grid |
+| **Custom** | Free-form section for Publications, Volunteering, Speaking, anything you need |
+
+### Design controls
+
+- **6 templates** — switch live, swap any time
+- **10 accent presets** + full custom color picker
+- **6 fonts** — Inter, Source Sans, IBM Plex, Lora, Merriweather, JetBrains Mono
+- **4 sizes** × **3 line heights** × **3 density modes** (compact / normal / relaxed)
+- **A4 / Letter** page format, **narrow / normal / wide** margins
+- **ATS-safe mode** — one toggle forces single-column, system font, pure black text, no accent bars, no two-column layouts
+
+### Export
+
+- **Server-rendered PDF** — same React renderer as the editor preview, rendered to HTML server-side, printed via headless Chromium through Playwright
+- **Selectable text + clickable links** in the PDF (not a screenshot)
+- **Real `@page` pagination** — Chromium handles page breaks via CSS `break-inside: avoid`
+- **Background colors, accent rules, and brand icons preserved** in the output
+- **Browser-print fallback** — if the worker is down, one click opens your OS print dialog on the live preview
+- **Save-before-export** — the editor force-flushes any in-flight autosave before queueing the export, so the worker never reads stale data
+- **Clear error states** — failures surface the actual reason ("worker offline", "outdated docker image", etc.) instead of hanging on "Preparing…"
+
+### Multi-resume management
+
+- **Unlimited resumes** per account — one for each role or company type
+- **Duplicate** a resume in one click (set new slug + title), then tweak the bullets to match the job description
+- **Resume list** at `/resume` with previews of template, section count, target role, last-updated date
+- **Dashboard surfacing** — your six most-recent resumes appear as compact cards on the dashboard alongside your portfolios
 
 ---
 
@@ -346,9 +450,9 @@ For production, replace `localhost` URLs with your actual domain.
 
 ---
 
-## How to Use the Editor
+## How to Use the Editors
 
-Once you've created a portfolio:
+### Portfolio editor (`/editor/:id`)
 
 1. **Add sections** — click "Add Section" in the sidebar, choose a type
 2. **Fill in content** — click any section to open its form on the left
@@ -358,6 +462,18 @@ Once you've created a portfolio:
 6. **Preview** — click Preview in the top toolbar to see it exactly as visitors will
 7. **Publish** — click Publish. Your portfolio is now live at `localhost:3000/your-slug`
 8. **Export** — click Export for a ZIP file you can host anywhere for free
+
+### Resume editor (`/resume/:id`)
+
+1. **Create a resume** at `/resume` — give it a slug (e.g. `backend-engineer`) and pick a template
+2. **Add sections** in the Content tab — drag to reorder, click the eye to hide on the resume without deleting
+3. **Edit prose fields** — click any rich-text field (Summary, Experience summary, descriptions) to open the FlowCV-style modal with the full toolbar
+4. **Add bullets** — each row is its own inline rich-text editor with B / I / U / link
+5. **Edit skills** — categories + skills inside each category, both drag-to-reorder; pick one of 6 layouts (Grouped / Tags / Bars / Compact / Grid / ATS-minimal)
+6. **Tune design** — Design tab has template, accent, font, size, line height, density, page format, margins, and the ATS-safe toggle
+7. **Preview** the live multi-page paginator on the right — the canvas shows real A4 / Letter page breaks
+8. **Export PDF** — click Export PDF; the editor flushes any pending save, queues a render job, and gives you a downloadable PDF in ~3–8 seconds
+9. **Tailor per application** — back at `/resume`, click Duplicate on an existing resume to clone it as a starting point for the next job
 
 ---
 
@@ -432,13 +548,14 @@ apps/api/src/
 │   ├── auth/           JWT auth, bcrypt, GitHub OAuth, refresh tokens, account lockout
 │   ├── users/          Profile CRUD
 │   ├── portfolio/      Portfolio CRUD, publish/unpublish, view counter, cache
+│   ├── resume/         Resume CRUD, duplicate, slug update
 │   ├── themes/         6 built-in theme presets
-│   ├── export/         Queue producer + ZIP generation controller
+│   ├── export/         Queue producer (portfolio ZIP + resume PDF), download controller
 │   ├── github/         OAuth token storage, repo fetch, sync to portfolio
 │   ├── analytics/      Event tracking, per-portfolio stats, IP hashing
 │   └── health/         GET /health — checks DB + Redis
 ├── database/
-│   ├── entities/       TypeORM entities (User, Portfolio, ExportJob, AnalyticsEvent)
+│   ├── entities/       TypeORM entities (User, Portfolio, Resume, ExportJob, AnalyticsEvent)
 │   ├── migrations/     Migration files (timestamped, committed to source control)
 │   └── data-source.ts  TypeORM DataSource for CLI
 └── common/
@@ -453,29 +570,56 @@ apps/api/src/
 apps/web/src/
 ├── app/
 │   ├── (auth)/         Login + Register pages
-│   ├── dashboard/      Portfolio list, analytics
-│   ├── editor/[id]/    The main editor
+│   ├── dashboard/      Portfolio list, resume list, analytics
+│   ├── editor/[id]/    Portfolio editor
+│   ├── resume/         Resume list (/resume) + per-resume editor (/resume/:id)
 │   ├── profile/        Edit name, bio, avatar
 │   ├── auth/callback/  GitHub OAuth exchange
 │   └── [slug]/         Public portfolio page (SSR)
-├── components/editor/
-│   ├── Editor.tsx            Toolbar, publish, export
-│   ├── EditorSidebar.tsx     Sections / Theme / GitHub / Settings tabs
-│   ├── EditorCanvas.tsx      Live preview iframe
-│   ├── SectionEditor.tsx     Per-section form (typed, no any)
-│   ├── SectionList.tsx       Drag & drop list
-│   └── ThemePanel.tsx        Color pickers + presets
+├── components/
+│   ├── editor/                       Portfolio editor (toolbar, sidebar, canvas, section forms)
+│   └── resume-editor/                Resume editor
+│       ├── ResumeEditor.tsx          Shell, export state machine, save-before-export
+│       ├── Toolbar.tsx               Undo/redo, save status, export button
+│       ├── ExportPanel.tsx           Per-phase export UI with retry + browser-print fallback
+│       ├── LeftPanel/                Content / Design / Import / Settings tabs
+│       │   ├── SectionsList.tsx      Drag-and-drop section list
+│       │   ├── SectionForm.tsx       Router to per-section form
+│       │   ├── DesignPanel.tsx       SVG template thumbnails, accent, font, size, ATS toggle
+│       │   └── forms/                Header, Summary, Experience, Skills, … per-section forms
+│       ├── RightPanel/               Canvas, page strip, zoom controls, paginator
+│       └── rich-edit/                Tiptap editor + modal + click-to-edit field
 └── store/
-    └── editor.store.ts       Zustand + zundo state
+    ├── editor.store.ts               Portfolio editor state
+    └── resume.store.ts               Resume editor state (Zustand + zundo, save-error tracking)
 
 workers/export/src/
-├── worker.ts                 BullMQ worker, DB update logic
-└── processors/
-    └── export.processor.ts   ZIP generation
+├── worker.ts                         BullMQ workers (portfolio + resume queues), DB updates
+├── pdf/browser.ts                    Singleton Chromium launcher (Playwright)
+├── processors/
+│   ├── export.processor.ts           Portfolio → ZIP
+│   └── resume-pdf.processor.ts       Resume → PDF (via @page CSS pagination)
+└── renderers/
+    ├── html.renderer.ts              Portfolio HTML for ZIP
+    └── resume-html.renderer.ts       Wraps @devfolio/renderer ResumeRenderer for Playwright
 
 packages/shared/src/
-├── schema/portfolio.ts       Zod schema — the single source of truth
-└── types/index.ts            API response types, UserProfile, etc.
+├── schema/portfolio.ts               Portfolio Zod schema
+├── schema/resume.ts                  Resume Zod schema (header, summary, experience, projects,
+│                                     education, skills × 6 layouts, certs, awards, languages, custom)
+└── types/index.ts                    API response types, UserProfile, ExportJob, etc.
+
+packages/renderer/src/
+├── PortfolioRenderer.tsx             Public-page React renderer
+├── resume/
+│   ├── ResumeRenderer.tsx            Editor preview + PDF entry point
+│   ├── print.css.ts                  Print CSS (A4/Letter @page rules, density, typography)
+│   ├── rich-text.tsx                 Sanitize-html + render util (Tiptap HTML → JSX)
+│   ├── inline-markdown.tsx           Legacy markdown parser (backward compat fallback)
+│   ├── format.ts                     Date helpers (MMM YYYY etc.)
+│   ├── sections/                     Header, Summary, Experience, … per-section components
+│   └── templates/                    Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus
+└── sections/                         Portfolio section components
 ```
 
 ---
@@ -484,6 +628,7 @@ packages/shared/src/
 
 This is what's built, what's in progress, and what's coming:
 
+**Portfolio**
 - [x] Visual drag-and-drop editor
 - [x] Live preview (same renderer as public page)
 - [x] One-click publish with public URL
@@ -493,11 +638,28 @@ This is what's built, what's in progress, and what's coming:
 - [x] Portfolio analytics (views, unique visitors)
 - [x] JWT auth with refresh tokens + account lockout
 - [x] Docker + Docker Compose deployment
+
+**Resume**
+- [x] Resume builder with 10 section types
+- [x] 6 templates (Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus)
+- [x] 6 skill layouts (Grouped, Tags, Bars, Compact, Grid, ATS-minimal)
+- [x] Tiptap rich-text editor (B / I / U / lists / link / alignment) in a FlowCV-style modal
+- [x] Server-side PDF export via Playwright + headless Chromium (selectable text, real `@page` pagination)
+- [x] ATS-safe mode (single-column, system font, parser-friendly)
+- [x] Multi-resume management — duplicate + tailor per application
+- [x] Brand-icon socials (GitHub, LinkedIn, X, dev.to, Stack Overflow) in the resume header
+- [x] Multi-page live paginator with page indicator + zoom controls
+- [x] Browser-print fallback if the worker is offline
+
+**Coming**
 - [ ] Custom domain support
 - [ ] Multi-template marketplace
-- [ ] AI-assisted bio and project description generation
+- [ ] AI-assisted bio, summary, and bullet rewriting (Improve / Grammar / Shorter)
+- [ ] DOCX + PNG export for resumes
+- [ ] LinkedIn import (parse profile into resume sections)
+- [ ] ATS keyword score against a job description
 - [ ] Portfolio analytics improvements (referrers, geography)
-- [ ] PDF export
+- [ ] Cover letter builder (shares the resume header + theme)
 - [ ] Collaborative editing
 - [ ] Team / org portfolios
 - [ ] Plugin system for custom sections

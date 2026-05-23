@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { User } from './entities/user.entity';
 import { Portfolio } from './entities/portfolio.entity';
+import { Resume } from './entities/resume.entity';
 import { ExportJob } from './entities/export-job.entity';
 import { AnalyticsEvent } from './entities/analytics-event.entity';
 
@@ -18,7 +19,7 @@ const migrationsPath =
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL ?? 'postgresql://devfolio:devfolio@localhost:5432/devfolio',
-  entities: [User, Portfolio, ExportJob, AnalyticsEvent],
+  entities: [User, Portfolio, Resume, ExportJob, AnalyticsEvent],
   migrations: migrationsPath,
   synchronize: false,
   ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
