@@ -32,10 +32,10 @@ const SIZE_SCALE = {
   lg: { body: 11, name: 28, h2: 11, meta: 9.75, sub: 10.5 },
 };
 
-const LINE_HEIGHT = { tight: 1.32, normal: 1.48, relaxed: 1.62 };
+const LINE_HEIGHT = { tight: 1.34, normal: 1.5, relaxed: 1.65 };
 
 // Vertical gap between sections, in mm. Drives the overall density feel.
-const DENSITY_GAP = { compact: 4.5, normal: 6.5, relaxed: 9 };
+const DENSITY_GAP = { compact: 5.5, normal: 8.5, relaxed: 12 };
 
 const MARGIN_MM = { narrow: 10, normal: 14, wide: 20 };
 
@@ -72,7 +72,7 @@ export function buildResumeCss(resume: Resume, opts: PrintCssOptions = {}): stri
   --resume-page-h: ${page.height}mm;
   --resume-page-pad: ${margin}mm;
   --resume-section-gap: ${gap}mm;
-  --resume-item-gap: ${(gap * 0.55).toFixed(2)}mm;
+  --resume-item-gap: ${(gap * 0.7).toFixed(2)}mm;
   --resume-size-body: ${size.body}pt;
   --resume-size-name: ${size.name}pt;
   --resume-size-h2: ${size.h2}pt;
@@ -154,7 +154,7 @@ export function buildResumeCss(resume: Resume, opts: PrintCssOptions = {}): stri
   justify-content: space-between;
   align-items: baseline;
   gap: 4mm;
-  margin-bottom: 0.6mm;
+  margin-bottom: 1.2mm;
 }
 .resume-item-title {
   font-weight: 600;
@@ -181,11 +181,11 @@ export function buildResumeCss(resume: Resume, opts: PrintCssOptions = {}): stri
 }
 .resume-item-bullets {
   padding-left: 4.5mm;
-  margin-top: 1.2mm;
+  margin-top: 1.6mm;
 }
 .resume-item-bullets li {
   position: relative;
-  margin-bottom: 0.6mm;
+  margin-bottom: 1.2mm;
 }
 .resume-item-bullets li::before {
   content: '';

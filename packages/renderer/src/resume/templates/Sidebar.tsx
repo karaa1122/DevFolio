@@ -19,6 +19,10 @@ const SIDEBAR_TYPES = new Set<ResumeSectionType>([
  * Sidebar — narrow accent-tinted left column (32%) with skills + languages +
  * certs, wider right column (68%) with summary + experience + projects +
  * education. Header bleeds full-width with an accent band behind it.
+ *
+ * Falls back to single-column when the sidebar would be empty (e.g. user hasn't
+ * added skills yet, or the paginator moved them to a later page) — otherwise
+ * we'd render an awkward empty accent panel.
  */
 export function SidebarTemplate({ resume, sections }: Props) {
   const headerSection = sections.find((s) => s.type === 'header');
@@ -26,29 +30,51 @@ export function SidebarTemplate({ resume, sections }: Props) {
   const sidebar = remaining.filter((s) => SIDEBAR_TYPES.has(s.type));
   const main = remaining.filter((s) => !SIDEBAR_TYPES.has(s.type));
 
+  const sharedStyle = (
+    <style>{`
+      .resume-template-sidebar { display: flex; flex-direction: column; gap: 5mm; }
+      .resume-template-sidebar .resume-header {
+        background: ${resume.theme.accent};
+        color: #fff;
+        padding: 6mm 8mm;
+        margin: calc(-1 * var(--resume-page-pad));
+        margin-bottom: 5mm;
+      }
+      .resume-template-sidebar .resume-header-name {
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+      .resume-template-sidebar .resume-header-title {
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 0.6mm;
+      }
+      .resume-template-sidebar .resume-header-contacts { color: rgba(255, 255, 255, 0.85); }
+      .resume-template-sidebar .resume-header-contacts a { color: rgba(255, 255, 255, 0.9); }
+      .resume-template-sidebar .resume-header-contact-icon { color: rgba(255, 255, 255, 0.9) !important; }
+    `}</style>
+  );
+
+  // No sidebar content → render as a single column. Header still bleeds, but
+  // the body flows normally; no empty accent panel.
+  if (sidebar.length === 0) {
+    return (
+      <div className="resume-template-sidebar">
+        {sharedStyle}
+        {headerSection && <RenderedSection key={headerSection.id} section={headerSection} />}
+        <div>
+          {main.map((section) => (
+            <RenderedSection key={section.id} section={section} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="resume-template-sidebar">
+      {sharedStyle}
       <style>{`
-        .resume-template-sidebar { display: flex; flex-direction: column; gap: 5mm; }
-        .resume-template-sidebar .resume-header {
-          background: ${resume.theme.accent};
-          color: #fff;
-          padding: 7mm 8mm;
-          margin: calc(-1 * var(--resume-page-pad));
-          margin-bottom: 6mm;
-        }
-        .resume-template-sidebar .resume-header-name {
-          color: #fff;
-          font-weight: 700;
-          letter-spacing: -0.015em;
-        }
-        .resume-template-sidebar .resume-header-title {
-          color: rgba(255, 255, 255, 0.9);
-          margin-top: 0.8mm;
-        }
-        .resume-template-sidebar .resume-header-contacts { color: rgba(255, 255, 255, 0.85); }
-        .resume-template-sidebar .resume-header-contacts a { color: rgba(255, 255, 255, 0.9); }
-        .resume-template-sidebar .resume-header-contact-icon { color: rgba(255, 255, 255, 0.9) !important; }
         .resume-template-sidebar-cols {
           display: grid;
           grid-template-columns: 32% 1fr;
