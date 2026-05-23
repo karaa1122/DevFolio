@@ -12,6 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { IsString } from 'class-validator';
 import type { Response } from 'express';
 import * as fs from 'fs/promises';
@@ -85,6 +86,10 @@ export class ExportController {
     throw new NotFoundException('Invalid filename');
   }
 
+  // Polled by the editor every ~1.2s while an export is running. At the global
+  // 20 req/min limit, a single stuck export would burn the user's entire budget
+  // in under 30 seconds — so it's exempt from throttling. Still JWT-guarded.
+  @SkipThrottle()
   @Get(':id')
   @ApiOperation({ summary: 'Get export job status and download URL' })
   findOne(@CurrentUser() user: User, @Param('id') id: string) {

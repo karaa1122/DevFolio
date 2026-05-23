@@ -11,6 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ResumeService } from './resume.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
@@ -45,6 +46,10 @@ export class ResumeController {
     return this.resumeService.findById(id, user.id);
   }
 
+  // Autosave fires roughly every 1.2s while the user is editing. The global
+  // 20 req/min limit would block any sustained typing session, so we exempt
+  // this endpoint. Still JWT-guarded and ownership-checked in the service.
+  @SkipThrottle()
   @Patch(':id')
   @ApiOperation({ summary: 'Update resume JSON' })
   update(
