@@ -19,6 +19,8 @@ export default function ResumesPage() {
   const [error, setError] = useState('');
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
+  const atLimit = (resumes?.length ?? 0) >= 1;
+
   const handleCreate = async () => {
     if (!slug.trim()) return;
     setCreating(true);
@@ -80,12 +82,19 @@ export default function ResumesPage() {
               Tailor a separate resume per application. Each one exports to a print-perfect PDF.
             </p>
           </div>
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          >
-            {showForm ? 'Cancel' : '+ New resume'}
-          </button>
+          <div className="flex items-center gap-2">
+            {atLimit && (
+              <span className="text-xs text-slate-500">1 resume max</span>
+            )}
+            <button
+              onClick={() => !atLimit && setShowForm((v) => !v)}
+              disabled={atLimit}
+              title={atLimit ? 'Free plan allows only 1 resume' : undefined}
+              className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              {showForm ? 'Cancel' : '+ New resume'}
+            </button>
+          </div>
         </div>
 
         {showForm && (
@@ -117,11 +126,10 @@ export default function ResumesPage() {
                   <button
                     key={t}
                     onClick={() => setTemplate(t)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium capitalize border transition-colors ${
-                      template === t
-                        ? 'bg-violet-600/20 border-violet-500 text-violet-200'
-                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
-                    }`}
+                    className={`px-3 py-2 rounded-lg text-xs font-medium capitalize border transition-colors ${template === t
+                      ? 'bg-violet-600/20 border-violet-500 text-violet-200'
+                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
                   >
                     {t.replace('-', ' ')}
                   </button>
@@ -179,14 +187,16 @@ export default function ResumesPage() {
                   </Link>
 
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleDuplicate(r.id, r.slug)}
-                      disabled={duplicatingId === r.id}
-                      className="text-xs text-slate-500 hover:text-slate-200 px-2 py-1 rounded transition-colors"
-                      title="Duplicate"
-                    >
-                      Duplicate
-                    </button>
+                    {!atLimit && (
+                      <button
+                        onClick={() => handleDuplicate(r.id, r.slug)}
+                        disabled={duplicatingId === r.id}
+                        className="text-xs text-slate-500 hover:text-slate-200 px-2 py-1 rounded transition-colors"
+                        title="Duplicate"
+                      >
+                        Duplicate
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(r.id, title)}
                       className="text-xs text-slate-500 hover:text-red-400 px-2 py-1 rounded transition-colors"

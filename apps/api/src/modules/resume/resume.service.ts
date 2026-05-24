@@ -25,6 +25,7 @@ export class ResumeService {
   ) {}
 
   async create(userId: string, dto: CreateResumeDto): Promise<Resume> {
+    await this.assertResumeLimit(userId);
     await this.assertSlugFree(userId, dto.slug);
 
     const resumeData = ResumeSchema.parse({
@@ -88,6 +89,7 @@ export class ResumeService {
   }
 
   async duplicate(id: string, userId: string, dto: DuplicateResumeDto): Promise<Resume> {
+    await this.assertResumeLimit(userId);
     const source = await this.findById(id, userId);
     await this.assertSlugFree(userId, dto.slug);
 
@@ -117,5 +119,12 @@ export class ResumeService {
   private async assertSlugFree(userId: string, slug: string): Promise<void> {
     const existing = await this.resumeRepo.findOne({ where: { userId, slug } });
     if (existing) throw new ConflictException(`Slug "${slug}" is already taken`);
+  }
+
+  private async assertResumeLimit(userId: string): Promise<void> {
+    const count = await this.resumeRepo.count({ where: { userId } });
+    if (count >= 1) {
+      throw new ForbiddenException('only 1 resume');
+    }
   }
 }
