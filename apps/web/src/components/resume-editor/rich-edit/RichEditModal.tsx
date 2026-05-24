@@ -74,7 +74,7 @@ export function RichEditModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="rich-edit-modal-title"
-        className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl shadow-violet-500/5 animate-in slide-in-from-bottom-4 duration-200 overflow-hidden"
+        className="relative w-full max-w-3xl flex flex-col rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl shadow-violet-500/5 animate-in slide-in-from-bottom-4 duration-200 overflow-hidden"
       >
         <header className="flex items-center justify-between px-5 py-4 border-b border-slate-800 shrink-0">
           <h2 id="rich-edit-modal-title" className="text-base font-semibold text-slate-100">
@@ -100,7 +100,7 @@ export function RichEditModal({
             placeholder={placeholder}
             block
             autoFocus
-            minHeight={260}
+            minHeight={440}
           />
         </div>
 

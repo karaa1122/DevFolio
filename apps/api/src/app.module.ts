@@ -16,6 +16,7 @@ import { ExportModule } from './modules/export/export.module';
 import { GithubModule } from './modules/github/github.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { HealthModule } from './modules/health/health.module';
+import { AiModule } from './modules/ai/ai.module';
 import { User } from './database/entities/user.entity';
 import { Portfolio } from './database/entities/portfolio.entity';
 import { Resume } from './database/entities/resume.entity';
@@ -85,6 +86,7 @@ import { AnalyticsEvent } from './database/entities/analytics-event.entity';
     GithubModule,
     AnalyticsModule,
     HealthModule,
+    AiModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

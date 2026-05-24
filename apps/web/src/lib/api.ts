@@ -270,4 +270,14 @@ export const themesApi = {
   list: () => request<ThemePreset[]>('/themes'),
 };
 
+// ─── AI Writing ────────────────────────────────────────────────────────────
+
+export const aiApi = {
+  rewrite: (text: string, action: 'improve' | 'grammar' | 'shorten') =>
+    request<{ result: string }>('/ai/rewrite', {
+      method: 'POST',
+      body: JSON.stringify({ text, action }),
+    }),
+};
+
 export { ApiError };
