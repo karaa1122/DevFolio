@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { getBrowser } from '../pdf/browser';
+import { getInlinedFontCss } from '../pdf/font-cache';
 import { renderResumeToHtml } from '../renderers/resume-html.renderer';
 import type { Resume } from '@devfolio/shared';
 
@@ -22,25 +23,33 @@ export async function processResumePdfExport(
 ): Promise<ResumePdfResult> {
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
-  const { html } = renderResumeToHtml(resume);
+  const inlinedFontCss = getInlinedFontCss(resume.theme.font) ?? undefined;
+  const { html } = renderResumeToHtml(resume, inlinedFontCss);
 
   const browser = await getBrowser();
   const context = await browser.newContext({
     viewport: { width: 1240, height: 1754 },
-    // Block analytics and ad networks so we don't wait on them
   });
-  await context.route(/google-analytics|googletagmanager|doubleclick|hotjar/i, (route) =>
-    route.abort(),
-  );
+
+  // Only block external requests when fonts aren't inlined (i.e. on the rare
+  // first job before the font cache has warmed).
+  if (!inlinedFontCss) {
+    await context.route(/google-analytics|googletagmanager|doubleclick|hotjar/i, (route) =>
+      route.abort(),
+    );
+  }
 
   const page = await context.newPage();
   try {
+    // 'load' is sufficient: fonts are already embedded as base64 data URIs so
+    // there are no outbound network requests.  When falling back to the Google
+    // Fonts <link> we still wait for document.fonts.ready below, which handles
+    // the font-file downloads more precisely than the old 'networkidle' did.
     await page.setContent(html, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
       timeout: PDF_RENDER_TIMEOUT_MS,
     });
 
-    // Ensure web fonts are fully loaded before printing
     await page.evaluate(async () => {
       if (document.fonts) await document.fonts.ready;
     });

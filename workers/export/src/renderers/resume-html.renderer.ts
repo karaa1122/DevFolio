@@ -12,12 +12,24 @@ export interface ResumeHtmlOutput {
  * load directly. We rely on Chromium's own print engine to paginate via the
  * `@page` + `break-inside` CSS injected by the renderer — no JS measurement
  * happens at PDF time.
+ *
+ * Pass `inlinedFontCss` (pre-fetched base64 data URIs) to avoid any network
+ * round-trips inside the headless browser, which is the main source of export
+ * latency in production.
  */
-export function renderResumeToHtml(resume: Resume): ResumeHtmlOutput {
-  const fontHref = buildResumeFontLink(resume);
+export function renderResumeToHtml(resume: Resume, inlinedFontCss?: string): ResumeHtmlOutput {
   const body = renderToStaticMarkup(
     React.createElement(ResumeRenderer, { resume, mode: 'print' }),
   );
+
+  const fontBlock = inlinedFontCss
+    ? `<style>${inlinedFontCss}</style>`
+    : (() => {
+        const fontHref = buildResumeFontLink(resume);
+        return `<link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="${escapeHtml(fontHref)}" />`;
+      })();
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -25,9 +37,7 @@ export function renderResumeToHtml(resume: Resume): ResumeHtmlOutput {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(resume.metadata?.title ?? resume.slug)}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="${escapeHtml(fontHref)}" />
+  ${fontBlock}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #ffffff; }

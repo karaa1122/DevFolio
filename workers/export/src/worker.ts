@@ -4,6 +4,7 @@ import IORedis from 'ioredis';
 import { processExport } from './processors/export.processor';
 import { processResumePdfExport } from './processors/resume-pdf.processor';
 import { closeBrowser } from './pdf/browser';
+import { startWarmFontCache } from './pdf/font-cache';
 import type { Portfolio, Resume } from '@devfolio/shared';
 
 const PORTFOLIO_QUEUE = 'export-portfolio';
@@ -176,6 +177,11 @@ async function shutdown() {
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+
+// Kick off font download immediately so the cache is warm before the first PDF
+// job arrives. Jobs that arrive before warming finishes fall back to the
+// Google Fonts <link> tag automatically (see resume-pdf.processor.ts).
+startWarmFontCache();
 
 console.log(`[Export Worker] Listening on queues: ${PORTFOLIO_QUEUE}, ${RESUME_PDF_QUEUE}`);
 console.log(
