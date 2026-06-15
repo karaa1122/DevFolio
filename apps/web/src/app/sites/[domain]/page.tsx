@@ -1,19 +1,19 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PortfolioRenderer } from '@devfolio/renderer';
-import type { Portfolio, PortfolioResponse } from '@devfolio/shared';
+import type { PortfolioResponse } from '@devfolio/shared';
 import { PortfolioViewTracker } from '@/components/PortfolioViewTracker';
 import { SectionViewTracker } from '@/components/SectionViewTracker';
 import { serverApiBase } from '@/lib/api-server';
 
 interface Props {
-  params: { slug: string };
+  params: { domain: string };
 }
 
-async function fetchPortfolio(slug: string): Promise<PortfolioResponse | null> {
+async function fetchPortfolioByDomain(domain: string): Promise<PortfolioResponse | null> {
   try {
     const apiUrl = serverApiBase();
-    const res = await fetch(`${apiUrl}/api/v1/portfolios/by-slug/${slug}`, {
+    const res = await fetch(`${apiUrl}/api/v1/portfolios/by-domain/${encodeURIComponent(domain)}`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
@@ -25,12 +25,12 @@ async function fetchPortfolio(slug: string): Promise<PortfolioResponse | null> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const entity = await fetchPortfolio(params.slug);
+  const entity = await fetchPortfolioByDomain(params.domain);
   if (!entity) return { title: 'Portfolio Not Found' };
 
   const { metadata, sections } = entity.data;
   const hero = sections.find((s) => s.type === 'hero');
-  const name = hero?.type === 'hero' ? hero.data.name : params.slug;
+  const name = hero?.type === 'hero' ? hero.data.name : params.domain;
 
   return {
     title: metadata.title ?? `${name} — Portfolio`,
@@ -53,8 +53,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function PublicPortfolioPage({ params }: Props) {
-  const entity = await fetchPortfolio(params.slug);
+export default async function CustomDomainPortfolioPage({ params }: Props) {
+  const entity = await fetchPortfolioByDomain(params.domain);
 
   if (!entity) {
     notFound();

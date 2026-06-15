@@ -54,8 +54,25 @@ export interface PortfolioResponse {
   isPublished: boolean;
   viewCount: number;
   data: Portfolio;
+  customDomain: string | null;
+  domainVerified: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// ─── Custom Domain Status (returned by domain management endpoints) ─────────
+
+export interface DomainStatusResponse {
+  domain: string | null;
+  verified: boolean;
+  verifiedAt: string | null;
+  // DNS records the user must create to verify ownership and route traffic.
+  instructions: {
+    // TXT record proving ownership of the domain.
+    txt: { type: 'TXT'; name: string; value: string };
+    // CNAME (or A) record routing the domain to the DevFolio edge.
+    cname: { type: 'CNAME'; name: string; value: string };
+  } | null;
 }
 
 // ─── Portfolio List Item ────────────────────────────────────────────────────

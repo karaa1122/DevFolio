@@ -74,6 +74,10 @@ services:
     env_file: .env
     environment:
       PORT: '3000'
+      # Server-side (SSR) calls run inside this container, where the API is the
+      # `api` service on the compose network — not localhost. The browser still
+      # uses NEXT_PUBLIC_API_URL (baked at build time).
+      INTERNAL_API_URL: http://api:3001
     ports:
       - '3000:3000'
     depends_on:
