@@ -50,43 +50,60 @@ provided by the deployment layer.
 | `CUSTOM_DOMAIN_TARGET` | API | `APP_PRIMARY_HOST`  | CNAME target shown to users |
 | `NEXT_PUBLIC_PRIMARY_HOST` | web | `devfolioapp.cloud` | Hosts served as the app (not rewritten) |
 
-## Infrastructure required (TLS / serving)
+## Infrastructure (TLS / serving)
 
-The app routes by `Host` header but does **not** provision TLS certificates for
-user domains. You need a reverse proxy / edge in front of the Next.js app that
-can obtain certificates on demand for verified domains. Two common options:
+The app routes by `Host` header but does **not** provision TLS certificates
+itself. That is handled by the **Caddy edge bundled in `docker-compose.yml`**
+(config: [`infra/caddy/Caddyfile`](../infra/caddy/Caddyfile)), which terminates
+TLS and reverse-proxies to the `web` / `api` containers.
 
-### Option A — Caddy with on-demand TLS (self-hosted)
+### How certificates are issued
 
-Caddy can issue certificates per-host on first request, gated by an "ask"
-endpoint so it only issues for domains DevFolio recognises. Sketch:
+- **Primary hosts** (`devfolioapp.cloud`, `api.devfolioapp.cloud`,
+  `www.devfolioapp.cloud`) get normal named Let's Encrypt certificates.
+- **Custom domains** are served by a catch-all `https://` site with
+  `tls { on_demand }`. Caddy obtains the certificate **on first request**,
+  gated by an `ask` to the API so it only ever issues for domains DevFolio
+  recognises:
 
-```caddyfile
-{
-    on_demand_tls {
-        # Only issue a cert if this endpoint returns 2xx for ?domain=<host>.
-        ask http://api:3001/api/v1/portfolios/by-domain
-    }
-}
+  ```caddyfile
+  on_demand_tls {
+      ask http://api:3001/api/v1/portfolios/domain-check
+  }
+  ```
 
-https:// {
-    tls {
-        on_demand
-    }
-    reverse_proxy web:3000
-}
+  `GET /portfolios/domain-check?domain=<host>` ([`portfolio.controller.ts`](../apps/api/src/modules/portfolio/portfolio.controller.ts))
+  returns `200` only for a **verified + published** domain and `404` otherwise.
+  Caddy appends `?domain=<sni>` automatically, treating `2xx` as "issue".
+
+The result is fully self-service: a user adds their domain, points DNS, and
+clicks **Verify** — the certificate is provisioned automatically on the first
+visit. **No per-domain server work.**
+
+Set `ACME_EMAIL` in `.env` for Let's Encrypt expiry notices.
+
+### Cutover from a manual nginx edge
+
+If a host was previously serving the primary domain via a hand-configured
+nginx + certbot, switch it to Caddy (Caddy needs ports 80/443, which nginx
+holds):
+
+```bash
+sudo systemctl disable --now nginx     # free 80/443
+docker compose pull && docker compose up -d   # brings up the caddy service
+docker compose logs -f caddy           # watch it obtain certs
 ```
 
-`GET /portfolios/by-domain/:domain` already returns `200` only for a verified +
-published domain and `404` otherwise, so it doubles as the on-demand "ask"
-guard. (For strictness you may add a dedicated lightweight `HEAD` ask endpoint.)
+Caddy issues its own certificates via ACME, so the old certbot certs are no
+longer needed. Any per-domain nginx vhosts added during the manual era can be
+deleted.
 
-### Option B — Managed platform
+### Alternative — managed platform
 
-On Vercel / Netlify / Cloudflare for SaaS, add each verified domain to the
-project via the platform API after verification succeeds (e.g. from
-`verifyDomain`) and let the platform manage certificates. The in-app DNS TXT
-verification can run in addition to, or instead of, the platform's own check.
+Instead of self-hosting Caddy you can use Vercel / Netlify / Cloudflare for
+SaaS: add each verified domain to the project via the platform API after
+verification succeeds and let the platform manage certificates. The in-app DNS
+TXT verification can run in addition to, or instead of, the platform's check.
 
 ## Local testing
 

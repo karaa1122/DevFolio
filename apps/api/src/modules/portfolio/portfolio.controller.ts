@@ -7,9 +7,12 @@ import {
   Body,
   Put,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { PortfolioService } from './portfolio.service';
@@ -41,6 +44,24 @@ export class PortfolioController {
   @ApiOperation({ summary: 'List all portfolios for current user' })
   findMine(@CurrentUser() user: User) {
     return this.portfolioService.findByUserId(user.id);
+  }
+
+  // On-demand TLS guard for the edge (Caddy). Declared before `:id` so the
+  // literal "domain-check" segment isn't captured as a portfolio id. Returns
+  // 200 when a verified + published portfolio serves the given host (so the
+  // edge may issue a certificate for it), 404 otherwise. Public + unauthenticated
+  // because the TLS layer calls it on every handshake for an unknown host.
+  @Public()
+  @Get('domain-check')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'On-demand TLS ask endpoint: 200 if this host maps to a live portfolio, else 404',
+  })
+  async domainCheck(@Query('domain') domain?: string): Promise<void> {
+    if (!domain) throw new BadRequestException('domain query parameter is required');
+    if (!(await this.portfolioService.isDomainServable(domain))) {
+      throw new NotFoundException();
+    }
   }
 
   @UseGuards(JwtAuthGuard)

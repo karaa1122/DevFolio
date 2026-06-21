@@ -1,0 +1,45 @@
+# DevFolio edge — terminates TLS and routes by Host header.
+#
+# Serves the primary app hosts with normal (named) certificates, and any
+# user custom domain with an on-demand certificate that is issued on first
+# request — gated by the API so we only ever provision certs for domains that
+# actually map to a verified + published portfolio.
+
+{
+	# ACME account email for Let's Encrypt expiry notices.
+	email {$ACME_EMAIL}
+
+	# Before issuing a certificate for an unknown host (a user's custom domain),
+	# ask the API whether that host maps to a verified + published portfolio.
+	# Caddy appends `?domain=<sni>`; the endpoint returns 200 to allow, 404 to
+	# refuse — so Caddy never issues certificates for domains we don't recognise.
+	on_demand_tls {
+		ask http://api:3001/api/v1/portfolios/domain-check
+	}
+}
+
+# ── Primary app host ─────────────────────────────────────────────────────────
+devfolioapp.cloud {
+	reverse_proxy web:3000
+}
+
+# ── API host ─────────────────────────────────────────────────────────────────
+api.devfolioapp.cloud {
+	reverse_proxy api:3001
+}
+
+# ── www → apex redirect ──────────────────────────────────────────────────────
+www.devfolioapp.cloud {
+	redir https://devfolioapp.cloud{uri} permanent
+}
+
+# ── Custom domains ───────────────────────────────────────────────────────────
+# Any HTTPS host not matched above. The certificate is obtained on first
+# request (gated by on_demand_tls above) and the request is proxied to the web
+# app, whose middleware renders the portfolio that owns the Host header.
+https:// {
+	tls {
+		on_demand
+	}
+	reverse_proxy web:3000
+}

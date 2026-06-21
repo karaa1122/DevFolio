@@ -297,6 +297,21 @@ export class PortfolioService {
     return portfolio;
   }
 
+  /**
+   * Lightweight existence check used by the edge's on-demand TLS "ask" endpoint:
+   * may we issue/serve a certificate for this host? True only when a verified +
+   * published portfolio claims it. Returns a boolean (a `count`, not the entity)
+   * to stay cheap under the per-handshake call volume.
+   */
+  async isDomainServable(domain: string): Promise<boolean> {
+    const normalized = domain.trim().toLowerCase().replace(/\.$/, '');
+    if (!normalized) return false;
+    const count = await this.portfolioRepo.count({
+      where: { customDomain: normalized, domainVerified: true, isPublished: true },
+    });
+    return count > 0;
+  }
+
   private toDomainStatus(portfolio: Portfolio): DomainStatusResponse {
     if (!portfolio.customDomain || !portfolio.domainVerificationToken) {
       return { domain: null, verified: false, verifiedAt: null, instructions: null };

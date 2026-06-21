@@ -38,6 +38,12 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     container_name: devfolio_api
+    # Resolve DNS via public resolvers rather than the host/cloud resolver, whose
+    # aggressive caching can return a stale challenge TXT and fail domain
+    # verification right after a user updates their records.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     env_file: .env
     environment:
       NODE_ENV: production
@@ -85,6 +91,26 @@ services:
       - api
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2
+    container_name: devfolio_caddy
+    # Terminates TLS for the primary hosts (named certs) and for user custom
+    # domains (on-demand certs, gated by the API's /portfolios/domain-check).
+    # Reaches the app over the compose network via the `web`/`api` service names.
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:-admin@devfolioapp.cloud}
+    depends_on:
+      - web
+      - api
+    restart: unless-stopped
+
   export-worker:
     build:
       context: .
@@ -109,3 +135,5 @@ volumes:
   postgres_data:
   redis_data:
   uploads:
+  caddy_data:
+  caddy_config:
