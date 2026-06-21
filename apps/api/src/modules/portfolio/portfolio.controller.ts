@@ -5,6 +5,7 @@ import {
   Patch,
   Delete,
   Body,
+  Put,
   Param,
   UseGuards,
   HttpCode,
@@ -15,6 +16,7 @@ import { PortfolioService } from './portfolio.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { UpdateSlugDto } from './dto/update-slug.dto';
+import { SetDomainDto } from './dto/set-domain.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
@@ -23,7 +25,7 @@ import type { User } from '../../database/entities/user.entity';
 @ApiTags('portfolios')
 @Controller({ path: 'portfolios', version: '1' })
 export class PortfolioController {
-  constructor(private readonly portfolioService: PortfolioService) {}
+  constructor(private readonly portfolioService: PortfolioService) { }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -92,11 +94,54 @@ export class PortfolioController {
     return this.portfolioService.delete(id, user.id);
   }
 
+  // ─── Custom domain management (owner only) ────────────────────────────────
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get(':id/domain')
+  @ApiOperation({ summary: 'Get custom domain status and DNS instructions' })
+  getDomain(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.portfolioService.getDomainStatus(id, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Put(':id/domain')
+  @ApiOperation({ summary: 'Set or change the custom domain for a portfolio' })
+  setDomain(@CurrentUser() user: User, @Param('id') id: string, @Body() dto: SetDomainDto) {
+    return this.portfolioService.setDomain(id, user.id, dto.domain);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post(':id/domain/verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify custom domain ownership via DNS TXT record' })
+  verifyDomain(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.portfolioService.verifyDomain(id, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Delete(':id/domain')
+  @ApiOperation({ summary: 'Remove the custom domain from a portfolio' })
+  removeDomain(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.portfolioService.removeDomain(id, user.id);
+  }
+
   @Public()
   @Get('by-slug/:slug')
   @ApiOperation({ summary: 'Get published portfolio by slug (public)' })
   @ApiParam({ name: 'slug', description: 'Portfolio slug' })
   findBySlug(@Param('slug') slug: string) {
     return this.portfolioService.findBySlug(slug);
+  }
+
+  @Public()
+  @Get('by-domain/:domain')
+  @ApiOperation({ summary: 'Get published portfolio by verified custom domain (public)' })
+  @ApiParam({ name: 'domain', description: 'Verified custom domain (host)' })
+  findByDomain(@Param('domain') domain: string) {
+    return this.portfolioService.findByDomain(domain);
   }
 }

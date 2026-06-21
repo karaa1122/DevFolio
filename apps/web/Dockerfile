@@ -21,8 +21,11 @@ RUN pnpm --filter @devfolio/renderer build
 
 ARG NEXT_PUBLIC_API_URL=http://localhost:3001
 ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
+# Read by middleware.ts (Edge runtime → inlined at build, not runtime).
+ARG NEXT_PUBLIC_PRIMARY_HOST=devfolioapp.cloud
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_PRIMARY_HOST=$NEXT_PUBLIC_PRIMARY_HOST
 
 RUN pnpm --filter @devfolio/web build
 

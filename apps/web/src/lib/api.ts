@@ -1,6 +1,7 @@
 import type {
   Portfolio,
   PortfolioResponse,
+  DomainStatusResponse,
   Resume,
   ResumeResponse,
   UserProfile,
@@ -159,6 +160,21 @@ export const portfolioApi = {
     }),
 
   delete: (id: string) => request<void>(`/portfolios/${id}`, { method: 'DELETE' }),
+
+  // ─── Custom domain ─────────────────────────────────────────────────────
+  getDomain: (id: string) => request<DomainStatusResponse>(`/portfolios/${id}/domain`),
+
+  setDomain: (id: string, domain: string) =>
+    request<DomainStatusResponse>(`/portfolios/${id}/domain`, {
+      method: 'PUT',
+      body: JSON.stringify({ domain }),
+    }),
+
+  verifyDomain: (id: string) =>
+    request<DomainStatusResponse>(`/portfolios/${id}/domain/verify`, { method: 'POST' }),
+
+  removeDomain: (id: string) =>
+    request<DomainStatusResponse>(`/portfolios/${id}/domain`, { method: 'DELETE' }),
 };
 
 // ─── Resumes ───────────────────────────────────────────────────────────────

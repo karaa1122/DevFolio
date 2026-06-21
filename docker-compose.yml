@@ -70,10 +70,15 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_PRIMARY_HOST: ${NEXT_PUBLIC_PRIMARY_HOST:-devfolioapp.cloud}
     container_name: devfolio_web
     env_file: .env
     environment:
       PORT: '3000'
+      # Server-side (SSR) calls run inside this container, where the API is the
+      # `api` service on the compose network — not localhost. The browser still
+      # uses NEXT_PUBLIC_API_URL (baked at build time).
+      INTERNAL_API_URL: http://api:3001
     ports:
       - '3000:3000'
     depends_on:

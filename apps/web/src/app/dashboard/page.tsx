@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { usePortfolioList } from '@/hooks/usePortfolio';
 import { useResumeList } from '@/hooks/useResume';
 import { portfolioApi, githubApi, authApi } from '@/lib/api';
+import { CustomDomainManager } from '@/components/CustomDomainManager';
 import { slugify } from '@/lib/utils';
 import useSWR from 'swr';
 
@@ -277,6 +278,8 @@ export default function DashboardPage() {
                       </Link>
                     )}
                   </div>
+
+                  <CustomDomainManager portfolioId={portfolio.id} />
                 </div>
               ))}
             </div>

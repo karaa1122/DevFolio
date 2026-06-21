@@ -35,6 +35,24 @@ export class Portfolio {
   @Column({ default: 0 })
   viewCount: number;
 
+  // ─── Custom domain ──────────────────────────────────────────────────────
+  // The user-supplied apex/sub domain (e.g. "johndoe.com"). Unique across all
+  // portfolios. Stored as soon as it's added, but only served once verified.
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  @Index()
+  customDomain: string | null;
+
+  // Whether ownership of customDomain has been proven via DNS TXT record.
+  @Column({ default: false })
+  domainVerified: boolean;
+
+  // Random token the user must publish as a TXT record to prove ownership.
+  @Column({ type: 'varchar', nullable: true })
+  domainVerificationToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  domainVerifiedAt: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
