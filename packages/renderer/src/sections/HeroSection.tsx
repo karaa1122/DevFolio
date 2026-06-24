@@ -14,6 +14,8 @@ export function HeroSection({ section, theme }: Props) {
     <section
       id={section.id}
       style={{
+        position: 'relative',
+        overflow: 'hidden',
         backgroundColor: colors.background,
         color: colors.foreground,
         padding:
@@ -29,7 +31,17 @@ export function HeroSection({ section, theme }: Props) {
         textAlign: 'center',
       }}
     >
-      <div style={{ maxWidth: '800px', width: '100%' }}>
+      {/* Theme-derived gradient mesh backdrop */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          backgroundImage: `radial-gradient(60% 50% at 50% 0%, ${colors.primary}26, transparent 70%), radial-gradient(40% 40% at 85% 30%, ${colors.accent}1f, transparent 70%), radial-gradient(45% 45% at 12% 80%, ${colors.primary}14, transparent 70%)`,
+        }}
+      />
+      <div style={{ position: 'relative', maxWidth: '820px', width: '100%' }}>
         {data.avatar && (
           <img
             src={data.avatar}
@@ -61,6 +73,7 @@ export function HeroSection({ section, theme }: Props) {
             }}
           >
             <span
+              className="pf-pulse"
               style={{
                 width: '8px',
                 height: '8px',
@@ -131,6 +144,7 @@ export function HeroSection({ section, theme }: Props) {
         {data.cta && (
           <a
             href={data.cta.href}
+            data-cta
             style={{
               display: 'inline-block',
               padding: '0.875rem 2rem',
