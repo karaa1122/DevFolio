@@ -19,18 +19,18 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-ink flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <Link href="/" className="text-2xl font-bold text-violet-400 block mb-10">
+          <Link href="/" className="text-2xl font-bold text-accent block mb-10">
             DevFolio
           </Link>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
+          <div className="bg-surface border border-line rounded-2xl p-10">
             <p className="text-red-400 text-sm mb-6">
               Invalid or missing reset link. Please request a new one.
             </p>
             <Link
               href="/forgot-password"
-              className="text-violet-400 hover:text-violet-300 text-sm font-medium transition-colors"
+              className="text-accent hover:text-accent text-sm font-medium transition-colors"
             >
               Request new link →
             </Link>
@@ -42,15 +42,15 @@ function ResetPasswordForm() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-ink flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <Link href="/" className="text-2xl font-bold text-violet-400 block mb-10">
+          <Link href="/" className="text-2xl font-bold text-accent block mb-10">
             DevFolio
           </Link>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
-            <div className="w-14 h-14 bg-violet-950 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-surface border border-line rounded-2xl p-10">
+            <div className="w-14 h-14 bg-accent/15 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-7 h-7 text-violet-400"
+                className="w-7 h-7 text-accent"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -59,13 +59,13 @@ function ResetPasswordForm() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">Password updated</h1>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
+            <h1 className="text-xl font-bold text-content mb-2">Password updated</h1>
+            <p className="text-content-muted text-sm leading-relaxed mb-6">
               You&apos;ve been signed out of all devices. Sign in with your new password.
             </p>
             <Link
               href="/login"
-              className="inline-block bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors text-sm"
+              className="df-btn df-btn-primary font-semibold py-2.5 px-6 rounded-lg transition-colors text-sm"
             >
               Sign in now
             </Link>
@@ -98,17 +98,17 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-violet-400">
+          <Link href="/" className="text-2xl font-bold text-accent">
             DevFolio
           </Link>
-          <h1 className="text-2xl font-bold text-slate-100 mt-4">Set new password</h1>
-          <p className="text-slate-400 mt-1">Choose a strong password for your account</p>
+          <h1 className="text-2xl font-bold text-content mt-4">Set new password</h1>
+          <p className="text-content-muted mt-1">Choose a strong password for your account</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+        <div className="bg-surface border border-line rounded-2xl p-8">
           {error && (
             <div className="bg-red-950/50 border border-red-900 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
               {error}
@@ -117,7 +117,7 @@ function ResetPasswordForm() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">New password</label>
+              <label className="block text-sm text-content-muted mb-1.5">New password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -126,13 +126,13 @@ function ResetPasswordForm() {
                   required
                   autoComplete="new-password"
                   autoFocus
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 pr-12 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+                  className="w-full bg-surface-2 border border-line rounded-lg px-4 py-3 pr-12 text-content placeholder-content-faint focus:outline-none focus:border-accent/60 transition-colors"
                   placeholder="Min. 8 characters"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-content-faint hover:text-content transition-colors p-1"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -173,28 +173,28 @@ function ResetPasswordForm() {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">Confirm password</label>
+              <label className="block text-sm text-content-muted mb-1.5">Confirm password</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 required
                 autoComplete="new-password"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+                className="w-full bg-surface-2 border border-line rounded-lg px-4 py-3 text-content placeholder-content-faint focus:outline-none focus:border-accent/60 transition-colors"
                 placeholder="Repeat your password"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+              className="w-full df-btn df-btn-primary font-semibold py-3 rounded-lg transition-colors"
             >
               {loading ? 'Updating...' : 'Update password'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 mt-6">
-            <Link href="/login" className="text-violet-400 hover:text-violet-300">
+          <p className="text-center text-sm text-content-faint mt-6">
+            <Link href="/login" className="text-accent hover:text-accent">
               Back to sign in
             </Link>
           </p>

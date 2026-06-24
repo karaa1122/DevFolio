@@ -26,15 +26,15 @@ export default function ForgotPasswordPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-ink flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <Link href="/" className="text-2xl font-bold text-violet-400 block mb-10">
+          <Link href="/" className="text-2xl font-bold text-accent block mb-10">
             DevFolio
           </Link>
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
-            <div className="w-14 h-14 bg-violet-950 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-surface border border-line rounded-2xl p-10">
+            <div className="w-14 h-14 bg-accent/15 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-7 h-7 text-violet-400"
+                className="w-7 h-7 text-accent"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -47,15 +47,15 @@ export default function ForgotPasswordPage() {
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">Check your inbox</h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              If <span className="text-violet-400">{email}</span> has an account, we&apos;ve sent a reset
+            <h1 className="text-xl font-bold text-content mb-2">Check your inbox</h1>
+            <p className="text-content-muted text-sm leading-relaxed">
+              If <span className="text-accent">{email}</span> has an account, we&apos;ve sent a reset
               link. It expires in 1 hour.
             </p>
             <p className="mt-6">
               <Link
                 href="/login"
-                className="text-violet-400 hover:text-violet-300 text-sm font-medium transition-colors"
+                className="text-accent hover:text-accent text-sm font-medium transition-colors"
               >
                 Back to sign in →
               </Link>
@@ -67,17 +67,17 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-violet-400">
+          <Link href="/" className="text-2xl font-bold text-accent">
             DevFolio
           </Link>
-          <h1 className="text-2xl font-bold text-slate-100 mt-4">Forgot your password?</h1>
-          <p className="text-slate-400 mt-1">We&apos;ll send a reset link to your email</p>
+          <h1 className="text-2xl font-bold text-content mt-4">Forgot your password?</h1>
+          <p className="text-content-muted mt-1">We&apos;ll send a reset link to your email</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+        <div className="bg-surface border border-line rounded-2xl p-8">
           {error && (
             <div className="bg-red-950/50 border border-red-900 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
               {error}
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm text-slate-400 mb-1.5">Email</label>
+              <label className="block text-sm text-content-muted mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
@@ -94,21 +94,21 @@ export default function ForgotPasswordPage() {
                 required
                 autoComplete="email"
                 autoFocus
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+                className="w-full bg-surface-2 border border-line rounded-lg px-4 py-3 text-content placeholder-content-faint focus:outline-none focus:border-accent/60 transition-colors"
                 placeholder="you@example.com"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+              className="w-full df-btn df-btn-primary font-semibold py-3 rounded-lg transition-colors"
             >
               {loading ? 'Sending...' : 'Send reset link'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 mt-6">
-            <Link href="/login" className="text-violet-400 hover:text-violet-300">
+          <p className="text-center text-sm text-content-faint mt-6">
+            <Link href="/login" className="text-accent hover:text-accent">
               Back to sign in
             </Link>
           </p>
