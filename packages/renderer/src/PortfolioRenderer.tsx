@@ -13,6 +13,14 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
   const { theme, metadata } = portfolio;
   const orderedSections = getOrderedSections(portfolio).filter((s) => s.visible);
 
+  // Keep the nav brand short — prefer the hero name over the (often long) SEO
+  // title so it doesn't crowd the nav links.
+  const heroSection = orderedSections.find((s) => s.type === 'hero');
+  const brandLabel =
+    (heroSection?.type === 'hero' ? heroSection.data.name : undefined) ??
+    metadata.title ??
+    'Portfolio';
+
   const fontUrl: Record<string, string> = {
     inter: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
     roboto: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
@@ -149,22 +157,36 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: '2rem',
         }}
       >
         <span
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            minWidth: 0,
             fontWeight: '700',
             fontSize: '1.05rem',
             letterSpacing: '-0.02em',
-            background: `linear-gradient(120deg, ${theme.colors.primary}, ${theme.colors.accent})`,
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
+            color: theme.colors.foreground,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
-          {metadata.title ?? 'Portfolio'}
+          <span
+            style={{
+              width: '0.55rem',
+              height: '0.55rem',
+              borderRadius: '50%',
+              flexShrink: 0,
+              background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.accent})`,
+            }}
+          />
+          {brandLabel}
         </span>
-        <div className="pf-nav-links" style={{ display: 'flex', gap: '1.75rem' }}>
+        <div className="pf-nav-links" style={{ display: 'flex', gap: '1.75rem', flexShrink: 0 }}>
           {orderedSections.map((s) => (
             <a
               key={s.id}
