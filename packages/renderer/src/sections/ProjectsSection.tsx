@@ -76,6 +76,7 @@ export function ProjectsSection({ section, theme }: Props) {
           {items.map((project) => (
             <div
               key={project.id}
+              className="pf-project-card"
               style={{
                 backgroundColor: colors.card,
                 border: `1px solid ${colors.border}`,
@@ -83,7 +84,6 @@ export function ProjectsSection({ section, theme }: Props) {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: data.layout === 'list' ? 'row' : 'column',
-                transition: 'transform 0.2s, box-shadow 0.2s',
               }}
             >
               {project.image && (

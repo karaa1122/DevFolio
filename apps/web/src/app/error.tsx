@@ -15,12 +15,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <Link href="/" className="text-2xl font-bold text-violet-400 block mb-10">
+        <Link href="/" className="text-2xl font-bold text-accent block mb-10">
           DevFolio
         </Link>
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
+        <div className="bg-surface border border-line rounded-2xl p-10">
           <div className="w-14 h-14 bg-red-950 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-7 h-7 text-red-400"
@@ -36,20 +36,20 @@ export default function Error({
               />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-slate-100 mb-2">Something went wrong</h1>
-          <p className="text-slate-400 text-sm mb-6">
+          <h1 className="text-xl font-bold text-content mb-2">Something went wrong</h1>
+          <p className="text-content-muted text-sm mb-6">
             An unexpected error occurred. You can try again or go back home.
           </p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={reset}
-              className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors"
+              className="df-btn df-btn-primary font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors"
             >
               Try again
             </button>
             <Link
               href="/dashboard"
-              className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors"
+              className="bg-surface-2 hover:bg-surface-3 text-content font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors"
             >
               Dashboard
             </Link>

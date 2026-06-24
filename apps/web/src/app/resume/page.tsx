@@ -62,35 +62,34 @@ export default function ResumesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center gap-3">
-          <Link href="/dashboard" className="text-slate-500 hover:text-slate-300 text-sm">
+    <div className="relative min-h-screen overflow-x-clip bg-ink text-content">
+      <div className="pointer-events-none fixed left-1/2 top-[-14rem] -z-10 h-[30rem] w-[40rem] -translate-x-1/2 rounded-full bg-accent/8 blur-[150px]" />
+      <header className="sticky top-0 z-40 border-b border-line bg-ink/70 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-6">
+          <Link href="/dashboard" className="text-sm text-content-faint transition-colors hover:text-content">
             ← Dashboard
           </Link>
-          <div className="ml-auto text-slate-300 text-sm font-medium">Resumes</div>
+          <div className="ml-auto text-sm font-medium text-content-muted">Resumes</div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-10">
-        <div className="flex items-end justify-between mb-8">
+      <main className="mx-auto max-w-5xl px-6 py-10">
+        <div className="mb-8 flex items-end justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-100 tracking-tight">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-content">
               Your resumes
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="mt-1 text-sm text-content-faint">
               Tailor a separate resume per application. Each one exports to a print-perfect PDF.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {atLimit && (
-              <span className="text-xs text-slate-500">1 resume max</span>
-            )}
+            {atLimit && <span className="text-xs text-content-faint">1 resume max</span>}
             <button
               onClick={() => !atLimit && setShowForm((v) => !v)}
               disabled={atLimit}
               title={atLimit ? 'Free plan allows only 1 resume' : undefined}
-              className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="df-btn df-btn-primary px-4 py-2 text-sm"
             >
               {showForm ? 'Cancel' : '+ New resume'}
             </button>
@@ -98,38 +97,39 @@ export default function ResumesPage() {
         </div>
 
         {showForm && (
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-8 space-y-4">
+          <div className="df-card mb-8 space-y-4 p-5">
             <div>
-              <label className="block text-xs text-slate-500 mb-1.5">Slug</label>
+              <label className="mb-1.5 block text-xs text-content-faint">Slug</label>
               <input
                 value={slug}
                 onChange={(e) =>
                   setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))
                 }
                 placeholder="backend-engineer"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
+                className="df-input text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1.5">Title (optional)</label>
+              <label className="mb-1.5 block text-xs text-content-faint">Title (optional)</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Backend Engineer — 2026"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
+                className="df-input text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1.5">Template</label>
+              <label className="mb-1.5 block text-xs text-content-faint">Template</label>
               <div className="grid grid-cols-3 gap-2">
                 {RESUME_TEMPLATE_IDS.map((t) => (
                   <button
                     key={t}
                     onClick={() => setTemplate(t)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium capitalize border transition-colors ${template === t
-                      ? 'bg-violet-600/20 border-violet-500 text-violet-200'
-                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
-                      }`}
+                    className={`rounded-lg border px-3 py-2 text-xs font-medium capitalize transition-colors ${
+                      template === t
+                        ? 'border-accent/60 bg-accent/15 text-accent'
+                        : 'border-line bg-surface-2 text-content-muted hover:border-content-faint'
+                    }`}
                   >
                     {t.replace('-', ' ')}
                   </button>
@@ -142,7 +142,7 @@ export default function ResumesPage() {
             <button
               onClick={handleCreate}
               disabled={creating || !slug.trim()}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              className="df-btn df-btn-primary w-full py-2.5 text-sm"
             >
               {creating ? 'Creating...' : 'Create resume'}
             </button>
@@ -150,11 +150,11 @@ export default function ResumesPage() {
         )}
 
         {isLoading ? (
-          <div className="text-slate-500 text-sm">Loading...</div>
+          <div className="text-sm text-content-faint">Loading...</div>
         ) : resumes.length === 0 ? (
-          <div className="border border-dashed border-slate-800 rounded-xl p-12 text-center">
-            <p className="text-slate-400">No resumes yet.</p>
-            <p className="text-slate-600 text-xs mt-1">Click &ldquo;New resume&rdquo; to get started.</p>
+          <div className="rounded-xl border border-dashed border-line p-12 text-center">
+            <p className="text-content-muted">No resumes yet.</p>
+            <p className="mt-1 text-xs text-content-faint">Click &ldquo;New resume&rdquo; to get started.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -164,14 +164,14 @@ export default function ResumesPage() {
               return (
                 <div
                   key={r.id}
-                  className="group flex items-center bg-slate-900 hover:bg-slate-800/70 border border-slate-800 hover:border-slate-700 rounded-xl px-5 py-4 transition-colors"
+                  className="group flex items-center rounded-xl border border-line bg-surface px-5 py-4 transition-colors hover:border-accent/30 hover:bg-surface-2"
                 >
-                  <Link href={`/resume/${r.id}`} className="flex-1 min-w-0">
+                  <Link href={`/resume/${r.id}`} className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-3">
-                      <span className="text-slate-100 font-medium truncate">{title}</span>
-                      <span className="text-xs text-slate-600 font-mono">{r.slug}</span>
+                      <span className="truncate font-medium text-content">{title}</span>
+                      <span className="font-mono text-xs text-content-faint">{r.slug}</span>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                    <div className="mt-1 flex items-center gap-3 text-xs text-content-faint">
                       <span className="capitalize">{r.data.template}</span>
                       <span>·</span>
                       <span>{r.data.sections.length} sections</span>
@@ -186,12 +186,12 @@ export default function ResumesPage() {
                     </div>
                   </Link>
 
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     {!atLimit && (
                       <button
                         onClick={() => handleDuplicate(r.id, r.slug)}
                         disabled={duplicatingId === r.id}
-                        className="text-xs text-slate-500 hover:text-slate-200 px-2 py-1 rounded transition-colors"
+                        className="rounded px-2 py-1 text-xs text-content-faint transition-colors hover:text-content"
                         title="Duplicate"
                       >
                         Duplicate
@@ -199,7 +199,7 @@ export default function ResumesPage() {
                     )}
                     <button
                       onClick={() => handleDelete(r.id, title)}
-                      className="text-xs text-slate-500 hover:text-red-400 px-2 py-1 rounded transition-colors"
+                      className="rounded px-2 py-1 text-xs text-content-faint transition-colors hover:text-red-400"
                       title="Delete"
                     >
                       Delete

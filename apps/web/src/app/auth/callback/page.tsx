@@ -32,8 +32,8 @@ function CallbackInner() {
   }, [params, router]);
 
   return (
-    <div className="h-screen flex items-center justify-center bg-slate-950">
-      <p className="text-slate-400 animate-pulse">Signing you in...</p>
+    <div className="h-screen flex items-center justify-center bg-ink">
+      <p className="text-content-muted animate-pulse">Signing you in...</p>
     </div>
   );
 }
@@ -42,8 +42,8 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen flex items-center justify-center bg-slate-950">
-          <p className="text-slate-400 animate-pulse">Signing you in...</p>
+        <div className="h-screen flex items-center justify-center bg-ink">
+          <p className="text-content-muted animate-pulse">Signing you in...</p>
         </div>
       }
     >

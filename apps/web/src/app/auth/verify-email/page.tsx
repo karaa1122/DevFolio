@@ -52,21 +52,21 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <Link href="/" className="text-2xl font-bold text-violet-400 block mb-10">
+        <Link href="/" className="text-2xl font-bold text-accent block mb-10">
           DevFolio
         </Link>
 
         {state === 'loading' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
-            <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-300 font-medium">Verifying your email...</p>
+          <div className="bg-surface border border-line rounded-2xl p-10">
+            <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-content font-medium">Verifying your email...</p>
           </div>
         )}
 
         {state === 'success' && (
-          <div className="bg-slate-900 border border-green-900/50 rounded-2xl p-10">
+          <div className="bg-surface border border-green-900/50 rounded-2xl p-10">
             <div className="w-14 h-14 bg-green-950 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="w-7 h-7 text-green-400"
@@ -78,13 +78,13 @@ function VerifyEmailContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">Email verified!</h1>
-            <p className="text-slate-400 text-sm">Redirecting you to sign in...</p>
+            <h1 className="text-xl font-bold text-content mb-2">Email verified!</h1>
+            <p className="text-content-muted text-sm">Redirecting you to sign in...</p>
           </div>
         )}
 
         {state === 'error' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10">
+          <div className="bg-surface border border-line rounded-2xl p-10">
             <div className="w-14 h-14 bg-red-950 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="w-7 h-7 text-red-400"
@@ -96,8 +96,8 @@ function VerifyEmailContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">Verification failed</h1>
-            <p className="text-slate-400 text-sm mb-6">{errorMessage}</p>
+            <h1 className="text-xl font-bold text-content mb-2">Verification failed</h1>
+            <p className="text-content-muted text-sm mb-6">{errorMessage}</p>
 
             {resent ? (
               <p className="text-green-400 text-sm">New link sent — check your inbox.</p>
@@ -105,7 +105,7 @@ function VerifyEmailContent() {
               <button
                 onClick={handleResend}
                 disabled={resending}
-                className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors"
+                className="df-btn df-btn-primary font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors"
               >
                 {resending ? 'Sending...' : 'Resend verification email'}
               </button>
@@ -114,7 +114,7 @@ function VerifyEmailContent() {
             <p className="mt-4">
               <Link
                 href="/login"
-                className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
+                className="text-content-faint hover:text-content text-sm transition-colors"
               >
                 Back to sign in
               </Link>

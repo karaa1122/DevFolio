@@ -38,16 +38,16 @@ export function CustomDomainManager({ portfolioId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-full mt-3 flex items-center justify-between gap-2 rounded-lg border border-slate-800 hover:border-violet-700/60 bg-slate-800/40 hover:bg-slate-800/70 px-3 py-2.5 text-left transition-colors group"
+        className="w-full mt-3 flex items-center justify-between gap-2 rounded-lg border border-line hover:border-accent/50/60 bg-surface-2/40 hover:bg-surface-2/70 px-3 py-2.5 text-left transition-colors group"
       >
         <span className="flex items-center gap-2 min-w-0">
-          <span className="text-slate-500 group-hover:text-violet-400 transition-colors">
+          <span className="text-content-faint group-hover:text-accent transition-colors">
             <LinkIcon />
           </span>
           {domain ? (
-            <span className="truncate text-sm font-mono text-slate-200">{domain}</span>
+            <span className="truncate text-sm font-mono text-content">{domain}</span>
           ) : (
-            <span className="text-sm text-slate-400 group-hover:text-slate-200 transition-colors">
+            <span className="text-sm text-content-muted group-hover:text-content transition-colors">
               Add custom domain
             </span>
           )}
@@ -55,7 +55,7 @@ export function CustomDomainManager({ portfolioId }: Props) {
         {domain ? (
           <StatusBadge verified={!!status?.verified} />
         ) : (
-          <span className="text-xs text-slate-500 group-hover:text-violet-400 transition-colors shrink-0">
+          <span className="text-xs text-content-faint group-hover:text-accent transition-colors shrink-0">
             Set up →
           </span>
         )}
@@ -120,25 +120,25 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl"
+        className="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-slate-800">
+        <div className="flex items-start justify-between p-6 border-b border-line">
           <div className="flex items-center gap-3">
-            <span className="text-violet-400">
+            <span className="text-accent">
               <LinkIcon />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-slate-100">Custom domain</h2>
-              <p className="text-sm text-slate-400 mt-0.5">
+              <h2 className="text-lg font-bold text-content">Custom domain</h2>
+              <p className="text-sm text-content-muted mt-0.5">
                 Serve your portfolio on a domain you own.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-300 transition-colors -mt-1 -mr-1 p-1"
+            className="text-content-faint hover:text-content transition-colors -mt-1 -mr-1 p-1"
             aria-label="Close"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -151,7 +151,7 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
           {/* No domain yet — entry form */}
           {!domain && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-content mb-2">
                 Your domain
               </label>
               <div className="flex gap-2">
@@ -166,17 +166,17 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
                     }
                   }}
                   placeholder="portfolio.yourdomain.com"
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
+                  className="flex-1 bg-surface-2 border border-line rounded-lg px-3.5 py-2.5 text-sm text-content focus:outline-none focus:border-accent/60"
                 />
                 <button
                   disabled={busy || !input.trim()}
                   onClick={() => run(() => portfolioApi.setDomain(portfolioId, input.trim()))}
-                  className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
+                  className="df-btn df-btn-primary font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
                 >
                   {busy ? 'Adding…' : 'Add domain'}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-content-faint mt-2">
                 Enter a domain or subdomain you control, e.g. <span className="font-mono">me.dev</span>{' '}
                 or <span className="font-mono">portfolio.me.dev</span>.
               </p>
@@ -191,7 +191,7 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
                   href={`https://${domain}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-base font-mono text-violet-400 hover:underline break-all"
+                  className="text-base font-mono text-accent hover:underline break-all"
                 >
                   {domain}
                 </a>
@@ -208,12 +208,12 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
               ) : (
                 status?.instructions && (
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-content">
                       Add these records at your DNS provider, then verify:
                     </p>
                     <DnsRecord label="Ownership (TXT)" record={status.instructions.txt} />
                     <DnsRecord label="Routing (CNAME)" record={status.instructions.cname} />
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-content-faint">
                       DNS changes can take a few minutes to propagate before verification succeeds.
                     </p>
                   </div>
@@ -225,7 +225,7 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
                   <button
                     disabled={busy}
                     onClick={() => run(() => portfolioApi.verifyDomain(portfolioId))}
-                    className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
+                    className="flex-1 df-btn df-btn-primary font-semibold py-2.5 rounded-lg text-sm transition-colors"
                   >
                     {busy ? 'Checking DNS…' : 'Verify domain'}
                   </button>
@@ -233,7 +233,7 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
                 <button
                   disabled={busy}
                   onClick={() => run(() => portfolioApi.removeDomain(portfolioId))}
-                  className="px-4 py-2.5 text-sm font-medium rounded-lg border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-500/50 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium rounded-lg border border-line text-content-muted hover:text-red-400 hover:border-red-500/50 disabled:opacity-50 transition-colors"
                 >
                   Remove
                 </button>
@@ -260,8 +260,8 @@ function DnsRecord({
   record: { type: string; name: string; value: string };
 }) {
   return (
-    <div className="bg-slate-800/60 border border-slate-700 rounded-lg p-3.5">
-      <p className="text-xs font-medium text-slate-400 mb-2.5">{label}</p>
+    <div className="bg-surface-2/60 border border-line rounded-lg p-3.5">
+      <p className="text-xs font-medium text-content-muted mb-2.5">{label}</p>
       <dl className="space-y-2">
         <Field label="Type" value={record.type} />
         <Field label="Name" value={record.name} />
@@ -286,12 +286,12 @@ function Field({ label, value }: { label: string; value: string }) {
 
   return (
     <div className="flex items-center gap-3">
-      <dt className="text-xs text-slate-500 w-12 shrink-0">{label}</dt>
+      <dt className="text-xs text-content-faint w-12 shrink-0">{label}</dt>
       <dd className="flex-1 min-w-0 flex items-center gap-2">
-        <code className="flex-1 truncate text-xs text-slate-200 font-mono">{value}</code>
+        <code className="flex-1 truncate text-xs text-content font-mono">{value}</code>
         <button
           onClick={copy}
-          className="shrink-0 text-xs text-slate-500 hover:text-violet-400 transition-colors"
+          className="shrink-0 text-xs text-content-faint hover:text-accent transition-colors"
         >
           {copied ? 'Copied' : 'Copy'}
         </button>
