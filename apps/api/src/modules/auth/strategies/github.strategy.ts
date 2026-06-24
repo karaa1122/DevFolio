@@ -22,7 +22,11 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       clientID: configService.get<string>('github.clientId') ?? '',
       clientSecret: configService.get<string>('github.clientSecret') ?? '',
       callbackURL: configService.get<string>('github.callbackUrl') ?? '',
-      scope: ['user:email', 'read:user', 'repo'],
+      // Read-only: we only list the user's repos to import as portfolio
+      // projects (GET /user/repos). We never write, so we don't request the
+      // broad read/write `repo` scope. (Note: this means private repos are not
+      // visible — a GitHub App with fine-grained read-only perms is needed for that.)
+      scope: ['user:email', 'read:user'],
     });
   }
 
