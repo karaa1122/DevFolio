@@ -1,5 +1,6 @@
 import React from 'react';
 import type { HeroSection, Theme } from '@devfolio/shared';
+import { readableOn } from './_shared';
 
 interface Props {
   section: HeroSection;
@@ -147,10 +148,13 @@ export function HeroSection({ section, theme }: Props) {
             data-cta
             style={{
               display: 'inline-block',
-              padding: '0.875rem 2rem',
-              backgroundColor: data.cta.variant === 'outline' ? 'transparent' : colors.primary,
-              color: data.cta.variant === 'outline' ? colors.primary : colors.foreground,
-              border: `2px solid ${colors.primary}`,
+              padding: '0.9rem 2.1rem',
+              background:
+                data.cta.variant === 'outline'
+                  ? 'transparent'
+                  : `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+              color: data.cta.variant === 'outline' ? colors.primary : readableOn(colors.primary),
+              border: `1.5px solid ${data.cta.variant === 'outline' ? colors.primary : 'transparent'}`,
               borderRadius:
                 theme.radius === 'none'
                   ? '0'
