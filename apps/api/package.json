@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "type-check": "tsc --noEmit",
+    "seed": "ts-node src/database/seed.ts",
     "migration:run": "sh -c 'if [ -f src/database/migrate.ts ]; then ts-node src/database/migrate.ts; else node dist/database/migrate.js; fi'",
     "migration:revert": "sh -c 'if [ -f src/database/migrate.ts ]; then ts-node src/database/migrate.ts revert; else node dist/database/migrate.js revert; fi'",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate src/database/migrations/Migration -d src/database/data-source.ts",

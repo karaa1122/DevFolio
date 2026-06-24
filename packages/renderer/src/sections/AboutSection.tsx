@@ -1,5 +1,6 @@
 import React from 'react';
 import type { AboutSection, Theme } from '@devfolio/shared';
+import { SectionHeader, sectionPadding, radiusMap } from './_shared';
 
 interface Props {
   section: AboutSection;
@@ -9,114 +10,107 @@ interface Props {
 export function AboutSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding =
-    theme.spacing === 'compact'
-      ? '3rem 2rem'
-      : theme.spacing === 'relaxed'
-        ? '6rem 2rem'
-        : '5rem 2rem';
+  const radius = radiusMap[theme.radius] ?? '16px';
 
   return (
     <section
       id={section.id}
-      style={{
-        backgroundColor: colors.card,
-        color: colors.foreground,
-        padding,
-      }}
+      style={{ backgroundColor: colors.card, color: colors.foreground, padding: sectionPadding(theme) }}
     >
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <h2
-          style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-            fontWeight: '700',
-            color: colors.foreground,
-            marginBottom: '1rem',
-            textAlign: 'center',
-          }}
-        >
-          {data.heading}
-        </h2>
-        <div
-          style={{
-            width: '3rem',
-            height: '4px',
-            backgroundColor: colors.primary,
-            margin: '0 auto 3rem',
-            borderRadius: '2px',
-          }}
-        />
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <SectionHeader kicker="About" heading={data.heading} theme={theme} />
 
         <div
+          className="pf-bento pf-reveal"
           style={{
             display: 'grid',
-            gridTemplateColumns: data.image ? '1fr 1fr' : '1fr',
-            gap: '3rem',
-            alignItems: 'center',
+            gridTemplateColumns: data.image ? '1.4fr 1fr' : '1fr',
+            gap: '2.5rem',
+            alignItems: 'start',
           }}
         >
           <div>
             <p
               style={{
-                fontSize: '1.125rem',
-                lineHeight: '1.8',
-                color: colors.muted,
+                fontSize: '1.25rem',
+                lineHeight: 1.7,
+                color: colors.foreground,
                 whiteSpace: 'pre-wrap',
+                fontWeight: 400,
+                letterSpacing: '-0.01em',
               }}
             >
               {data.bio}
             </p>
 
             {data.highlights && data.highlights.length > 0 && (
-              <ul
+              <div
                 style={{
-                  marginTop: '1.5rem',
-                  listStyle: 'none',
-                  padding: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.75rem',
+                  marginTop: '2rem',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '0.875rem',
                 }}
               >
                 {data.highlights.map((item, i) => (
-                  <li
+                  <div
                     key={i}
+                    className="pf-card"
                     style={{
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: '0.75rem',
+                      padding: '1rem 1.1rem',
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: radius,
                       color: colors.muted,
-                      fontSize: '1rem',
+                      fontSize: '0.95rem',
+                      lineHeight: 1.5,
                     }}
                   >
-                    <span style={{ color: colors.primary, flexShrink: 0 }}>▸</span>
+                    <span
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        marginTop: '0.5rem',
+                        borderRadius: '50%',
+                        flexShrink: 0,
+                        background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                      }}
+                    />
                     {item}
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 
           {data.image && (
-            <img
-              src={data.image}
-              alt={data.heading}
-              style={{
-                width: '100%',
-                borderRadius:
-                  theme.radius === 'none'
-                    ? '0'
-                    : theme.radius === 'sm'
-                      ? '8px'
-                      : theme.radius === 'md'
-                        ? '12px'
-                        : theme.radius === 'lg'
-                          ? '20px'
-                          : '50%',
-                objectFit: 'cover',
-                maxHeight: '400px',
-              }}
-            />
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: '-2px',
+                  borderRadius: radius,
+                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                  opacity: 0.6,
+                  filter: 'blur(2px)',
+                }}
+              />
+              <img
+                src={data.image}
+                alt={data.heading}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  borderRadius: radius,
+                  objectFit: 'cover',
+                  maxHeight: '440px',
+                  display: 'block',
+                }}
+              />
+            </div>
           )}
         </div>
       </div>

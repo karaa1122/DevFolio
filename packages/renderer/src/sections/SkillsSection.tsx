@@ -1,5 +1,6 @@
 import React from 'react';
 import type { SkillsSection, Theme } from '@devfolio/shared';
+import { SectionHeader, sectionPadding, radiusMap, MONO } from './_shared';
 
 interface Props {
   section: SkillsSection;
@@ -9,12 +10,7 @@ interface Props {
 export function SkillsSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding =
-    theme.spacing === 'compact'
-      ? '3rem 2rem'
-      : theme.spacing === 'relaxed'
-        ? '6rem 2rem'
-        : '5rem 2rem';
+  const radius = radiusMap[theme.radius] ?? '16px';
 
   const categories = Array.from(
     new Set(data.items.map((s) => s.category).filter(Boolean)),
@@ -31,45 +27,23 @@ export function SkillsSection({ section, theme }: Props) {
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.card, color: colors.foreground, padding }}
+      style={{ backgroundColor: colors.card, color: colors.foreground, padding: sectionPadding(theme) }}
     >
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <h2
-          style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-            fontWeight: '700',
-            textAlign: 'center',
-            marginBottom: '1rem',
-          }}
-        >
-          {data.heading}
-        </h2>
-        {data.subheading && (
-          <p style={{ textAlign: 'center', color: colors.muted, marginBottom: '1rem' }}>
-            {data.subheading}
-          </p>
-        )}
-        <div
-          style={{
-            width: '3rem',
-            height: '4px',
-            backgroundColor: colors.primary,
-            margin: '0 auto 3rem',
-            borderRadius: '2px',
-          }}
-        />
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <SectionHeader kicker="Toolkit" heading={data.heading} subheading={data.subheading} theme={theme} />
 
         {grouped.map((group) => (
-          <div key={group.label ?? 'default'} style={{ marginBottom: '2.5rem' }}>
+          <div key={group.label ?? 'default'} className="pf-reveal" style={{ marginBottom: '2.75rem' }}>
             {group.label && (
               <h3
                 style={{
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  color: colors.primary,
-                  marginBottom: '1rem',
+                  fontFamily: MONO,
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  color: colors.muted,
+                  marginBottom: '1.1rem',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
+                  letterSpacing: '0.16em',
                 }}
               >
                 {group.label}
@@ -77,20 +51,32 @@ export function SkillsSection({ section, theme }: Props) {
             )}
 
             {data.layout === 'tags' && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
                 {group.items.map((skill) => (
                   <span
                     key={skill.id}
+                    className="pf-tag"
                     style={{
-                      backgroundColor: `${colors.primary}15`,
+                      backgroundColor: colors.background,
                       color: colors.foreground,
                       border: `1px solid ${colors.border}`,
-                      padding: '0.5rem 1rem',
+                      padding: '0.55rem 1.05rem',
                       borderRadius: theme.radius === 'none' ? '0' : '999px',
-                      fontSize: '0.875rem',
-                      fontWeight: '500',
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
                     }}
                   >
+                    <span
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                      }}
+                    />
                     {skill.name}
                   </span>
                 ))}
@@ -98,43 +84,36 @@ export function SkillsSection({ section, theme }: Props) {
             )}
 
             {data.layout === 'bars' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
                 {group.items.map((skill) => (
                   <div key={skill.id}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.375rem',
-                      }}
-                    >
-                      <span
-                        style={{ color: colors.foreground, fontWeight: '500', fontSize: '0.9rem' }}
-                      >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
+                      <span style={{ color: colors.foreground, fontWeight: 600, fontSize: '0.92rem' }}>
                         {skill.name}
                       </span>
                       {data.showLevels && skill.level !== undefined && (
-                        <span style={{ color: colors.muted, fontSize: '0.8rem' }}>
+                        <span style={{ fontFamily: MONO, color: colors.muted, fontSize: '0.78rem' }}>
                           {skill.level}%
                         </span>
                       )}
                     </div>
                     {skill.level !== undefined && (
                       <div
+                        className="pf-bar"
                         style={{
-                          height: '8px',
+                          height: '7px',
                           backgroundColor: colors.border,
                           borderRadius: '999px',
                           overflow: 'hidden',
                         }}
                       >
-                        <div
+                        <i
                           style={{
+                            display: 'block',
                             height: '100%',
                             width: `${skill.level}%`,
-                            backgroundColor: colors.primary,
                             borderRadius: '999px',
-                            transition: 'width 1s ease',
+                            background: `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`,
                           }}
                         />
                       </div>
@@ -148,33 +127,30 @@ export function SkillsSection({ section, theme }: Props) {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                  gap: '1rem',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                  gap: '0.875rem',
                 }}
               >
                 {group.items.map((skill) => (
                   <div
                     key={skill.id}
+                    className="pf-card"
                     style={{
                       backgroundColor: colors.background,
                       border: `1px solid ${colors.border}`,
-                      padding: '1rem',
-                      borderRadius: '8px',
+                      padding: '1.25rem 1rem',
+                      borderRadius: radius,
                       textAlign: 'center',
                     }}
                   >
                     {skill.icon && (
-                      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{skill.icon}</div>
+                      <div style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>{skill.icon}</div>
                     )}
-                    <div
-                      style={{ fontWeight: '600', color: colors.foreground, fontSize: '0.875rem' }}
-                    >
+                    <div style={{ fontWeight: 600, color: colors.foreground, fontSize: '0.9rem' }}>
                       {skill.name}
                     </div>
                     {data.showLevels && skill.level !== undefined && (
-                      <div
-                        style={{ color: colors.muted, fontSize: '0.75rem', marginTop: '0.25rem' }}
-                      >
+                      <div style={{ fontFamily: MONO, color: colors.primary, fontSize: '0.72rem', marginTop: '0.35rem' }}>
                         {skill.level}%
                       </div>
                     )}

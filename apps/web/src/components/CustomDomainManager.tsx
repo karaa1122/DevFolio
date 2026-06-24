@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import useSWR from 'swr';
 import { portfolioApi } from '@/lib/api';
 import type { DomainStatusResponse } from '@devfolio/shared';
@@ -38,7 +39,7 @@ export function CustomDomainManager({ portfolioId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-full mt-3 flex items-center justify-between gap-2 rounded-lg border border-line hover:border-accent/50/60 bg-surface-2/40 hover:bg-surface-2/70 px-3 py-2.5 text-left transition-colors group"
+        className="w-full mt-3 flex items-center justify-between gap-2 rounded-lg border border-line hover:border-accent/60 bg-surface-2/40 hover:bg-surface-2/70 px-3 py-2.5 text-left transition-colors group"
       >
         <span className="flex items-center gap-2 min-w-0">
           <span className="text-content-faint group-hover:text-accent transition-colors">
@@ -114,9 +115,14 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
   const domain = status?.domain ?? null;
   const verified = !!status?.verified;
 
-  return (
+  // Render to <body> via a portal so the overlay's `position: fixed` is
+  // relative to the viewport — not the dashboard card, whose hover `transform`
+  // would otherwise become the containing block and mis-position the modal.
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -248,7 +254,8 @@ function CustomDomainModal({ portfolioId, status, onClose, onChange }: ModalProp
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

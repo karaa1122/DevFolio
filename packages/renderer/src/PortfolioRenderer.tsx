@@ -50,6 +50,7 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
           --pf-accent: ${theme.colors.accent};
           --pf-muted: ${theme.colors.muted};
           --pf-border: ${theme.colors.border};
+          --pf-bg: ${theme.colors.background};
           scroll-behavior: smooth;
         }
         ${
@@ -75,9 +76,62 @@ export function PortfolioRenderer({ portfolio, isExport = false }: Props) {
         [data-portfolio-id] a[data-cta]:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--pf-primary) 60%, transparent); }
         @keyframes pf-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
         [data-portfolio-id] .pf-pulse { animation: pf-pulse 2s ease-in-out infinite; }
+
+        /* Generic glass card hover lift */
+        [data-portfolio-id] .pf-card { transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease; }
+        [data-portfolio-id] .pf-card:hover {
+          transform: translateY(-4px);
+          border-color: color-mix(in srgb, var(--pf-primary) 45%, var(--pf-border));
+          box-shadow: 0 20px 44px -22px rgba(0,0,0,0.5);
+        }
+        /* Skill tag hover */
+        [data-portfolio-id] .pf-tag { transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease; }
+        [data-portfolio-id] .pf-tag:hover {
+          transform: translateY(-2px);
+          border-color: color-mix(in srgb, var(--pf-primary) 60%, var(--pf-border));
+          color: var(--pf-primary);
+        }
+        /* Social icon button hover → fills with the accent */
+        [data-portfolio-id] .pf-social { transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease; }
+        [data-portfolio-id] .pf-social:hover {
+          transform: translateY(-3px);
+          background: var(--pf-primary);
+          border-color: var(--pf-primary);
+        }
+        [data-portfolio-id] .pf-social:hover svg { stroke: var(--pf-bg, #fff); }
+        /* Timeline entry hover */
+        [data-portfolio-id] .pf-entry { transition: transform 0.25s ease; }
+        [data-portfolio-id] .pf-entry:hover { transform: translateX(4px); }
+
+        /* Scroll-reveal — progressive enhancement; falls back to fully visible */
+        @supports (animation-timeline: view()) {
+          @media (prefers-reduced-motion: no-preference) {
+            [data-portfolio-id] .pf-reveal {
+              opacity: 0;
+              animation: pf-reveal-in linear both;
+              animation-timeline: view();
+              animation-range: entry 0% cover 22%;
+            }
+          }
+        }
+        @keyframes pf-reveal-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+        /* Animated skill bars on reveal */
+        @supports (animation-timeline: view()) {
+          @media (prefers-reduced-motion: no-preference) {
+            [data-portfolio-id] .pf-bar > i {
+              transform: scaleX(0); transform-origin: left;
+              animation: pf-bar-grow linear both;
+              animation-timeline: view();
+              animation-range: entry 0% cover 30%;
+            }
+          }
+        }
+        @keyframes pf-bar-grow { to { transform: scaleX(1); } }
+
         @media (max-width: 768px) {
           [data-portfolio-id] section > div { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
           [data-portfolio-id] .pf-nav-links { display: none !important; }
+          [data-portfolio-id] .pf-bento { grid-template-columns: 1fr !important; }
         }
       `}</style>
 

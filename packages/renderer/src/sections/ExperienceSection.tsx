@@ -1,102 +1,72 @@
 import React from 'react';
 import type { ExperienceSection, Theme } from '@devfolio/shared';
+import { SectionHeader, sectionPadding, radiusMap, MONO } from './_shared';
 
 interface Props {
   section: ExperienceSection;
   theme: Theme;
 }
 
-const radiusMap: Record<string, string> = {
-  none: '0',
-  sm: '6px',
-  md: '12px',
-  lg: '20px',
-  full: '24px',
-};
-
 export function ExperienceSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding =
-    theme.spacing === 'compact'
-      ? '3rem 2rem'
-      : theme.spacing === 'relaxed'
-        ? '6rem 2rem'
-        : '5rem 2rem';
-  const radius = radiusMap[theme.radius] ?? '12px';
+  const radius = radiusMap[theme.radius] ?? '16px';
+  const isTimeline = data.layout === 'timeline';
 
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
+      style={{ backgroundColor: colors.background, color: colors.foreground, padding: sectionPadding(theme) }}
     >
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <h2
-          style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-            fontWeight: '700',
-            textAlign: 'center',
-            marginBottom: '1rem',
-          }}
-        >
-          {data.heading}
-        </h2>
-        <div
-          style={{
-            width: '3rem',
-            height: '4px',
-            backgroundColor: colors.primary,
-            margin: '0 auto 3rem',
-            borderRadius: '2px',
-          }}
-        />
+      <div style={{ maxWidth: '880px', margin: '0 auto' }}>
+        <SectionHeader kicker="Career" heading={data.heading} theme={theme} />
 
-        <div
-          style={{
-            position: 'relative',
-            paddingLeft: data.layout === 'timeline' ? '2rem' : '0',
-          }}
-        >
-          {data.layout === 'timeline' && (
+        <div style={{ position: 'relative', paddingLeft: isTimeline ? '2.25rem' : '0' }}>
+          {isTimeline && (
             <div
               style={{
                 position: 'absolute',
                 left: '0.5rem',
-                top: 0,
-                bottom: 0,
+                top: '0.4rem',
+                bottom: '0.4rem',
                 width: '2px',
-                backgroundColor: colors.border,
+                background: `linear-gradient(${colors.primary}, ${colors.accent}, transparent)`,
+                opacity: 0.5,
               }}
             />
           )}
 
-          {data.items.map((item, index) => (
+          {data.items.map((item) => (
             <div
               key={item.id}
+              className="pf-reveal pf-entry"
               style={{
                 position: 'relative',
-                marginBottom: '2.5rem',
-                ...(data.layout === 'cards'
-                  ? {
+                marginBottom: '1.5rem',
+                ...(isTimeline
+                  ? {}
+                  : {
                       backgroundColor: colors.card,
                       border: `1px solid ${colors.border}`,
                       borderRadius: radius,
                       padding: '1.5rem',
-                    }
-                  : {}),
+                    }),
               }}
             >
-              {data.layout === 'timeline' && (
-                <div
+              {isTimeline && (
+                <span
                   style={{
                     position: 'absolute',
-                    left: '-1.625rem',
-                    top: '0.25rem',
-                    width: '12px',
-                    height: '12px',
+                    left: '-1.85rem',
+                    top: '0.35rem',
+                    width: '14px',
+                    height: '14px',
                     borderRadius: '50%',
-                    backgroundColor: item.current ? colors.primary : colors.border,
-                    border: `2px solid ${colors.background}`,
+                    background: item.current
+                      ? `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`
+                      : colors.card,
+                    border: `2px solid ${item.current ? colors.accent : colors.border}`,
+                    boxShadow: item.current ? `0 0 0 4px ${colors.primary}22` : 'none',
                   }}
                 />
               )}
@@ -108,54 +78,40 @@ export function ExperienceSection({ section, theme }: Props) {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '0.5rem',
-                  marginBottom: '0.25rem',
+                  marginBottom: '0.4rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                   {item.logo && (
                     <img
                       src={item.logo}
                       alt={item.company}
-                      style={{
-                        width: '2.5rem',
-                        height: '2.5rem',
-                        borderRadius: '6px',
-                        objectFit: 'contain',
-                      }}
+                      style={{ width: '2.75rem', height: '2.75rem', borderRadius: '10px', objectFit: 'contain' }}
                     />
                   )}
                   <div>
-                    <h3
-                      style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '700',
-                        color: colors.foreground,
-                        margin: 0,
-                      }}
-                    >
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: colors.foreground, margin: 0, letterSpacing: '-0.01em' }}>
                       {item.role}
                     </h3>
-                    <p
-                      style={{
-                        color: colors.primary,
-                        fontWeight: '600',
-                        margin: '0.125rem 0',
-                        fontSize: '0.9rem',
-                      }}
-                    >
+                    <p style={{ color: colors.primary, fontWeight: 600, margin: '0.15rem 0', fontSize: '0.95rem' }}>
                       {item.company}
                     </p>
                   </div>
                 </div>
 
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ color: colors.muted, fontSize: '0.85rem' }}>
+                  <span
+                    style={{
+                      fontFamily: MONO,
+                      color: colors.muted,
+                      fontSize: '0.78rem',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {item.startDate} — {item.current ? 'Present' : (item.endDate ?? '')}
                   </span>
                   {item.location && (
-                    <p style={{ color: colors.muted, fontSize: '0.8rem', margin: '0.125rem 0 0' }}>
-                      {item.location}
-                    </p>
+                    <p style={{ color: colors.muted, fontSize: '0.78rem', margin: '0.2rem 0 0' }}>{item.location}</p>
                   )}
                 </div>
               </div>
@@ -164,12 +120,13 @@ export function ExperienceSection({ section, theme }: Props) {
                 <span
                   style={{
                     display: 'inline-block',
-                    backgroundColor: `${colors.accent}15`,
+                    backgroundColor: `${colors.accent}18`,
                     color: colors.accent,
-                    padding: '0.1rem 0.5rem',
+                    padding: '0.15rem 0.6rem',
                     borderRadius: '999px',
-                    fontSize: '0.75rem',
-                    marginBottom: '0.75rem',
+                    fontSize: '0.72rem',
+                    fontWeight: 500,
+                    marginBottom: '0.85rem',
                     textTransform: 'capitalize',
                   }}
                 >
@@ -181,9 +138,9 @@ export function ExperienceSection({ section, theme }: Props) {
                 <p
                   style={{
                     color: colors.muted,
-                    fontSize: '0.9rem',
-                    lineHeight: '1.7',
-                    marginBottom: item.highlights.length > 0 ? '0.75rem' : 0,
+                    fontSize: '0.95rem',
+                    lineHeight: 1.7,
+                    marginBottom: item.highlights.length > 0 ? '0.85rem' : 0,
                   }}
                 >
                   {item.description}
@@ -191,30 +148,22 @@ export function ExperienceSection({ section, theme }: Props) {
               )}
 
               {item.highlights.length > 0 && (
-                <ul
-                  style={{
-                    margin: 0,
-                    padding: 0,
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.375rem',
-                  }}
-                >
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                   {item.highlights.map((h, i) => (
                     <li
                       key={i}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '0.5rem',
-                        color: colors.muted,
-                        fontSize: '0.875rem',
-                      }}
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', color: colors.muted, fontSize: '0.9rem', lineHeight: 1.55 }}
                     >
-                      <span style={{ color: colors.primary, flexShrink: 0, marginTop: '0.1rem' }}>
-                        ▸
-                      </span>
+                      <span
+                        style={{
+                          width: '5px',
+                          height: '5px',
+                          marginTop: '0.5rem',
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                        }}
+                      />
                       {h}
                     </li>
                   ))}

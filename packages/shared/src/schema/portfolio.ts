@@ -3,20 +3,22 @@ import { z } from 'zod';
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
 export const ThemeColorsSchema = z.object({
-  primary: z.string().default('#7c3aed'),
-  secondary: z.string().default('#a78bfa'),
-  background: z.string().default('#0f172a'),
-  foreground: z.string().default('#f8fafc'),
-  muted: z.string().default('#94a3b8'),
-  accent: z.string().default('#06b6d4'),
-  card: z.string().default('#1e293b'),
-  border: z.string().default('#334155'),
+  // Defaults to the "Aurora" preset — a premium near-black base with an
+  // electric lime→cyan accent so a fresh portfolio looks designed out of the box.
+  primary: z.string().default('#bef264'),
+  secondary: z.string().default('#a3e635'),
+  background: z.string().default('#0a0a0c'),
+  foreground: z.string().default('#ededf0'),
+  muted: z.string().default('#8a8a93'),
+  accent: z.string().default('#22d3ee'),
+  card: z.string().default('#141417'),
+  border: z.string().default('#26262b'),
 });
 
 export const ThemeSchema = z.object({
   colors: ThemeColorsSchema.default({}),
   font: z.enum(['inter', 'roboto', 'poppins', 'fira-code', 'jetbrains-mono']).default('inter'),
-  radius: z.enum(['none', 'sm', 'md', 'lg', 'full']).default('md'),
+  radius: z.enum(['none', 'sm', 'md', 'lg', 'full']).default('lg'),
   darkMode: z.boolean().default(true),
   spacing: z.enum(['compact', 'normal', 'relaxed']).default('normal'),
 });

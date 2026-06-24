@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ProjectsSection, Theme } from '@devfolio/shared';
+import { SectionHeader, sectionPadding, radiusMap, Icon } from './_shared';
 
 interface Props {
   section: ProjectsSection;
@@ -9,58 +10,21 @@ interface Props {
 export function ProjectsSection({ section, theme }: Props) {
   const { data } = section;
   const { colors } = theme;
-  const padding =
-    theme.spacing === 'compact'
-      ? '3rem 2rem'
-      : theme.spacing === 'relaxed'
-        ? '6rem 2rem'
-        : '5rem 2rem';
 
   const items = data.showFeaturedOnly ? data.items.filter((p) => p.featured) : data.items;
 
-  const getBorderRadius = () => {
-    const map: Record<string, string> = {
-      none: '0',
-      sm: '6px',
-      md: '10px',
-      lg: '16px',
-      full: '20px',
-    };
-    return map[theme.radius] ?? '10px';
-  };
+  const getBorderRadius = () => radiusMap[theme.radius] ?? '16px';
 
   return (
     <section
       id={section.id}
-      style={{ backgroundColor: colors.background, color: colors.foreground, padding }}
+      style={{ backgroundColor: colors.background, color: colors.foreground, padding: sectionPadding(theme) }}
     >
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <h2
-          style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-            fontWeight: '700',
-            textAlign: 'center',
-            marginBottom: data.subheading ? '0.5rem' : '1rem',
-          }}
-        >
-          {data.heading}
-        </h2>
-        {data.subheading && (
-          <p style={{ textAlign: 'center', color: colors.muted, marginBottom: '1rem' }}>
-            {data.subheading}
-          </p>
-        )}
-        <div
-          style={{
-            width: '3rem',
-            height: '4px',
-            backgroundColor: colors.primary,
-            margin: '0 auto 3rem',
-            borderRadius: '2px',
-          }}
-        />
+        <SectionHeader kicker="Selected work" heading={data.heading} subheading={data.subheading} theme={theme} />
 
         <div
+          className="pf-reveal"
           style={{
             display: data.layout === 'list' ? 'flex' : 'grid',
             flexDirection: data.layout === 'list' ? 'column' : undefined,
@@ -120,12 +84,15 @@ export function ProjectsSection({ section, theme }: Props) {
                   {project.featured && (
                     <span
                       style={{
-                        backgroundColor: `${colors.primary}20`,
-                        color: colors.primary,
-                        padding: '0.125rem 0.5rem',
+                        background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                        color: colors.background,
+                        padding: '0.18rem 0.6rem',
                         borderRadius: '999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       Featured
@@ -170,7 +137,7 @@ export function ProjectsSection({ section, theme }: Props) {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '1.1rem' }}>
                   {project.liveUrl && (
                     <a
                       href={project.liveUrl}
@@ -181,9 +148,12 @@ export function ProjectsSection({ section, theme }: Props) {
                         fontSize: '0.875rem',
                         fontWeight: '600',
                         textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
                       }}
                     >
-                      Live Demo ↗
+                      Live Demo <Icon name="arrow" color={colors.primary} size={14} />
                     </a>
                   )}
                   {project.repoUrl && (
@@ -191,9 +161,16 @@ export function ProjectsSection({ section, theme }: Props) {
                       href={project.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: colors.muted, fontSize: '0.875rem', textDecoration: 'none' }}
+                      style={{
+                        color: colors.muted,
+                        fontSize: '0.875rem',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                      }}
                     >
-                      Source ↗
+                      Source <Icon name="arrow" color={colors.muted} size={14} />
                     </a>
                   )}
                 </div>
