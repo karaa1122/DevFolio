@@ -26,26 +26,34 @@ async function fetchPortfolio(slug: string): Promise<PortfolioResponse | null> {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const entity = await fetchPortfolio(params.slug);
-  if (!entity) return { title: 'Portfolio Not Found' };
+  if (!entity) return { title: 'Portfolio Not Found', robots: { index: false, follow: false } };
 
   const { metadata, sections } = entity.data;
   const hero = sections.find((s) => s.type === 'hero');
   const name = hero?.type === 'hero' ? hero.data.name : params.slug;
+  const heroBio = hero?.type === 'hero' ? hero.data.bio : undefined;
+  const description = metadata.description ?? heroBio;
+  const canonical = `/${params.slug}`;
+  const title = metadata.title ?? `${name} — Portfolio`;
 
   return {
-    title: metadata.title ?? `${name} — Portfolio`,
-    description: metadata.description ?? (hero?.type === 'hero' ? hero.data.bio : undefined),
+    title,
+    description,
     keywords: metadata.keywords,
+    alternates: { canonical },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
     openGraph: {
       type: 'profile',
+      url: canonical,
       title: metadata.title ?? name,
-      description: metadata.description,
+      description,
       images: metadata.ogImage ? [{ url: metadata.ogImage }] : [],
     },
     twitter: {
       card: 'summary_large_image',
       title: metadata.title ?? name,
-      description: metadata.description,
+      description,
+      images: metadata.ogImage ? [metadata.ogImage] : [],
     },
     ...(metadata.gaTrackingId && {
       other: { 'google-analytics': metadata.gaTrackingId },
@@ -60,8 +68,32 @@ export default async function PublicPortfolioPage({ params }: Props) {
     notFound();
   }
 
+  const { sections, metadata } = entity.data;
+  const hero = sections.find((s) => s.type === 'hero');
+  const heroData = hero?.type === 'hero' ? hero.data : undefined;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://devfolioapp.cloud';
+
+  // Structured data so search engines understand this is a person's profile.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    dateModified: entity.updatedAt,
+    mainEntity: {
+      '@type': 'Person',
+      name: heroData?.name ?? params.slug,
+      jobTitle: heroData?.title,
+      description: metadata.description ?? heroData?.bio,
+      url: `${appUrl}/${params.slug}`,
+      ...(heroData?.avatar && { image: heroData.avatar }),
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PortfolioViewTracker portfolioId={entity.id} />
       <SectionViewTracker
         portfolioId={entity.id}
