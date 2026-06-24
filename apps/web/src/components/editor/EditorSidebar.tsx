@@ -28,17 +28,17 @@ export function EditorSidebar({ portfolioId }: Props) {
   ];
 
   return (
-    <aside className="w-72 border-r border-slate-800 bg-slate-900 flex flex-col overflow-hidden shrink-0">
+    <aside className="w-72 border-r border-line bg-surface flex flex-col overflow-hidden shrink-0">
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 shrink-0 overflow-x-auto">
+      <div className="flex border-b border-line shrink-0 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActivePanel(tab.id as any)}
             className={`flex-1 py-3 text-xs font-medium transition-colors whitespace-nowrap px-1 ${
               activePanel === tab.id
-                ? 'text-violet-400 border-b-2 border-violet-400'
-                : 'text-slate-500 hover:text-slate-300'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-content-faint hover:text-content'
             }`}
           >
             {tab.label}
@@ -111,7 +111,7 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
   if (!status) {
     return (
       <div className="p-4 flex items-center justify-center h-24">
-        <div className="w-4 h-4 border-2 border-slate-700 border-t-violet-500 rounded-full animate-spin" />
+        <div className="w-4 h-4 border-2 border-line border-t-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -119,14 +119,14 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
   if (!status.connected) {
     return (
       <div className="p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-slate-300">GitHub Integration</h3>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <h3 className="text-sm font-semibold text-content">GitHub Integration</h3>
+        <p className="text-xs text-content-faint leading-relaxed">
           Connect your GitHub account to import repositories directly into your portfolio&apos;s projects
           section.
         </p>
         <a
           href={`${API_BASE}/api/v1/auth/github`}
-          className="block w-full text-center bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-medium py-2.5 rounded-lg transition-colors"
+          className="block w-full text-center bg-surface-2 hover:bg-surface-3 border border-line text-content text-sm font-medium py-2.5 rounded-lg transition-colors"
         >
           Connect GitHub
         </a>
@@ -137,12 +137,12 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-300">GitHub Repos</h3>
+        <h3 className="text-sm font-semibold text-content">GitHub Repos</h3>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">{status.username}</span>
+          <span className="text-xs text-content-faint">{status.username}</span>
           <button
             onClick={handleDisconnect}
-            className="text-xs text-slate-600 hover:text-red-400 transition-colors"
+            className="text-xs text-content-faint hover:text-red-400 transition-colors"
             title="Disconnect GitHub"
           >
             ×
@@ -151,44 +151,44 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
       </div>
 
       {syncDone && (
-        <div className="bg-green-950/50 border border-green-800 text-green-400 text-xs px-3 py-2 rounded-lg">
+        <div className="bg-accent/10 border border-accent/30 text-accent text-xs px-3 py-2 rounded-lg">
           Repos imported into Projects section
         </div>
       )}
 
       {reposLoading ? (
         <div className="flex items-center justify-center h-20">
-          <div className="w-4 h-4 border-2 border-slate-700 border-t-violet-500 rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-line border-t-accent rounded-full animate-spin" />
         </div>
       ) : (
         <>
-          <p className="text-xs text-slate-500">Select repos to add to your Projects section:</p>
+          <p className="text-xs text-content-faint">Select repos to add to your Projects section:</p>
           <div className="space-y-1.5 max-h-72 overflow-y-auto">
             {(repos ?? []).map((repo) => (
               <label
                 key={repo.id}
                 className={`flex items-start gap-2.5 p-2.5 rounded-lg cursor-pointer transition-colors ${
                   selected.has(repo.id)
-                    ? 'bg-violet-900/30 border border-violet-700/50'
-                    : 'bg-slate-800 border border-transparent hover:border-slate-600'
+                    ? 'bg-accent/15 border border-accent/40'
+                    : 'bg-surface-2 border border-transparent hover:border-line'
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={selected.has(repo.id)}
                   onChange={() => toggleRepo(repo.id)}
-                  className="mt-0.5 accent-violet-500 shrink-0"
+                  className="mt-0.5 accent-accent shrink-0"
                 />
                 <div className="min-w-0">
-                  <p className="text-xs font-medium text-slate-200 truncate">{repo.name}</p>
+                  <p className="text-xs font-medium text-content truncate">{repo.name}</p>
                   {repo.description && (
-                    <p className="text-xs text-slate-500 truncate mt-0.5">{repo.description}</p>
+                    <p className="text-xs text-content-faint truncate mt-0.5">{repo.description}</p>
                   )}
                   <div className="flex items-center gap-2 mt-1">
                     {repo.language && (
-                      <span className="text-xs text-slate-600">{repo.language}</span>
+                      <span className="text-xs text-content-faint">{repo.language}</span>
                     )}
-                    <span className="text-xs text-slate-600">★ {repo.stars}</span>
+                    <span className="text-xs text-content-faint">★ {repo.stars}</span>
                   </div>
                 </div>
               </label>
@@ -198,7 +198,7 @@ function GitHubPanel({ portfolioId }: { portfolioId: string }) {
           <button
             onClick={handleSync}
             disabled={selected.size === 0 || syncing}
-            className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-xs font-semibold py-2.5 rounded-lg transition-colors"
+            className="df-btn df-btn-primary w-full py-2.5 text-xs"
           >
             {syncing ? 'Importing...' : `Import ${selected.size > 0 ? selected.size : ''} Selected`}
           </button>
@@ -216,37 +216,37 @@ function SettingsPanel() {
 
   return (
     <div className="p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-slate-300">Portfolio Settings</h3>
+      <h3 className="text-sm font-semibold text-content">Portfolio Settings</h3>
 
       <div>
-        <label className="block text-xs text-slate-500 mb-1.5">Title</label>
+        <label className="block text-xs text-content-faint mb-1.5">Title</label>
         <input
           type="text"
           value={portfolio.metadata.title ?? ''}
           onChange={(e) => updateMetadata({ title: e.target.value })}
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500"
+          className="w-full bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm text-content focus:outline-none focus:border-accent/60"
           placeholder="My Portfolio"
         />
       </div>
 
       <div>
-        <label className="block text-xs text-slate-500 mb-1.5">SEO Description</label>
+        <label className="block text-xs text-content-faint mb-1.5">SEO Description</label>
         <textarea
           value={portfolio.metadata.description ?? ''}
           onChange={(e) => updateMetadata({ description: e.target.value })}
           rows={3}
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500 resize-none"
+          className="w-full bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm text-content focus:outline-none focus:border-accent/60 resize-none"
           placeholder="A short description for search engines"
         />
       </div>
 
       <div>
-        <label className="block text-xs text-slate-500 mb-1.5">Slug</label>
-        <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-          <span className="text-slate-500 text-xs pl-3">devfolioapp.cloud/</span>
-          <span className="text-violet-400 text-sm py-2 pr-3 font-mono">{portfolio.slug}</span>
+        <label className="block text-xs text-content-faint mb-1.5">Slug</label>
+        <div className="flex items-center bg-surface-2 border border-line rounded-lg overflow-hidden">
+          <span className="text-content-faint text-xs pl-3">devfolioapp.cloud/</span>
+          <span className="text-accent text-sm py-2 pr-3 font-mono">{portfolio.slug}</span>
         </div>
-        <p className="text-xs text-slate-600 mt-1">Slug cannot be changed after creation</p>
+        <p className="text-xs text-content-faint mt-1">Slug cannot be changed after creation</p>
       </div>
     </div>
   );

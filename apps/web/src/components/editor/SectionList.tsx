@@ -108,7 +108,7 @@ export function SectionList() {
       {/* Existing sections (drag & drop) */}
       {orderedSections.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">
+          <p className="text-xs font-semibold text-content-faint uppercase tracking-wider mb-2 px-1">
             Active Sections
           </p>
           <DndContext
@@ -134,7 +134,7 @@ export function SectionList() {
 
       {/* Add section */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">
+        <p className="text-xs font-semibold text-content-faint uppercase tracking-wider mb-2 px-1">
           Add Section
         </p>
         <div className="grid grid-cols-2 gap-1.5">
@@ -143,10 +143,10 @@ export function SectionList() {
               key={type}
               onClick={() => handleAddSection(type)}
               disabled={(['hero', 'about', 'contact', 'skills'] as SectionType[]).includes(type) && existingTypes.has(type)}
-              className="flex items-center gap-2 p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-700 hover:border-violet-700 rounded-lg text-left transition-colors text-xs"
+              className="flex items-center gap-2 p-2.5 bg-surface-2 hover:bg-surface-3 disabled:opacity-40 disabled:cursor-not-allowed border border-line hover:border-accent/50 rounded-lg text-left transition-colors text-xs"
             >
               <span>{SECTION_ICONS[type]}</span>
-              <span className="text-slate-300 capitalize">{type}</span>
+              <span className="text-content capitalize">{type}</span>
             </button>
           ))}
         </div>
@@ -178,12 +178,12 @@ function SortableSectionRow({ section, onSelect }: SortableRowProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 p-2.5 bg-slate-800 border border-slate-700 hover:border-slate-600 rounded-lg group mb-1.5"
+      className="flex items-center gap-2 p-2.5 bg-surface-2 border border-line hover:border-line rounded-lg group mb-1.5"
     >
       <button
         {...attributes}
         {...listeners}
-        className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing"
+        className="text-content-faint hover:text-content-muted cursor-grab active:cursor-grabbing"
         title="Drag to reorder"
       >
         ⠿
@@ -193,7 +193,7 @@ function SortableSectionRow({ section, onSelect }: SortableRowProps) {
 
       <button
         onClick={onSelect}
-        className="flex-1 text-left text-sm text-slate-300 hover:text-white transition-colors capitalize"
+        className="flex-1 text-left text-sm text-content hover:text-white transition-colors capitalize"
       >
         {section.type}
       </button>
@@ -201,7 +201,7 @@ function SortableSectionRow({ section, onSelect }: SortableRowProps) {
       <button
         onClick={() => updateSectionVisibility(section.id, !section.visible)}
         title={section.visible ? 'Hide section' : 'Show section'}
-        className="text-slate-600 hover:text-slate-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+        className="text-content-faint hover:text-content-muted text-xs opacity-0 group-hover:opacity-100 transition-opacity"
       >
         {section.visible ? '👁' : '🚫'}
       </button>
@@ -209,7 +209,7 @@ function SortableSectionRow({ section, onSelect }: SortableRowProps) {
       <button
         onClick={() => removeSection(section.id)}
         title="Remove section"
-        className="text-slate-700 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+        className="text-content-faint hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
       >
         ✕
       </button>

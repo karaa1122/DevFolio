@@ -17,6 +17,7 @@ import type {
   Skill,
 } from '@devfolio/shared';
 import { generateId } from '@/lib/utils';
+import { IconArrowLeft } from '@/components/icons';
 
 interface Props {
   sectionId: string;
@@ -31,15 +32,16 @@ export function SectionEditor({ sectionId }: Props) {
 
   return (
     <div className="p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <button
-          onClick={() => selectSection(null)}
-          className="text-slate-500 hover:text-slate-300 text-lg"
-        >
-          ←
-        </button>
-        <h3 className="text-sm font-semibold text-slate-300 capitalize">{section.type} Section</h3>
-      </div>
+      <button
+        onClick={() => selectSection(null)}
+        className="mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-xs font-medium text-content-faint transition-colors hover:bg-surface-2 hover:text-content"
+      >
+        <IconArrowLeft className="h-3.5 w-3.5" />
+        All sections
+      </button>
+      <h3 className="mb-4 font-display text-sm font-semibold capitalize text-content">
+        {section.type} Section
+      </h3>
       <SectionForm section={section} onUpdate={(data) => updateSectionData(sectionId, data)} />
     </div>
   );
@@ -94,14 +96,14 @@ function SectionForm({ section, onUpdate }: FormProps) {
 function FieldWrapper({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-slate-500 mb-1.5">{label}</label>
+      <label className="block text-xs text-content-faint mb-1.5">{label}</label>
       {children}
     </div>
   );
 }
 
 const inputCls =
-  'w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-violet-500';
+  'w-full bg-surface-2 border border-line rounded-lg px-3 py-2 text-sm text-content focus:outline-none focus:border-accent/60';
 
 function TextInput({
   value,
@@ -198,7 +200,7 @@ function AddButton({ onClick, label = 'Add Item' }: { onClick: () => void; label
   return (
     <button
       onClick={onClick}
-      className="w-full py-2 border border-dashed border-slate-700 hover:border-violet-600 text-slate-500 hover:text-violet-400 text-xs rounded-lg transition-colors"
+      className="w-full py-2 border border-dashed border-line hover:border-accent/50 text-content-faint hover:text-accent text-xs rounded-lg transition-colors"
     >
       + {label}
     </button>
@@ -220,21 +222,21 @@ function ItemHeader({
 }) {
   return (
     <div
-      className="flex items-center justify-between p-3 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-750"
+      className="flex items-center justify-between p-3 bg-surface-2 rounded-lg cursor-pointer hover:bg-surface-3"
       onClick={onToggle}
     >
       <div className="min-w-0">
-        <p className="text-sm text-slate-200 truncate">{title || '(untitled)'}</p>
-        {subtitle && <p className="text-xs text-slate-500 truncate">{subtitle}</p>}
+        <p className="text-sm text-content truncate">{title || '(untitled)'}</p>
+        {subtitle && <p className="text-xs text-content-faint truncate">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-1 ml-2 shrink-0">
-        <span className="text-slate-500 text-xs">{expanded ? '▲' : '▼'}</span>
+        <span className="text-content-faint text-xs">{expanded ? '▲' : '▼'}</span>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
-          className="text-slate-600 hover:text-red-400 transition-colors text-sm px-1"
+          className="text-content-faint hover:text-red-400 transition-colors text-sm px-1"
           title="Remove"
         >
           ✕
@@ -297,9 +299,9 @@ function HeroForm({
           id="available"
           checked={data.availableForWork}
           onChange={(e) => onUpdate({ availableForWork: e.target.checked })}
-          className="w-4 h-4 rounded accent-violet-500"
+          className="w-4 h-4 rounded accent-accent"
         />
-        <label htmlFor="available" className="text-sm text-slate-400">
+        <label htmlFor="available" className="text-sm text-content-muted">
           Available for work
         </label>
       </div>
@@ -384,9 +386,9 @@ function ContactForm({
           id="showForm"
           checked={data.showContactForm}
           onChange={(e) => onUpdate({ showContactForm: e.target.checked })}
-          className="w-4 h-4 rounded accent-violet-500"
+          className="w-4 h-4 rounded accent-accent"
         />
-        <label htmlFor="showForm" className="text-sm text-slate-400">
+        <label htmlFor="showForm" className="text-sm text-content-muted">
           Show contact form
         </label>
       </div>
@@ -454,7 +456,7 @@ function ExperienceForm({
 
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-lg overflow-hidden border border-slate-700/50">
+          <div key={item.id} className="rounded-lg overflow-hidden border border-line">
             <ItemHeader
               title={item.role || '(no role)'}
               subtitle={item.company}
@@ -463,7 +465,7 @@ function ExperienceForm({
               onDelete={() => removeItem(item.id)}
             />
             {expandedId === item.id && (
-              <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
+              <div className="p-3 space-y-3 bg-surface border-t border-line">
                 <FieldWrapper label="Company">
                   <TextInput
                     value={item.company}
@@ -523,9 +525,9 @@ function ExperienceForm({
                         endDate: e.target.checked ? '' : item.endDate,
                       })
                     }
-                    className="w-4 h-4 rounded accent-violet-500"
+                    className="w-4 h-4 rounded accent-accent"
                   />
-                  <span className="text-xs text-slate-400">Currently working here</span>
+                  <span className="text-xs text-content-muted">Currently working here</span>
                 </div>
                 <FieldWrapper label="Description">
                   <TextareaInput
@@ -592,7 +594,7 @@ function EducationForm({
 
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-lg overflow-hidden border border-slate-700/50">
+          <div key={item.id} className="rounded-lg overflow-hidden border border-line">
             <ItemHeader
               title={item.degree || '(no degree)'}
               subtitle={item.institution}
@@ -601,7 +603,7 @@ function EducationForm({
               onDelete={() => removeItem(item.id)}
             />
             {expandedId === item.id && (
-              <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
+              <div className="p-3 space-y-3 bg-surface border-t border-line">
                 <FieldWrapper label="Institution">
                   <TextInput
                     value={item.institution}
@@ -644,9 +646,9 @@ function EducationForm({
                     type="checkbox"
                     checked={item.current}
                     onChange={(e) => updateItem(item.id, { current: e.target.checked })}
-                    className="w-4 h-4 rounded accent-violet-500"
+                    className="w-4 h-4 rounded accent-accent"
                   />
-                  <span className="text-xs text-slate-400">Currently studying here</span>
+                  <span className="text-xs text-content-muted">Currently studying here</span>
                 </div>
                 <FieldWrapper label="GPA">
                   <TextInput
@@ -741,16 +743,16 @@ function ProjectsForm({
               type="checkbox"
               checked={data.showFeaturedOnly ?? false}
               onChange={(e) => onUpdate({ showFeaturedOnly: e.target.checked })}
-              className="w-4 h-4 rounded accent-violet-500"
+              className="w-4 h-4 rounded accent-accent"
             />
-            <span className="text-xs text-slate-400">Featured only</span>
+            <span className="text-xs text-content-muted">Featured only</span>
           </label>
         </div>
       </div>
 
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-lg overflow-hidden border border-slate-700/50">
+          <div key={item.id} className="rounded-lg overflow-hidden border border-line">
             <ItemHeader
               title={item.title || '(untitled)'}
               subtitle={item.status}
@@ -759,7 +761,7 @@ function ProjectsForm({
               onDelete={() => removeItem(item.id)}
             />
             {expandedId === item.id && (
-              <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
+              <div className="p-3 space-y-3 bg-surface border-t border-line">
                 <FieldWrapper label="Title">
                   <TextInput
                     value={item.title}
@@ -820,9 +822,9 @@ function ProjectsForm({
                     type="checkbox"
                     checked={item.featured ?? false}
                     onChange={(e) => updateItem(item.id, { featured: e.target.checked })}
-                    className="w-4 h-4 rounded accent-violet-500"
+                    className="w-4 h-4 rounded accent-accent"
                   />
-                  <span className="text-xs text-slate-400">Featured project</span>
+                  <span className="text-xs text-content-muted">Featured project</span>
                 </div>
               </div>
             )}
@@ -892,16 +894,16 @@ function SkillsForm({
               type="checkbox"
               checked={data.showLevels ?? false}
               onChange={(e) => onUpdate({ showLevels: e.target.checked })}
-              className="w-4 h-4 rounded accent-violet-500"
+              className="w-4 h-4 rounded accent-accent"
             />
-            <span className="text-xs text-slate-400">Show levels</span>
+            <span className="text-xs text-content-muted">Show levels</span>
           </label>
         </div>
       </div>
 
       <div className="space-y-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-lg overflow-hidden border border-slate-700/50">
+          <div key={item.id} className="rounded-lg overflow-hidden border border-line">
             <ItemHeader
               title={item.name || '(unnamed)'}
               subtitle={item.category || undefined}
@@ -910,7 +912,7 @@ function SkillsForm({
               onDelete={() => removeItem(item.id)}
             />
             {expandedId === item.id && (
-              <div className="p-3 space-y-3 bg-slate-900 border-t border-slate-700/50">
+              <div className="p-3 space-y-3 bg-surface border-t border-line">
                 <FieldWrapper label="Skill Name">
                   <TextInput
                     value={item.name}
@@ -933,7 +935,7 @@ function SkillsForm({
                       max={100}
                       value={item.level ?? 80}
                       onChange={(e) => updateItem(item.id, { level: parseInt(e.target.value) })}
-                      className="w-full accent-violet-500"
+                      className="w-full accent-accent"
                     />
                   </FieldWrapper>
                 )}

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useResumeStore, useResumeHistory } from '@/store/resume.store';
 import { ShortcutHelp } from './ShortcutHelp';
+import { IconArrowLeft } from '@/components/icons';
 
 interface Props {
   onExport: () => void;
@@ -17,23 +18,24 @@ export function ResumeToolbar({ onExport, onForceSave, isExporting }: Props) {
   if (!resume) return null;
 
   return (
-    <header className="h-14 border-b border-slate-800/70 bg-slate-950/95 backdrop-blur-xl flex items-center px-4 gap-2 shrink-0 z-30">
+    <header className="h-14 border-b border-line bg-ink/95 backdrop-blur-xl flex items-center px-4 gap-2 shrink-0 z-30">
       <Link
         href="/resume"
-        className="text-slate-500 hover:text-slate-200 text-sm w-8 h-8 rounded-md grid place-items-center hover:bg-slate-800/60 transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs font-medium text-content-muted hover:border-accent/40 hover:text-content transition-colors"
         title="Back to resumes"
       >
-        ←
+        <IconArrowLeft className="h-3.5 w-3.5" />
+        Resumes
       </Link>
 
       <div className="flex items-center gap-2 min-w-0">
-        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.6)]" />
-        <span className="font-mono text-[13px] text-slate-200 truncate max-w-[200px]">
+        <div className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgb(var(--accent))]" />
+        <span className="font-mono text-[13px] text-content-muted truncate max-w-[200px]">
           {resume.slug}
         </span>
       </div>
 
-      <div className="w-px h-5 bg-slate-800 mx-1.5" />
+      <div className="w-px h-5 bg-line mx-1.5" />
 
       <div className="flex items-center gap-0.5">
         <ToolButton
@@ -69,12 +71,12 @@ export function ResumeToolbar({ onExport, onForceSave, isExporting }: Props) {
         />
         <ShortcutHelp />
 
-        <div className="w-px h-5 bg-slate-800" />
+        <div className="w-px h-5 bg-line" />
 
         <button
           onClick={onExport}
           disabled={isExporting}
-          className="group relative bg-gradient-to-b from-violet-500 to-violet-600 hover:from-violet-400 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold px-3.5 py-1.5 rounded-md flex items-center gap-1.5 shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_1px_3px_rgba(124,58,237,0.4)] transition-all"
+          className="df-btn df-btn-primary text-xs px-3.5 py-1.5"
         >
           {isExporting ? (
             <span className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
@@ -111,7 +113,7 @@ function ToolButton({
       disabled={disabled}
       title={title}
       aria-label={ariaLabel}
-      className="w-7 h-7 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800/70 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent grid place-items-center transition-colors"
+      className="w-7 h-7 rounded-md text-content-faint hover:text-content hover:bg-surface-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent grid place-items-center transition-colors"
     >
       {children}
     </button>
@@ -146,7 +148,7 @@ function SaveStatus({
   }
   if (isSaving) {
     return (
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-500 select-none">
+      <span className="flex items-center gap-1.5 text-[11px] text-content-faint select-none">
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
         Saving…
       </span>
@@ -154,14 +156,14 @@ function SaveStatus({
   }
   if (isDirty) {
     return (
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-500 select-none">
+      <span className="flex items-center gap-1.5 text-[11px] text-content-faint select-none">
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70" />
         Unsaved
       </span>
     );
   }
   return (
-    <span className="flex items-center gap-1.5 text-[11px] text-slate-600 select-none">
+    <span className="flex items-center gap-1.5 text-[11px] text-content-faint select-none">
       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
       Saved
     </span>

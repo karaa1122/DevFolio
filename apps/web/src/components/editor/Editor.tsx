@@ -8,6 +8,14 @@ import { EditorCanvas } from './EditorCanvas';
 import { portfolioApi, exportApi } from '@/lib/api';
 import type { ExportJob } from '@devfolio/shared';
 import Link from 'next/link';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconDownload,
+  IconRedo,
+  IconSettings,
+  IconUndo,
+} from '@/components/icons';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -97,45 +105,53 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
   const exportInProgress = exportJob?.status === 'pending' || exportJob?.status === 'processing';
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-ink">
       {/* Toolbar */}
-      <header className="h-14 border-b border-slate-800 bg-slate-900 flex items-center px-4 gap-3 shrink-0 z-50">
-        <Link href="/dashboard" className="text-slate-500 hover:text-slate-300 transition-colors">
-          ←
+      <header className="z-50 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-ink/95 px-4 backdrop-blur-xl">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs font-medium text-content-muted transition-colors hover:border-accent/40 hover:text-content"
+          title="Back to dashboard"
+        >
+          <IconArrowLeft className="h-3.5 w-3.5" />
+          Dashboard
         </Link>
 
-        <div className="font-mono text-sm text-violet-400 truncate max-w-[180px]">
-          {portfolio.slug}
+        <div className="ml-1 flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_rgb(var(--accent))]" />
+          <span className="max-w-[180px] truncate font-mono text-sm text-content-muted">
+            {portfolio.slug}
+          </span>
         </div>
 
         {/* Undo / Redo */}
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           <button
             onClick={() => undo()}
             disabled={pastStates.length === 0}
             title="Undo"
-            className="p-1.5 rounded text-slate-500 hover:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="grid h-7 w-7 place-items-center rounded-md text-content-faint transition-colors hover:bg-surface-2 hover:text-content disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
           >
-            ↩
+            <IconUndo className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => redo()}
             disabled={futureStates.length === 0}
             title="Redo"
-            className="p-1.5 rounded text-slate-500 hover:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="grid h-7 w-7 place-items-center rounded-md text-content-faint transition-colors hover:bg-surface-2 hover:text-content disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
           >
-            ↪
+            <IconRedo className="h-3.5 w-3.5" />
           </button>
         </div>
 
         {/* Mode toggle */}
-        <div className="flex bg-slate-800 rounded-lg p-0.5 ml-auto">
+        <div className="ml-auto flex rounded-lg border border-line bg-surface p-0.5">
           {(['edit', 'preview'] as const).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${
-                mode === m ? 'bg-slate-700 text-slate-100' : 'text-slate-500 hover:text-slate-300'
+              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                mode === m ? 'bg-surface-3 text-content' : 'text-content-faint hover:text-content'
               }`}
             >
               {m}
@@ -144,14 +160,14 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
         </div>
 
         {/* Save indicator */}
-        <span className="text-xs text-slate-600 hidden sm:block">
+        <span className="hidden text-xs text-content-faint sm:block">
           {isSaving ? 'Saving...' : isDirty ? 'Unsaved' : 'Saved'}
         </span>
 
         <button
           onClick={handleManualSave}
           disabled={!isDirty || isSaving}
-          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+          className="df-btn df-btn-ghost px-3 py-1.5 text-xs"
         >
           Save
         </button>
@@ -161,23 +177,23 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
           <button
             onClick={exportInProgress ? () => setShowExportPanel(true) : handleExport}
             disabled={isExporting}
-            className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            className="df-btn df-btn-ghost px-3 py-1.5 text-xs"
           >
             {exportInProgress ? (
-              <span className="w-3 h-3 border border-slate-500 border-t-violet-400 rounded-full animate-spin" />
+              <span className="h-3 w-3 animate-spin rounded-full border border-content-faint border-t-accent" />
             ) : (
-              '↓'
+              <IconDownload className="h-3.5 w-3.5" />
             )}
             Export
           </button>
 
           {showExportPanel && exportJob && (
-            <div className="absolute right-0 top-full mt-2 w-72 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-4 z-50">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-slate-200">Export ZIP</span>
+            <div className="df-card absolute right-0 top-full z-50 mt-2 w-72 p-4 shadow-2xl">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm font-semibold text-content">Export ZIP</span>
                 <button
                   onClick={() => setShowExportPanel(false)}
-                  className="text-slate-500 hover:text-slate-300 text-lg leading-none"
+                  className="text-lg leading-none text-content-faint transition-colors hover:text-content"
                 >
                   ×
                 </button>
@@ -185,25 +201,25 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
 
               {exportJob.status === 'pending' || exportJob.status === 'processing' ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-slate-400 text-sm">
-                    <span className="w-4 h-4 border-2 border-slate-600 border-t-violet-400 rounded-full animate-spin shrink-0" />
+                  <div className="flex items-center gap-2 text-sm text-content-muted">
+                    <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-surface-3 border-t-accent" />
                     Building your portfolio...
                   </div>
-                  <div className="w-full bg-slate-700 rounded-full h-1.5">
-                    <div className="bg-violet-500 h-1.5 rounded-full animate-pulse w-2/3" />
+                  <div className="h-1.5 w-full rounded-full bg-surface-3">
+                    <div className="h-1.5 w-2/3 animate-pulse rounded-full bg-accent" />
                   </div>
                 </div>
               ) : exportJob.status === 'completed' && exportJob.fileUrl ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-green-400">Export ready!</p>
+                  <p className="text-sm text-accent">Export ready!</p>
                   <a
                     href={`${API_BASE}${exportJob.fileUrl}`}
                     download
-                    className="block w-full text-center bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+                    className="df-btn df-btn-primary w-full py-2 text-sm"
                   >
                     Download ZIP
                   </a>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-content-faint">
                     Contains index.html, styles.css — host anywhere
                   </p>
                   <button
@@ -211,7 +227,7 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
                       setExportJob(null);
                       setShowExportPanel(false);
                     }}
-                    className="w-full text-xs text-slate-600 hover:text-slate-400 transition-colors"
+                    className="w-full text-xs text-content-faint transition-colors hover:text-content"
                   >
                     Dismiss
                   </button>
@@ -219,7 +235,7 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-red-400">Export failed</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-content-faint">
                     {exportJob.errorMessage ?? 'Unknown error'}
                   </p>
                   <button
@@ -227,7 +243,7 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
                       setExportJob(null);
                       handleExport();
                     }}
-                    className="w-full text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 py-1.5 rounded-lg transition-colors"
+                    className="df-btn df-btn-ghost w-full py-1.5 text-xs"
                   >
                     Retry
                   </button>
@@ -240,22 +256,32 @@ export function Editor({ portfolioId, isPublished, onPublishChange }: Props) {
         {/* Publish / Unpublish */}
         <button
           onClick={handlePublishToggle}
-          className={`text-xs font-semibold px-4 py-1.5 rounded-lg transition-colors ${
+          className={
             published
-              ? 'bg-green-900/60 hover:bg-red-900/60 text-green-400 hover:text-red-400 border border-green-800/50 hover:border-red-800/50'
-              : 'bg-violet-600 hover:bg-violet-500 text-white'
-          }`}
+              ? 'df-btn group border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs text-accent transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400'
+              : 'df-btn df-btn-primary px-4 py-1.5 text-xs'
+          }
           title={published ? 'Click to unpublish' : 'Publish'}
         >
-          {published ? 'Published ✓' : 'Publish'}
+          {published ? (
+            <>
+              <span className="group-hover:hidden">Published ✓</span>
+              <span className="hidden group-hover:inline">Unpublish</span>
+            </>
+          ) : (
+            <>
+              Publish
+              <IconArrowRight className="h-3.5 w-3.5" />
+            </>
+          )}
         </button>
 
         <Link
           href="/profile"
-          className="text-xs text-slate-500 hover:text-slate-300 border border-slate-700 hover:border-slate-600 px-2.5 py-1.5 rounded-lg transition-colors"
+          className="grid h-8 w-8 place-items-center rounded-lg border border-line text-content-faint transition-colors hover:border-content-faint hover:text-content"
           title="Profile"
         >
-          ⚙
+          <IconSettings className="h-4 w-4" />
         </Link>
       </header>
 
