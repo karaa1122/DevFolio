@@ -2,7 +2,15 @@ import { z } from 'zod';
 
 // ─── Templates ──────────────────────────────────────────────────────────────
 
-export const PORTFOLIO_TEMPLATE_IDS = ['aurora', 'minimal', 'editorial', 'terminal'] as const;
+export const PORTFOLIO_TEMPLATE_IDS = [
+  'aurora',
+  'minimal',
+  'editorial',
+  'terminal',
+  'retro-os',
+  'dimension',
+  'brutalist',
+] as const;
 
 export const PortfolioTemplateIdSchema = z.enum(PORTFOLIO_TEMPLATE_IDS);
 

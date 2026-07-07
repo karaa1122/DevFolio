@@ -23,6 +23,9 @@ export function TemplatePreview({
   const { colors, radius } = meta.suggestedTheme;
   const r = radius === 'none' ? '0' : radius === 'sm' ? '0.25em' : '0.5em';
   const font = FONT_STACK[meta.typography];
+  const isBrutal = meta.id === 'brutalist';
+  const isRetro = meta.id === 'retro-os';
+  const isDimension = meta.id === 'dimension';
 
   const brand =
     meta.id === 'terminal' ? (
@@ -35,6 +38,8 @@ export function TemplatePreview({
         style={{
           color: colors.foreground,
           fontStyle: meta.id === 'editorial' ? 'italic' : 'normal',
+          textTransform: isBrutal ? 'uppercase' : 'none',
+          fontWeight: isBrutal ? 900 : undefined,
         }}
       >
         Jordan Doe
@@ -45,7 +50,16 @@ export function TemplatePreview({
     <div
       aria-hidden
       className={`pointer-events-none select-none overflow-hidden ${className}`}
-      style={{ backgroundColor: colors.background, fontFamily: font, aspectRatio: '4 / 3' }}
+      style={{
+        backgroundColor: colors.background,
+        fontFamily: font,
+        aspectRatio: '4 / 3',
+        backgroundImage: isRetro
+          ? `radial-gradient(60% 50% at 15% 0%, ${colors.primary}52, transparent), radial-gradient(50% 45% at 90% 100%, ${colors.accent}3d, transparent)`
+          : isDimension
+            ? `radial-gradient(circle at 18% 28%, ${colors.foreground} 0.5px, transparent 1px), radial-gradient(circle at 72% 16%, ${colors.primary} 0.6px, transparent 1.2px), radial-gradient(circle at 44% 64%, ${colors.foreground} 0.4px, transparent 1px), radial-gradient(circle at 88% 52%, ${colors.accent} 0.6px, transparent 1.2px), radial-gradient(circle at 8% 78%, ${colors.foreground} 0.4px, transparent 1px), radial-gradient(circle at 60% 88%, ${colors.primary} 0.5px, transparent 1px)`
+            : undefined,
+      }}
     >
       {/* Nav strip */}
       <div
@@ -74,9 +88,11 @@ export function TemplatePreview({
           style={{
             color: colors.foreground,
             fontSize: '1.15em',
-            fontWeight: meta.typography === 'serif' ? 550 : 750,
+            fontWeight: meta.typography === 'serif' ? 550 : isBrutal ? 900 : 750,
             letterSpacing: '-0.02em',
             lineHeight: 1.15,
+            textTransform: isBrutal ? 'uppercase' : 'none',
+            textShadow: isDimension ? `0 0 0.8em ${colors.primary}b3` : undefined,
           }}
         >
           {meta.id === 'terminal' ? '$ whoami' : 'Design engineer'}
@@ -123,11 +139,46 @@ export function TemplatePreview({
             key={i}
             style={{
               backgroundColor: colors.card,
-              border: `1px solid ${colors.border}`,
+              border: isBrutal ? `2px solid ${colors.foreground}` : `1px solid ${colors.border}`,
               borderRadius: r,
               padding: '0.7em',
+              boxShadow: isBrutal
+                ? `0.35em 0.35em 0 ${colors.foreground}`
+                : isRetro
+                  ? '0 1em 2em -1em rgba(0,0,0,0.5)'
+                  : undefined,
+              paddingTop: isRetro ? '1.5em' : '0.7em',
+              position: 'relative',
             }}
           >
+            {isRetro && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '1em',
+                  borderBottom: `1px solid ${colors.border}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25em',
+                  paddingLeft: '0.4em',
+                }}
+              >
+                {['#ff5f57', '#febc2e', '#28c840'].map((dot) => (
+                  <span
+                    key={dot}
+                    style={{
+                      width: '0.35em',
+                      height: '0.35em',
+                      borderRadius: '50%',
+                      backgroundColor: dot,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
             <div
               style={{
                 backgroundColor: colors.border,

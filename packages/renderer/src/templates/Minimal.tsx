@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   baseCraftCss,
+  Css,
   FONT_FAMILY,
   FooterCredit,
   getBrandLabel,
@@ -28,9 +29,9 @@ export function MinimalTemplate({ portfolio, isExport = false }: TemplateProps) 
       }}
       data-portfolio-id={portfolio.id}
     >
-      <style>{baseCraftCss(theme, isExport)}</style>
+      <Css css={baseCraftCss(theme, isExport)} />
       {/* Tone the craft layer down — minimal means no dramatic lifts or glows */}
-      <style>{`
+      <Css css={`
         [data-portfolio-id] .pf-card:hover,
         [data-portfolio-id] .pf-project-card:hover {
           transform: translateY(-2px) !important;
@@ -42,7 +43,7 @@ export function MinimalTemplate({ portfolio, isExport = false }: TemplateProps) 
           opacity: 0.85;
         }
         [data-portfolio-id] .pf-nav-link::after { height: 1px; bottom: -3px; }
-      `}</style>
+      `} />
 
       {/* Navigation — flat, hairline, no glass */}
       <nav

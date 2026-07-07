@@ -145,6 +145,15 @@ export function baseCraftCss(theme: Theme, isExport: boolean): string {
   `;
 }
 
+/**
+ * Style tag that injects CSS verbatim. React HTML-escapes plain text children
+ * of <style> (quotes become &#x27;), which silently breaks any rule containing
+ * a string — font names, content:'' — so always emit template CSS through this.
+ */
+export function Css({ css }: { css: string }) {
+  return <style dangerouslySetInnerHTML={{ __html: css }} />;
+}
+
 /** Standard "Built with DevFolio" credit used by template footers. */
 export function FooterCredit({ color }: { color: string }) {
   return (

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   baseCraftCss,
+  Css,
   FONT_FAMILY,
   FooterCredit,
   getBrandLabel,
@@ -28,7 +29,7 @@ export function AuroraTemplate({ portfolio, isExport = false }: TemplateProps) {
       }}
       data-portfolio-id={portfolio.id}
     >
-      <style>{baseCraftCss(theme, isExport)}</style>
+      <Css css={baseCraftCss(theme, isExport)} />
 
       {/* Navigation */}
       <nav

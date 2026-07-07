@@ -107,6 +107,81 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplateMeta[] = [
       spacing: 'normal',
     }),
   },
+  {
+    id: 'retro-os',
+    name: 'Retro OS',
+    tagline: 'Your portfolio as a desktop of windows',
+    description:
+      'Every section is a floating window — traffic lights, title bars, a menu-bar nav and a wallpaper backdrop. A portfolio that feels like booting into someone’s machine.',
+    tags: ['playful', 'unique', 'windows'],
+    typography: 'sans',
+    suggestedTheme: ThemeSchema.parse({
+      colors: {
+        primary: '#4f7cff',
+        secondary: '#3b5fd9',
+        background: '#eef1f6',
+        foreground: '#1d2433',
+        muted: '#5c6675',
+        accent: '#e0447c',
+        card: '#ffffff',
+        border: '#c9cfd9',
+      },
+      font: 'inter',
+      radius: 'md',
+      darkMode: false,
+      spacing: 'compact',
+    }),
+  },
+  {
+    id: 'dimension',
+    name: 'Dimension',
+    tagline: 'A starfield warp with 3D depth',
+    description:
+      'Fly through space — a real-time starfield streams past while cards tilt into view with 3D perspective and glow on hover. Deep-space chrome, zero dependencies.',
+    tags: ['dark', '3d', 'animated'],
+    typography: 'sans',
+    suggestedTheme: ThemeSchema.parse({
+      colors: {
+        primary: '#8b7cff',
+        secondary: '#6d5ce6',
+        background: '#05060f',
+        foreground: '#e8eaf6',
+        muted: '#8d93b3',
+        accent: '#00e5ff',
+        card: '#0d1020',
+        border: '#222848',
+      },
+      font: 'poppins',
+      radius: 'lg',
+      darkMode: true,
+      spacing: 'normal',
+    }),
+  },
+  {
+    id: 'brutalist',
+    name: 'Brutalist',
+    tagline: 'Loud borders, louder type',
+    description:
+      'Neo-brutalism — thick ink borders, hard offset shadows, huge uppercase headlines and one screaming accent color. Impossible to scroll past.',
+    tags: ['bold', 'raw', 'statement'],
+    typography: 'sans',
+    suggestedTheme: ThemeSchema.parse({
+      colors: {
+        primary: '#ff4911',
+        secondary: '#111111',
+        background: '#f5f1e8',
+        foreground: '#111111',
+        muted: '#57534e',
+        accent: '#1400ff',
+        card: '#ffffff',
+        border: '#111111',
+      },
+      font: 'inter',
+      radius: 'none',
+      darkMode: false,
+      spacing: 'normal',
+    }),
+  },
 ];
 
 export function getPortfolioTemplate(id: string | undefined): PortfolioTemplateMeta {

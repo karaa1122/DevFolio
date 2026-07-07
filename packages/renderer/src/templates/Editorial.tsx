@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   baseCraftCss,
+  Css,
   FONT_FAMILY,
   FooterCredit,
   getBrandLabel,
@@ -36,9 +37,9 @@ export function EditorialTemplate({ portfolio, isExport = false }: TemplateProps
           page, the editor preview, and the static export alike. */}
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={FRAUNCES_URL} />
-      <style>{baseCraftCss(theme, isExport)}</style>
+      <Css css={baseCraftCss(theme, isExport)} />
       {/* Serif headlines — stylesheet !important beats the sections' inline styles */}
-      <style>{`
+      <Css css={`
         [data-portfolio-id] h1,
         [data-portfolio-id] h2,
         [data-portfolio-id] h3 {
@@ -51,7 +52,7 @@ export function EditorialTemplate({ portfolio, isExport = false }: TemplateProps
           transform: none !important;
           box-shadow: none !important;
         }
-      `}</style>
+      `} />
 
       {/* Masthead — thick-over-thin newspaper rules */}
       <nav

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   baseCraftCss,
+  Css,
   FooterCredit,
   getBrandLabel,
   RenderedSections,
@@ -36,9 +37,9 @@ export function TerminalTemplate({ portfolio, isExport = false }: TemplateProps)
           the editor preview, and the static export alike. */}
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={MONO_URL} />
-      <style>{baseCraftCss(theme, isExport)}</style>
+      <Css css={baseCraftCss(theme, isExport)} />
       {/* Mono headlines + square edges — !important beats inline section styles */}
-      <style>{`
+      <Css css={`
         [data-portfolio-id] h1,
         [data-portfolio-id] h2,
         [data-portfolio-id] h3 {
@@ -55,7 +56,7 @@ export function TerminalTemplate({ portfolio, isExport = false }: TemplateProps)
         }
         @keyframes pf-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
         [data-portfolio-id] .pf-cursor { animation: pf-blink 1.1s step-end infinite; }
-      `}</style>
+      `} />
 
       {/* Prompt nav */}
       <nav
