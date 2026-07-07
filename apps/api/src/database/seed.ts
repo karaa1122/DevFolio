@@ -414,12 +414,13 @@ async function main() {
       process.exit(1);
     }
     if (existingPortfolio) {
-      existingPortfolio.data = { ...portfolioData, id: existingPortfolio.data.id };
+      // Pin data.id to the entity PK — the editor autosaves against it.
+      existingPortfolio.data = { ...portfolioData, id: existingPortfolio.id };
       await portfolioRepo.save(existingPortfolio);
       console.log(`↻ Updated portfolio "${baseSlug}" (${existingPortfolio.id})`);
     } else {
       const saved = await portfolioRepo.save(
-        portfolioRepo.create({ userId, slug: baseSlug, data: portfolioData }),
+        portfolioRepo.create({ id: portfolioData.id, userId, slug: baseSlug, data: portfolioData }),
       );
       console.log(`✓ Created portfolio "${baseSlug}" (${saved.id})`);
     }

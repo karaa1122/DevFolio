@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useEditorStore } from '@/store/editor.store';
 import { SectionList } from './SectionList';
+import { TemplatePanel } from './TemplatePanel';
 import { ThemePanel } from './ThemePanel';
 import { SectionEditor } from './SectionEditor';
 import { githubApi } from '@/lib/api';
@@ -15,13 +16,14 @@ interface Props {
   portfolioId: string;
 }
 
-type Tab = 'sections' | 'theme' | 'github' | 'settings';
+type Tab = 'sections' | 'template' | 'theme' | 'github' | 'settings';
 
 export function EditorSidebar({ portfolioId }: Props) {
   const { activePanel, selectedSectionId, setActivePanel } = useEditorStore();
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'sections', label: 'Sections' },
+    { id: 'template', label: 'Template' },
     { id: 'theme', label: 'Theme' },
     { id: 'github', label: 'GitHub' },
     { id: 'settings', label: 'Settings' },
@@ -34,7 +36,7 @@ export function EditorSidebar({ portfolioId }: Props) {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActivePanel(tab.id as any)}
+            onClick={() => setActivePanel(tab.id)}
             className={`flex-1 py-3 text-xs font-medium transition-colors whitespace-nowrap px-1 ${
               activePanel === tab.id
                 ? 'text-accent border-b-2 border-accent'
@@ -53,8 +55,9 @@ export function EditorSidebar({ portfolioId }: Props) {
             {selectedSectionId ? <SectionEditor sectionId={selectedSectionId} /> : <SectionList />}
           </>
         )}
+        {activePanel === 'template' && <TemplatePanel />}
         {activePanel === 'theme' && <ThemePanel />}
-        {(activePanel as string) === 'github' && <GitHubPanel portfolioId={portfolioId} />}
+        {activePanel === 'github' && <GitHubPanel portfolioId={portfolioId} />}
         {activePanel === 'settings' && <SettingsPanel />}
       </div>
     </aside>

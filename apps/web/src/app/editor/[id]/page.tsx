@@ -14,7 +14,9 @@ export default function EditorPage() {
   const setPortfolio = useEditorStore((s) => s.setPortfolio);
 
   useEffect(() => {
-    if (portfolio) setPortfolio(portfolio.data);
+    // Normalize data.id to the entity id — autosave PATCHes by this id, and
+    // older rows may carry a stale uuid inside their data JSON.
+    if (portfolio) setPortfolio({ ...portfolio.data, id: portfolio.id });
   }, [portfolio, setPortfolio]);
 
   if (isLoading) {

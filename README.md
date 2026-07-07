@@ -635,6 +635,7 @@ This is what's built, what's in progress, and what's coming:
 - [x] Static ZIP export
 - [x] GitHub repo import
 - [x] 6 built-in themes with full customization
+- [x] 4 portfolio templates (Aurora, Minimal, Editorial, Terminal) + template marketplace
 - [x] Portfolio analytics (views, unique visitors)
 - [x] JWT auth with refresh tokens + account lockout
 - [x] Docker + Docker Compose deployment
@@ -652,8 +653,8 @@ This is what's built, what's in progress, and what's coming:
 - [x] Browser-print fallback if the worker is offline
 
 **Coming**
-- [ ] Custom domain support
-- [ ] Multi-template marketplace
+- [x] Custom domain support
+- [x] Multi-template marketplace
 - [ ] AI-assisted bio, summary, and bullet rewriting (Improve / Grammar / Shorter)
 - [ ] DOCX + PNG export for resumes
 - [ ] LinkedIn import (parse profile into resume sections)

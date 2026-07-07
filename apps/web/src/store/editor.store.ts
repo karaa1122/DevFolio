@@ -3,13 +3,13 @@
 import { create, useStore } from 'zustand';
 import { temporal } from 'zundo';
 import { immer } from 'zustand/middleware/immer';
-import type { Portfolio, Section, Theme } from '@devfolio/shared';
+import type { Portfolio, PortfolioTemplateId, Section, Theme } from '@devfolio/shared';
 import { generateId } from '@/lib/utils';
 
 interface EditorState {
   portfolio: Portfolio | null;
   selectedSectionId: string | null;
-  activePanel: 'sections' | 'theme' | 'settings';
+  activePanel: 'sections' | 'template' | 'theme' | 'github' | 'settings';
   mode: 'edit' | 'preview';
   isDirty: boolean;
   isSaving: boolean;
@@ -24,6 +24,9 @@ interface EditorActions {
 
   // Theme
   updateTheme: (patch: Partial<Theme>) => void;
+
+  // Template
+  updateTemplate: (template: PortfolioTemplateId) => void;
 
   // Sections
   addSection: (section: Omit<Section, 'id'> & { id?: string }) => void;
@@ -84,6 +87,13 @@ export const useEditorStore = create<EditorStore>()(
           const { colors, ...rest } = patch;
           Object.assign(s.portfolio.theme, rest);
           if (colors) Object.assign(s.portfolio.theme.colors, colors);
+          s.isDirty = true;
+        }),
+
+      updateTemplate: (template) =>
+        set((s) => {
+          if (!s.portfolio) return;
+          s.portfolio.template = template;
           s.isDirty = true;
         }),
 

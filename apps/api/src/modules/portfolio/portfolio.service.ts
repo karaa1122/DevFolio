@@ -45,6 +45,8 @@ const RESERVED_SLUGS = new Set([
   'account',
   'portfolio',
   'portfolios',
+  'template',
+  'templates',
   'export',
   'exports',
   'analytics',
@@ -83,8 +85,11 @@ export class PortfolioService {
     const existing = await this.portfolioRepo.findOne({ where: { slug: dto.slug } });
     if (existing) throw new ConflictException(`Slug "${dto.slug}" is already taken`);
 
+    // One uuid for both the entity PK and the data JSON — the editor autosaves
+    // against data.id, so the two must never diverge.
+    const id = uuidv4();
     const portfolioData = PortfolioSchema.parse({
-      id: uuidv4(),
+      id,
       slug: dto.slug,
       version: 1,
       userId,
@@ -94,7 +99,12 @@ export class PortfolioService {
       metadata: { title: dto.title },
     });
 
-    const portfolio = this.portfolioRepo.create({ userId, slug: dto.slug, data: portfolioData });
+    const portfolio = this.portfolioRepo.create({
+      id,
+      userId,
+      slug: dto.slug,
+      data: portfolioData,
+    });
     return this.portfolioRepo.save(portfolio);
   }
 
@@ -146,15 +156,23 @@ export class PortfolioService {
     const portfolio = await this.findById(id, userId);
 
     if (dto.data) {
-      const merged = PortfolioSchema.parse({
+      const merged = PortfolioSchema.safeParse({
         ...portfolio.data,
         ...dto.data,
-        id: portfolio.data.id,
+        // Pin to the entity PK (not data.id) so rows whose JSON id drifted
+        // from the entity id are healed on their next save.
+        id: portfolio.id,
         userId: portfolio.data.userId,
         slug: portfolio.data.slug,
         version: (portfolio.data.version ?? 1) + 1,
       });
-      portfolio.data = merged;
+      if (!merged.success) {
+        const issue = merged.error.issues[0];
+        throw new BadRequestException(
+          `Invalid portfolio data at "${issue.path.join('.')}": ${issue.message}`,
+        );
+      }
+      portfolio.data = merged.data;
     }
 
     const saved = await this.portfolioRepo.save(portfolio);

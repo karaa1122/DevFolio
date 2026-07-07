@@ -1,5 +1,6 @@
 export { PortfolioRenderer } from './PortfolioRenderer';
 export { sectionRegistry } from './registry';
+export { portfolioTemplateRegistry } from './templates/registry';
 export { HeroSection } from './sections/HeroSection';
 export { AboutSection } from './sections/AboutSection';
 export { ProjectsSection } from './sections/ProjectsSection';
