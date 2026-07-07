@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+// ─── Templates ──────────────────────────────────────────────────────────────
+
+export const PORTFOLIO_TEMPLATE_IDS = ['aurora', 'minimal', 'editorial', 'terminal'] as const;
+
+export const PortfolioTemplateIdSchema = z.enum(PORTFOLIO_TEMPLATE_IDS);
+
+export type PortfolioTemplateId = z.infer<typeof PortfolioTemplateIdSchema>;
+
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
 export const ThemeColorsSchema = z.object({
@@ -224,6 +232,7 @@ export const PortfolioSchema = z.object({
     .max(50),
   version: z.number().int().positive().default(1),
   userId: z.string().uuid(),
+  template: PortfolioTemplateIdSchema.default('aurora'),
   theme: ThemeSchema.default({}),
   layout: z.object({
     sectionsOrder: z.array(z.string()).default([]),

@@ -110,6 +110,12 @@ export default function DashboardPage() {
               Resumes
             </Link>
             <Link
+              href="/templates"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-content-muted transition-colors hover:text-content"
+            >
+              Templates
+            </Link>
+            <Link
               href="/profile"
               className="rounded-lg px-3 py-2 text-sm font-medium text-content-muted transition-colors hover:text-content"
             >
