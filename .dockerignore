@@ -2,6 +2,7 @@
 **/.next
 **/dist
 **/.turbo
+**/*.tsbuildinfo
 **/*.log
 **/.env
 **/.env.local
