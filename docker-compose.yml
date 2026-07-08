@@ -108,7 +108,7 @@ services:
     # domains (on-demand certs, gated by the API's /portfolios/domain-check).
     # Reaches the app over the compose network via the `web`/`api` service names.
     ports:
-      - '81:80'
+      - '80:80'
       - '443:443'
     volumes:
       - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
