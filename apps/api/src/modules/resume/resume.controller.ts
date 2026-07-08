@@ -17,6 +17,7 @@ import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { UpdateResumeSlugDto } from './dto/update-slug.dto';
 import { DuplicateResumeDto } from './dto/duplicate-resume.dto';
+import { AtsMatchDto } from './dto/ats-match.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { User } from '../../database/entities/user.entity';
@@ -78,6 +79,16 @@ export class ResumeController {
     @Body() dto: DuplicateResumeDto,
   ) {
     return this.resumeService.duplicate(id, user.id, dto);
+  }
+
+  @Post(':id/ats-match')
+  @ApiOperation({ summary: 'Score resume against a job description (ATS match)' })
+  atsMatch(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: AtsMatchDto,
+  ) {
+    return this.resumeService.atsMatch(id, user.id, dto.jobDescription);
   }
 
   @Delete(':id')

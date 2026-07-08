@@ -37,6 +37,14 @@ services:
       - '1025:1025'
       - '8025:8025'
 
+  # ATS matching engine — exposed on 8000 so the locally-run API can reach it.
+  ats-engine:
+    build:
+      context: services/ats-engine
+    container_name: devfolio_ats_engine_dev
+    ports:
+      - '8000:8000'
+
 volumes:
   postgres_dev_data:
   redis_dev_data:

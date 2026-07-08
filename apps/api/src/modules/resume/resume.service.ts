@@ -3,6 +3,8 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +18,8 @@ import {
 import type { CreateResumeDto } from './dto/create-resume.dto';
 import type { UpdateResumeDto } from './dto/update-resume.dto';
 import type { DuplicateResumeDto } from './dto/duplicate-resume.dto';
+import type { AtsMatchResult } from '@devfolio/shared';
+import { resumeToPlainText } from './resume-text.util';
 
 @Injectable()
 export class ResumeService {
@@ -119,6 +123,55 @@ export class ResumeService {
   private async assertSlugFree(userId: string, slug: string): Promise<void> {
     const existing = await this.resumeRepo.findOne({ where: { userId, slug } });
     if (existing) throw new ConflictException(`Slug "${slug}" is already taken`);
+  }
+
+  /**
+   * Score this resume against a job description via the ATS matching engine
+   * (services/ats-engine — stateless, internal-network only).
+   */
+  async atsMatch(id: string, userId: string, jobDescription: string): Promise<AtsMatchResult> {
+    const resume = await this.findById(id, userId);
+    const resumeText = resumeToPlainText(resume.data);
+    if (resumeText.trim().length < 40) {
+      throw new BadRequestException('Resume has too little content to score — add some sections first');
+    }
+
+    const engineUrl = process.env.ATS_ENGINE_URL ?? 'http://localhost:8000';
+    let res: Response;
+    try {
+      res = await fetch(`${engineUrl}/api/v1/match`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume: resumeText, job_description: jobDescription }),
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch {
+      throw new ServiceUnavailableException('ATS matching engine is unavailable');
+    }
+    if (!res.ok) {
+      throw new ServiceUnavailableException(`ATS matching engine returned ${res.status}`);
+    }
+
+    const r = (await res.json()) as {
+      score: number;
+      matched_skills: string[];
+      missing_skills: string[];
+      experience_gap: string;
+      keyword_coverage: string[];
+      semantic_similarity: number;
+      summary: string;
+      recommendation: string;
+    };
+    return {
+      score: r.score,
+      matchedSkills: r.matched_skills,
+      missingSkills: r.missing_skills,
+      experienceGap: r.experience_gap,
+      keywordCoverage: r.keyword_coverage,
+      semanticSimilarity: r.semantic_similarity,
+      summary: r.summary,
+      recommendation: r.recommendation,
+    };
   }
 
   private async assertResumeLimit(userId: string): Promise<void> {

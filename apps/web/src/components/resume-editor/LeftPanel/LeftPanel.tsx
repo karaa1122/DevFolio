@@ -5,10 +5,11 @@ import { SectionsList } from './SectionsList';
 import { SectionForm } from './SectionForm';
 import { DesignPanel } from './DesignPanel';
 import { ImportPanel } from './ImportPanel';
+import { AtsPanel } from './AtsPanel';
 import { SettingsPanel } from './SettingsPanel';
 
 interface TabDef {
-  id: 'sections' | 'design' | 'import' | 'settings';
+  id: 'sections' | 'design' | 'import' | 'ats' | 'settings';
   label: string;
   icon: React.ReactNode;
 }
@@ -46,6 +47,17 @@ const TABS: TabDef[] = [
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
         <polyline points="17 8 12 3 7 8" />
         <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+    ),
+  },
+  {
+    id: 'ats',
+    label: 'ATS Match',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="5" />
+        <circle cx="12" cy="12" r="1" fill="currentColor" />
       </svg>
     ),
   },
@@ -100,6 +112,7 @@ export function LeftPanel({ resumeId }: Props) {
           (selectedSectionId ? <SectionForm sectionId={selectedSectionId} /> : <SectionsList />)}
         {activePanel === 'design' && <DesignPanel />}
         {activePanel === 'import' && <ImportPanel resumeId={resumeId} />}
+        {activePanel === 'ats' && <AtsPanel resumeId={resumeId} />}
         {activePanel === 'settings' && <SettingsPanel resumeId={resumeId} />}
       </div>
 

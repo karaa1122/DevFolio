@@ -651,6 +651,7 @@ This is what's built, what's in progress, and what's coming:
 - [x] Brand-icon socials (GitHub, LinkedIn, X, dev.to, Stack Overflow) in the resume header
 - [x] Multi-page live paginator with page indicator + zoom controls
 - [x] Browser-print fallback if the worker is offline
+- [x] ATS Match — score a resume against a job description (matched/missing skills, experience fit) via a dedicated Python matching microservice
 
 **Coming**
 - [x] Custom domain support
@@ -658,7 +659,7 @@ This is what's built, what's in progress, and what's coming:
 - [ ] AI-assisted bio, summary, and bullet rewriting (Improve / Grammar / Shorter)
 - [ ] DOCX + PNG export for resumes
 - [ ] LinkedIn import (parse profile into resume sections)
-- [ ] ATS keyword score against a job description
+- [x] ATS keyword score against a job description
 - [ ] Portfolio analytics improvements (referrers, geography)
 - [ ] Cover letter builder (shares the resume header + theme)
 - [ ] Collaborative editing
