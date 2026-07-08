@@ -11,7 +11,7 @@ import type {
 } from '@devfolio/shared';
 import { generateId } from '@/lib/utils';
 
-type ActivePanel = 'sections' | 'design' | 'import' | 'settings';
+type ActivePanel = 'sections' | 'design' | 'import' | 'ats' | 'settings';
 
 interface ResumeEditorState {
   resume: Resume | null;

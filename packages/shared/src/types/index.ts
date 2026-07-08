@@ -180,3 +180,16 @@ export interface ThemePreset {
   preview: string;
   theme: Theme;
 }
+
+// ─── ATS match ─────────────────────────────────────────────────────────────
+
+export interface AtsMatchResult {
+  score: number;
+  matchedSkills: string[];
+  missingSkills: string[];
+  experienceGap: string;
+  keywordCoverage: string[];
+  semanticSimilarity: number;
+  summary: string;
+  recommendation: string;
+}

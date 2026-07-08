@@ -51,6 +51,7 @@ services:
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
       STORAGE_LOCAL_PATH: /app/uploads
+      ATS_ENGINE_URL: http://ats-engine:8000
     volumes:
       - uploads:/app/uploads
     ports:
@@ -66,6 +67,15 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
+
+  # Stateless resume ↔ job-description matcher (services/ats-engine).
+  # Internal network only — no published ports; the API is its only caller.
+  ats-engine:
+    image: ${IMAGE_ATS_ENGINE:-devfolio-ats-engine}
+    build:
+      context: services/ats-engine
+    container_name: devfolio_ats_engine
     restart: unless-stopped
 
   web:
@@ -98,7 +108,7 @@ services:
     # domains (on-demand certs, gated by the API's /portfolios/domain-check).
     # Reaches the app over the compose network via the `web`/`api` service names.
     ports:
-      - '81:80'
+      - '80:80'
       - '443:443'
     volumes:
       - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro

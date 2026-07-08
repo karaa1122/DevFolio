@@ -9,6 +9,7 @@ import type {
   PortfolioAnalytics,
   GitHubRepo,
   ThemePreset,
+  AtsMatchResult,
 } from '@devfolio/shared';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -206,6 +207,12 @@ export const resumeApi = {
     request<ResumeResponse>(`/resumes/${id}/duplicate`, {
       method: 'POST',
       body: JSON.stringify(data),
+    }),
+
+  atsMatch: (id: string, jobDescription: string) =>
+    request<AtsMatchResult>(`/resumes/${id}/ats-match`, {
+      method: 'POST',
+      body: JSON.stringify({ jobDescription }),
     }),
 
   delete: (id: string) => request<void>(`/resumes/${id}`, { method: 'DELETE' }),

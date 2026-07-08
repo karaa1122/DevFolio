@@ -1,0 +1,8 @@
+# Local-only tweaks. Copy to docker-compose.override.yml (gitignored) —
+# docker compose merges it automatically. Never deploy this to the server.
+services:
+  caddy:
+    ports: !override
+      # Port 80 is taken on this machine; serve HTTP on 81 locally instead.
+      - '81:80'
+      - '443:443'
