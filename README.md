@@ -95,26 +95,28 @@ DevFolio gives you both, in one app. Edit visually. Own your data. Export anytim
     <td><img src="./screenshots/login.PNG" alt="Login"/></td>
   </tr>
   <tr>
-    <td><strong>Onboarding</strong></td>
+    <td><strong>Dashboard</strong></td>
     <td><strong>Profile</strong></td>
   </tr>
   <tr>
-    <td><img src="./screenshots/onboarding.PNG" alt="Onboarding"/></td>
+    <td><img src="./screenshots/dashboard.png" alt="Dashboard"/></td>
     <td><img src="./screenshots/profile.PNG" alt="Profile"/></td>
   </tr>
   <tr>
-    <td><strong>Editor</strong></td>
+    <td><strong>Portfolio editor</strong></td>
     <td><strong>Live Portfolio</strong></td>
   </tr>
   <tr>
-    <td><img src="./screenshots/port.PNG" alt="Editor"/></td>
+    <td><img src="./screenshots/port.PNG" alt="Portfolio editor"/></td>
     <td><img src="./screenshots/live.PNG" alt="Live Portfolio"/></td>
   </tr>
   <tr>
-    <td colspan="2"><strong>Resume editor</strong></td>
+    <td><strong>Resume list</strong></td>
+    <td><strong>Resume editor (with ATS Match)</strong></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="./screenshots/resume.PNG" alt="Resume editor"/></td>
+    <td><img src="./screenshots/resumelist.png" alt="Resume list"/></td>
+    <td><img src="./screenshots/resume.PNG" alt="Resume editor"/></td>
   </tr>
 </table>
 
