@@ -57,14 +57,24 @@ interface DemoInput {
   skills: Record<string, never> | { items: string[] };
   skillItems: string[];
   projects: Array<{ title: string; description: string; tags: string[] }>;
+  experience: Array<{
+    company: string;
+    role: string;
+    start: string;
+    end?: string;
+    highlights: string[];
+  }>;
+  education: { institution: string; degree: string; start: string; end: string };
   email: string;
 }
 
 function demoProfile(input: DemoInput): DemoProfile {
   const heroId = sid();
   const aboutId = sid();
+  const experienceId = sid();
   const projectsId = sid();
   const skillsId = sid();
+  const educationId = sid();
   const contactId = sid();
 
   const portfolio = PortfolioSchema.parse({
@@ -73,7 +83,9 @@ function demoProfile(input: DemoInput): DemoProfile {
     userId: demoUuid(900 + input.n),
     template: input.template,
     theme: getPortfolioTemplate(input.template).suggestedTheme,
-    layout: { sectionsOrder: [heroId, aboutId, projectsId, skillsId, contactId] },
+    layout: {
+      sectionsOrder: [heroId, aboutId, experienceId, projectsId, skillsId, educationId, contactId],
+    },
     sections: [
       {
         id: heroId,
@@ -91,6 +103,23 @@ function demoProfile(input: DemoInput): DemoProfile {
         id: aboutId,
         type: 'about',
         data: { heading: 'About', bio: input.about, highlights: input.highlights },
+      },
+      {
+        id: experienceId,
+        type: 'experience',
+        data: {
+          heading: 'Experience',
+          layout: 'timeline',
+          items: input.experience.map((e) => ({
+            id: sid(),
+            company: e.company,
+            role: e.role,
+            startDate: e.start,
+            endDate: e.end,
+            current: !e.end,
+            highlights: e.highlights,
+          })),
+        },
       },
       {
         id: projectsId,
@@ -116,6 +145,22 @@ function demoProfile(input: DemoInput): DemoProfile {
           heading: 'Skills',
           items: input.skillItems.map((name) => ({ id: sid(), name })),
           layout: 'tags',
+        },
+      },
+      {
+        id: educationId,
+        type: 'education',
+        data: {
+          heading: 'Education',
+          items: [
+            {
+              id: sid(),
+              institution: input.education.institution,
+              degree: input.education.degree,
+              startDate: input.education.start,
+              endDate: input.education.end,
+            },
+          ],
         },
       },
       {
@@ -181,14 +226,38 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['RabbitMQ', 'Redis', 'Docker'],
       },
     ],
+    experience: [
+      {
+        company: 'Nawa Pay',
+        role: 'Backend Engineer',
+        start: '2022-03',
+        highlights: [
+          'Designed a double-entry ledger processing 2M+ daily transactions with zero balance drift',
+          'Cut p99 API latency from 800ms to 120ms with read replicas and Redis caching',
+        ],
+      },
+      {
+        company: 'Softline',
+        role: 'Junior Backend Developer',
+        start: '2020-01',
+        end: '2022-02',
+        highlights: ['Built REST APIs for an e-commerce platform serving 60k monthly users'],
+      },
+    ],
+    education: {
+      institution: 'Salahaddin University',
+      degree: 'B.Sc. Computer Science',
+      start: '2016',
+      end: '2020',
+    },
     email: 'rebin@example.com',
   }),
   demoProfile({
     n: 2,
-    slug: 'helin-ahmadi',
+    slug: 'helin-ahmad',
     category: 'Backend Developer',
     template: 'minimal',
-    name: 'Helin Ahmadi',
+    name: 'Helin Ahmad',
     title: 'Senior Backend Engineer',
     location: 'Berlin, Germany',
     bio: 'Distributed systems engineer — queues, consistency and clean domain models.',
@@ -214,6 +283,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['PostgreSQL', 'OSS'],
       },
     ],
+    experience: [
+      {
+        company: 'Vantage Data',
+        role: 'Senior Backend Engineer',
+        start: '2021-04',
+        highlights: [
+          'Scaled the core event pipeline to sustain 40k req/s ingest',
+          'Led a team of 6 backend engineers across two time zones',
+        ],
+      },
+      {
+        company: 'Kernel Systems',
+        role: 'Backend Engineer',
+        start: '2017-06',
+        end: '2021-03',
+        highlights: ['Migrated a monolith to event-driven microservices on Kafka'],
+      },
+    ],
+    education: {
+      institution: 'TU Berlin',
+      degree: 'B.Sc. Computer Science',
+      start: '2013',
+      end: '2017',
+    },
     email: 'helin@example.com',
   }),
   demoProfile({
@@ -247,6 +340,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['TypeScript', 'SVG'],
       },
     ],
+    experience: [
+      {
+        company: 'Northwind',
+        role: 'Frontend Developer',
+        start: '2022-01',
+        highlights: [
+          'Built a 120-component design system adopted company-wide',
+          'Improved Core Web Vitals score from 62 to 98',
+        ],
+      },
+      {
+        company: 'PixelWorks',
+        role: 'UI Engineer',
+        start: '2019-08',
+        end: '2021-12',
+        highlights: ['Shipped an accessible component library used by 40+ engineers'],
+      },
+    ],
+    education: {
+      institution: 'National University of Singapore',
+      degree: 'B.Sc. Computer Science',
+      start: '2015',
+      end: '2019',
+    },
     email: 'rojin@example.com',
   }),
   demoProfile({
@@ -280,6 +397,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['WebGL', 'Shaders'],
       },
     ],
+    experience: [
+      {
+        company: 'Studio Aurora',
+        role: 'Creative Frontend Developer',
+        start: '2021-06',
+        highlights: [
+          'Built an award-winning WebGL launch site for an EV startup',
+          'Directed motion design for 10+ marketing campaigns',
+        ],
+      },
+      {
+        company: 'Freelance',
+        role: 'Frontend & Motion Developer',
+        start: '2018-01',
+        end: '2021-05',
+        highlights: ['Delivered interactive web experiences for music and fashion clients'],
+      },
+    ],
+    education: {
+      institution: 'Universidade de Lisboa',
+      degree: 'B.A. Digital Media',
+      start: '2014',
+      end: '2018',
+    },
     email: 'aram@example.com',
   }),
   demoProfile({
@@ -313,6 +454,33 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['NestJS', 'Redis'],
       },
     ],
+    experience: [
+      {
+        company: 'Inboxzero',
+        role: 'Full Stack Developer',
+        start: '2023-01',
+        highlights: [
+          'Shipped the rules engine and its drag-and-drop builder',
+          'Grew activation 18% by redesigning onboarding with event-tracked experiments',
+        ],
+      },
+      {
+        company: 'Formship',
+        role: 'Software Engineer',
+        start: '2021-06',
+        end: '2022-12',
+        highlights: [
+          'Built spam filtering that blocked 97% of junk submissions without CAPTCHAs',
+          'Owned the public API and SDKs used by 1,200 developers',
+        ],
+      },
+    ],
+    education: {
+      institution: 'University of Amsterdam',
+      degree: 'B.Sc. Artificial Intelligence',
+      start: '2017',
+      end: '2021',
+    },
     email: 'sara@example.com',
   }),
   demoProfile({
@@ -346,6 +514,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['MongoDB', 'React'],
       },
     ],
+    experience: [
+      {
+        company: 'Kudi Wallet',
+        role: 'Full Stack Engineer',
+        start: '2021-02',
+        highlights: [
+          'Built an offline-first PWA wallet that syncs transactions on reconnect',
+          'Integrated M-Pesa & Paystack payment rails across three markets',
+        ],
+      },
+      {
+        company: 'PayBridge',
+        role: 'Software Engineer',
+        start: '2019-01',
+        end: '2021-01',
+        highlights: ['Built a unified payments API over three local processors with automatic failover'],
+      },
+    ],
+    education: {
+      institution: 'University of Lagos',
+      degree: 'B.Sc. Computer Science',
+      start: '2015',
+      end: '2019',
+    },
     email: 'diyar@example.com',
   }),
   demoProfile({
@@ -379,6 +571,24 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['SQL', 'Internship'],
       },
     ],
+    experience: [
+      {
+        company: 'Local fintech startup',
+        role: 'Summer Intern',
+        start: '2025-06',
+        end: '2025-09',
+        highlights: [
+          'Built a rule-based transaction flagging dashboard',
+          'Presented findings to the engineering team biweekly',
+        ],
+      },
+    ],
+    education: {
+      institution: 'University of Sulaymaniyah',
+      degree: 'B.Sc. Computer Science (expected 2027)',
+      start: '2023',
+      end: '2027',
+    },
     email: 'zhala@example.com',
   }),
   demoProfile({
@@ -412,6 +622,24 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['Docker', 'Internship'],
       },
     ],
+    experience: [
+      {
+        company: 'AutoParts GmbH',
+        role: 'Software Engineering Intern',
+        start: '2025-03',
+        end: '2025-09',
+        highlights: [
+          'Built a remote build-cache proxy that cut average CI pipeline time by 40%',
+          'Wrote onboarding docs that became the team standard for new interns',
+        ],
+      },
+    ],
+    education: {
+      institution: 'TU Munich',
+      degree: 'B.Sc. Software Engineering',
+      start: '2022',
+      end: '2026',
+    },
     email: 'soran@example.com',
   }),
   demoProfile({
@@ -445,6 +673,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['Prometheus', 'Grafana'],
       },
     ],
+    experience: [
+      {
+        company: 'CloudScale',
+        role: 'DevOps Engineer',
+        start: '2022-05',
+        highlights: [
+          'Cut deploy time from 25min to 4min with golden-path pipelines',
+          'Runs 40+ services on Kubernetes with a two-person platform team',
+        ],
+      },
+      {
+        company: 'Infratech',
+        role: 'Platform Engineer',
+        start: '2019-03',
+        end: '2022-04',
+        highlights: ['Migrated infra to Terraform, cutting provisioning time by 70%'],
+      },
+    ],
+    education: {
+      institution: 'Technical University of Sofia',
+      degree: 'B.Sc. Computer Engineering',
+      start: '2015',
+      end: '2019',
+    },
     email: 'avan@example.com',
   }),
   demoProfile({
@@ -478,6 +730,30 @@ export const DEMO_PROFILES: DemoProfile[] = [
         tags: ['Loki', 'Ansible'],
       },
     ],
+    experience: [
+      {
+        company: 'GameScale',
+        role: 'Site Reliability Engineer',
+        start: '2021-09',
+        highlights: [
+          'Maintained 99.99% uptime over 12 consecutive months',
+          'Led quarterly chaos-engineering game days across 6 regions',
+        ],
+      },
+      {
+        company: 'ShopFast',
+        role: 'Systems Administrator',
+        start: '2018-01',
+        end: '2021-08',
+        highlights: ['Migrated on-prem infrastructure to Kubernetes on AWS'],
+      },
+    ],
+    education: {
+      institution: 'American University of Sharjah',
+      degree: 'B.Sc. Information Systems',
+      start: '2014',
+      end: '2018',
+    },
     email: 'kawa@example.com',
   }),
 ];
@@ -506,74 +782,126 @@ interface DemoResumeInput {
   location: string;
   summary: string;
   experience: Array<{ company: string; role: string; start: string; end?: string; bullets: string[] }>;
+  projects: Array<{ name: string; description: string; technologies: string[] }>;
   skillGroups: Array<{ category: string; items: string[] }>;
   education: { institution: string; degree: string; start: string; end: string };
+  certifications?: Array<{ name: string; issuer: string; date: string }>;
+  languages: Array<{ name: string; proficiency: 'elementary' | 'limited' | 'professional' | 'full' | 'native' }>;
 }
 
 function demoResume(input: DemoResumeInput): DemoResume {
-  const ids = [sid(), sid(), sid(), sid(), sid()];
+  const hasCerts = (input.certifications?.length ?? 0) > 0;
+  const ids = [sid(), sid(), sid(), sid(), sid(), sid(), ...(hasCerts ? [sid()] : [])];
+  const [headerId, summaryId, experienceId, projectsId, skillsId, educationId, ...rest] = ids;
+  const certificationsId = hasCerts ? rest[0] : undefined;
+  const languagesId = sid();
+
+  // Loosely typed: this is pre-validation input for ResumeSchema.parse below,
+  // which fills in defaults (visible, showLevels, etc.) that the strict
+  // Resume['sections'] output type would otherwise require here.
+  const sections: Array<Record<string, unknown>> = [
+    {
+      id: headerId,
+      type: 'header',
+      data: {
+        name: input.name,
+        title: input.title,
+        email: 'hello@example.com',
+        location: input.location,
+        socials: {},
+      },
+    },
+    { id: summaryId, type: 'summary', data: { heading: 'Summary', body: input.summary } },
+    {
+      id: experienceId,
+      type: 'experience',
+      data: {
+        heading: 'Experience',
+        items: input.experience.map((e) => ({
+          id: sid(),
+          company: e.company,
+          role: e.role,
+          startDate: e.start,
+          endDate: e.end,
+          current: !e.end,
+          bullets: e.bullets,
+          technologies: [],
+        })),
+      },
+    },
+    {
+      id: projectsId,
+      type: 'projects',
+      data: {
+        heading: 'Projects',
+        items: input.projects.map((p) => ({
+          id: sid(),
+          name: p.name,
+          description: p.description,
+          technologies: p.technologies,
+          bullets: [],
+        })),
+      },
+    },
+    {
+      id: skillsId,
+      type: 'skills',
+      data: {
+        heading: 'Skills',
+        groups: input.skillGroups.map((g) => ({ id: sid(), ...g })),
+        layout: 'grouped',
+      },
+    },
+    {
+      id: educationId,
+      type: 'education',
+      data: {
+        heading: 'Education',
+        items: [
+          {
+            id: sid(),
+            institution: input.education.institution,
+            degree: input.education.degree,
+            startDate: input.education.start,
+            endDate: input.education.end,
+          },
+        ],
+      },
+    },
+  ];
+
+  if (hasCerts && certificationsId) {
+    sections.push({
+      id: certificationsId,
+      type: 'certifications',
+      data: {
+        heading: 'Certifications',
+        items: (input.certifications ?? []).map((c) => ({
+          id: sid(),
+          name: c.name,
+          issuer: c.issuer,
+          date: c.date,
+        })),
+      },
+    });
+  }
+
+  sections.push({
+    id: languagesId,
+    type: 'languages',
+    data: {
+      heading: 'Languages',
+      items: input.languages.map((l) => ({ id: sid(), name: l.name, proficiency: l.proficiency })),
+    },
+  });
+
   const resume = ResumeSchema.parse({
     id: demoUuid(800 + input.n),
     slug: `demo-resume-${input.slug}`,
     userId: demoUuid(950 + input.n),
     template: input.template,
-    layout: { sectionsOrder: ids },
-    sections: [
-      {
-        id: ids[0],
-        type: 'header',
-        data: {
-          name: input.name,
-          title: input.title,
-          email: 'hello@example.com',
-          location: input.location,
-          socials: {},
-        },
-      },
-      { id: ids[1], type: 'summary', data: { heading: 'Summary', body: input.summary } },
-      {
-        id: ids[2],
-        type: 'experience',
-        data: {
-          heading: 'Experience',
-          items: input.experience.map((e) => ({
-            id: sid(),
-            company: e.company,
-            role: e.role,
-            startDate: e.start,
-            endDate: e.end,
-            current: !e.end,
-            bullets: e.bullets,
-            technologies: [],
-          })),
-        },
-      },
-      {
-        id: ids[3],
-        type: 'skills',
-        data: {
-          heading: 'Skills',
-          groups: input.skillGroups.map((g) => ({ id: sid(), ...g })),
-          layout: 'grouped',
-        },
-      },
-      {
-        id: ids[4],
-        type: 'education',
-        data: {
-          heading: 'Education',
-          items: [
-            {
-              id: sid(),
-              institution: input.education.institution,
-              degree: input.education.degree,
-              startDate: input.education.start,
-              endDate: input.education.end,
-            },
-          ],
-        },
-      },
-    ],
+    layout: { sectionsOrder: sections.map((s) => s.id) },
+    sections,
     metadata: { title: input.label },
   });
   return { slug: input.slug, label: input.label, description: input.description, resume };
@@ -613,6 +941,18 @@ export const DEMO_RESUMES: DemoResume[] = [
         ],
       },
     ],
+    projects: [
+      {
+        name: 'Ledger',
+        description: 'Double-entry payment core with idempotent transfers and reconciliation jobs.',
+        technologies: ['NestJS', 'PostgreSQL', 'Redis'],
+      },
+      {
+        name: 'Notification Gateway',
+        description: 'Multi-channel fan-out service with per-tenant rate limiting.',
+        technologies: ['RabbitMQ', 'Redis'],
+      },
+    ],
     skillGroups: [
       { category: 'Languages', items: ['TypeScript', 'Python', 'SQL'] },
       { category: 'Backend', items: ['NestJS', 'Django', 'PostgreSQL', 'Redis', 'RabbitMQ'] },
@@ -624,6 +964,14 @@ export const DEMO_RESUMES: DemoResume[] = [
       start: '2016',
       end: '2020',
     },
+    certifications: [
+      { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services', date: '2023' },
+    ],
+    languages: [
+      { name: 'Kurdish', proficiency: 'native' },
+      { name: 'English', proficiency: 'professional' },
+      { name: 'Arabic', proficiency: 'professional' },
+    ],
   }),
   demoResume({
     n: 2,
@@ -657,6 +1005,18 @@ export const DEMO_RESUMES: DemoResume[] = [
         ],
       },
     ],
+    projects: [
+      {
+        name: 'Splitwiser',
+        description: 'Group expense tracker with real-time balances over WebSockets.',
+        technologies: ['tRPC', 'Prisma'],
+      },
+      {
+        name: 'Formship',
+        description: 'Headless form backend with spam filtering and Zapier hooks.',
+        technologies: ['NestJS', 'Redis'],
+      },
+    ],
     skillGroups: [
       { category: 'Frontend', items: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS'] },
       { category: 'Backend', items: ['NestJS', 'PostgreSQL', 'Prisma', 'tRPC'] },
@@ -667,6 +1027,14 @@ export const DEMO_RESUMES: DemoResume[] = [
       start: '2017',
       end: '2021',
     },
+    certifications: [
+      { name: 'Meta Front-End Developer Professional Certificate', issuer: 'Meta (Coursera)', date: '2022' },
+    ],
+    languages: [
+      { name: 'Kurdish', proficiency: 'native' },
+      { name: 'English', proficiency: 'full' },
+      { name: 'Dutch', proficiency: 'limited' },
+    ],
   }),
   demoResume({
     n: 3,
@@ -701,6 +1069,18 @@ export const DEMO_RESUMES: DemoResume[] = [
         ],
       },
     ],
+    projects: [
+      {
+        name: 'Pixel Dungeon Deck',
+        description: 'Roguelike deck-builder, hackathon winner with 12k itch.io downloads.',
+        technologies: ['Godot', 'C#'],
+      },
+      {
+        name: 'OS Scheduler Simulator',
+        description: 'Round-robin and MLFQ scheduler simulation with visualized run queues.',
+        technologies: ['C'],
+      },
+    ],
     skillGroups: [
       { category: 'Languages', items: ['C#', 'TypeScript', 'C', 'SQL'] },
       { category: 'Tools', items: ['Docker', 'GitHub Actions', 'Godot', 'Linux'] },
@@ -711,6 +1091,11 @@ export const DEMO_RESUMES: DemoResume[] = [
       start: '2022',
       end: '2026',
     },
+    languages: [
+      { name: 'Kurdish', proficiency: 'native' },
+      { name: 'German', proficiency: 'full' },
+      { name: 'English', proficiency: 'professional' },
+    ],
   }),
   demoResume({
     n: 4,
@@ -738,9 +1123,19 @@ export const DEMO_RESUMES: DemoResume[] = [
         role: 'Teaching Assistant — Databases',
         start: '2025-02',
         end: '2025-06',
-        bullets: [
-          'Ran weekly SQL labs for 60 students; wrote autograded exercise sets',
-        ],
+        bullets: ['Ran weekly SQL labs for 60 students; wrote autograded exercise sets'],
+      },
+    ],
+    projects: [
+      {
+        name: 'CampusEats',
+        description: 'University food-ordering app used by 3,000 students.',
+        technologies: ['React', 'Firebase'],
+      },
+      {
+        name: 'MiniLang',
+        description: 'Tiny interpreted language with a hand-written recursive-descent parser.',
+        technologies: ['Python'],
       },
     ],
     skillGroups: [
@@ -753,6 +1148,11 @@ export const DEMO_RESUMES: DemoResume[] = [
       start: '2023',
       end: '2027',
     },
+    languages: [
+      { name: 'Kurdish', proficiency: 'native' },
+      { name: 'Arabic', proficiency: 'professional' },
+      { name: 'English', proficiency: 'professional' },
+    ],
   }),
 ];
 
