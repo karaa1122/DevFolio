@@ -14,7 +14,7 @@ Build them once. Publish your portfolio in minutes. Export a print-perfect PDF r
 
 <br/>
 
-![DevFolio Portfolio Preview](./screenshots/portfolio.PNG)
+![DevFolio Landing Page](./screenshots/landing.png)
 
 </div>
 
@@ -33,6 +33,8 @@ No Webflow subscription. No WordPress plugin hell. No Word document that breaks 
 - **Resume** → 6 templates, 6 skill layouts, server-side Chromium PDF export with selectable text and ATS-safe mode
 - Connect GitHub to auto-import your repos as portfolio projects
 - Tiptap-powered rich text editor for summaries and bullets — bold, italic, underline, lists, links, alignment
+- **9 portfolio templates**, free — Aurora, Minimal, Editorial, Terminal, Retro OS, Dimension, Brutalist, Glitch, Arcade
+- Browse a full **public showcase** — example portfolios, the template gallery, and resume examples — with no account required
 
 ---
 
@@ -55,6 +57,33 @@ DevFolio gives you both, in one app. Edit visually. Own your data. Export anytim
 ---
 
 ## Screenshots
+
+### Public pages — no account required
+
+<table>
+  <tr>
+    <td><strong>Template marketplace (9 templates)</strong></td>
+  </tr>
+  <tr>
+    <td><img src="./screenshots/templates.png" alt="Template marketplace"/></td>
+  </tr>
+  <tr>
+    <td><strong>Portfolio showcase</strong></td>
+    <td><strong>Resume examples</strong></td>
+  </tr>
+  <tr>
+    <td><img src="./screenshots/showcase.png" alt="Portfolio showcase"/></td>
+    <td><img src="./screenshots/resumes.png" alt="Resume examples"/></td>
+  </tr>
+  <tr>
+    <td colspan="2"><strong>Glitch template — cyberpunk RGB-split headlines, scanline haze</strong></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="./screenshots/glitch-template.png" alt="Glitch template example"/></td>
+  </tr>
+</table>
+
+### Editor & account pages
 
 <table>
   <tr>
@@ -81,6 +110,12 @@ DevFolio gives you both, in one app. Edit visually. Own your data. Export anytim
     <td><img src="./screenshots/port.PNG" alt="Editor"/></td>
     <td><img src="./screenshots/live.PNG" alt="Live Portfolio"/></td>
   </tr>
+  <tr>
+    <td colspan="2"><strong>Resume editor</strong></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="./screenshots/resume.PNG" alt="Resume editor"/></td>
+  </tr>
 </table>
 
 ---
@@ -94,9 +129,11 @@ devfolio/
 │   └── web/              Next.js 14 frontend        → :3000
 ├── packages/
 │   ├── shared/           Zod schemas + TS types
-│   └── renderer/         React portfolio renderer
+│   └── renderer/         React portfolio + resume renderer
 ├── workers/
 │   └── export/           BullMQ static export worker
+├── services/
+│   └── ats-engine/       FastAPI resume ↔ job-description matching engine → :8000
 ├── docker-compose.yml    Full stack (prod-like)
 ├── docker-compose.dev.yml  Dev stack (DB + Redis only)
 └── .env.example          Start here
@@ -116,6 +153,7 @@ devfolio/
 | **Portfolio export** | JSZip — self-contained HTML+CSS ZIP on-demand |
 | **Resume export** | Playwright + headless Chromium — server-rendered React → PDF with selectable text |
 | **Sanitization** | sanitize-html — whitelisted-tag HTML rendering for user-authored rich text |
+| **ATS matching** | Python + FastAPI microservice (`services/ats-engine`) — TF-IDF scoring by default, sentence-transformers optional |
 | **Monorepo** | pnpm workspaces + Turborepo |
 | **Containers** | Docker + Docker Compose |
 
@@ -165,6 +203,13 @@ flowchart LR
 2. API flushes any in-flight autosave, then enqueues a `export-resume-pdf` BullMQ job
 3. Worker reads the resume JSON, server-renders it with `@devfolio/renderer` (same React tree as the editor preview), boots headless Chromium via Playwright, prints to PDF with `@page` rules driving margins and pagination
 4. PDF lands in `uploads/`, the editor polls until the job finishes and serves the download link
+
+**Request path for an ATS match score:**
+1. User pastes a job description into the ATS Match tab and clicks Score
+2. API serializes the resume's structured JSON to section-tagged plain text (rich-text HTML stripped)
+3. API proxies the resume text + job description to the `ats-engine` FastAPI service over the internal Docker network
+4. The engine parses, normalizes, and scores both texts (TF-IDF by default), returning a score, matched/missing skills, and experience-fit notes
+5. The editor renders a score dial + recommendation band; re-score any time after tailoring bullets
 
 ---
 
@@ -575,8 +620,15 @@ apps/web/src/
 │   ├── resume/         Resume list (/resume) + per-resume editor (/resume/:id)
 │   ├── profile/        Edit name, bio, avatar
 │   ├── auth/callback/  GitHub OAuth exchange
+│   ├── templates/      Public template marketplace gallery (9 templates)
+│   ├── showcase/       Public portfolio showcase — /showcase + /showcase/[slug]
+│   ├── resumes/        Public resume examples — /resumes + /resumes/[slug]
 │   └── [slug]/         Public portfolio page (SSR)
+├── lib/
+│   └── demo-data.ts    Static demo portfolios & resumes for the showcase pages (real schemas, no DB rows)
 ├── components/
+│   ├── PublicNav.tsx                 Shared header for the public marketing/showcase pages
+│   ├── DemoResumePreview.tsx         Live-scaled resume preview (real renderer, not a screenshot)
 │   ├── editor/                       Portfolio editor (toolbar, sidebar, canvas, section forms)
 │   └── resume-editor/                Resume editor
 │       ├── ResumeEditor.tsx          Shell, export state machine, save-before-export
@@ -635,7 +687,8 @@ This is what's built, what's in progress, and what's coming:
 - [x] Static ZIP export
 - [x] GitHub repo import
 - [x] 6 built-in themes with full customization
-- [x] 4 portfolio templates (Aurora, Minimal, Editorial, Terminal) + template marketplace
+- [x] 9 portfolio templates (Aurora, Minimal, Editorial, Terminal, Retro OS, Dimension, Brutalist, Glitch, Arcade) + template marketplace
+- [x] Public showcase — example portfolios & resumes browsable with no account
 - [x] Portfolio analytics (views, unique visitors)
 - [x] JWT auth with refresh tokens + account lockout
 - [x] Docker + Docker Compose deployment
