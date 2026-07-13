@@ -10,6 +10,8 @@ export const PORTFOLIO_TEMPLATE_IDS = [
   'retro-os',
   'dimension',
   'brutalist',
+  'glitch',
+  'arcade',
 ] as const;
 
 export const PortfolioTemplateIdSchema = z.enum(PORTFOLIO_TEMPLATE_IDS);

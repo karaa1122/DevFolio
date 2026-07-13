@@ -8,6 +8,8 @@ import { TerminalTemplate } from './Terminal';
 import { RetroOSTemplate } from './RetroOS';
 import { DimensionTemplate } from './Dimension';
 import { BrutalistTemplate } from './Brutalist';
+import { GlitchTemplate } from './Glitch';
+import { ArcadeTemplate } from './Arcade';
 
 export const portfolioTemplateRegistry: Record<
   PortfolioTemplateId,
@@ -20,4 +22,6 @@ export const portfolioTemplateRegistry: Record<
   'retro-os': RetroOSTemplate,
   dimension: DimensionTemplate,
   brutalist: BrutalistTemplate,
+  glitch: GlitchTemplate,
+  arcade: ArcadeTemplate,
 };

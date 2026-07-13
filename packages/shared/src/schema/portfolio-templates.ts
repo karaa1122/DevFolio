@@ -182,6 +182,56 @@ export const PORTFOLIO_TEMPLATES: PortfolioTemplateMeta[] = [
       spacing: 'normal',
     }),
   },
+  {
+    id: 'glitch',
+    name: 'Glitch',
+    tagline: 'Cyberpunk chromatic chaos',
+    description:
+      'RGB-split headlines that glitch and jitter, animated neon card borders, and a scanline haze — a portfolio transmitted from a broken future.',
+    tags: ['dark', 'cyberpunk', 'animated'],
+    typography: 'sans',
+    suggestedTheme: ThemeSchema.parse({
+      colors: {
+        primary: '#ff2ec4',
+        secondary: '#d916a8',
+        background: '#0b0b12',
+        foreground: '#eceaf4',
+        muted: '#8f8ba6',
+        accent: '#00f0ff',
+        card: '#12121d',
+        border: '#28283d',
+      },
+      font: 'poppins',
+      radius: 'sm',
+      darkMode: true,
+      spacing: 'normal',
+    }),
+  },
+  {
+    id: 'arcade',
+    name: 'Arcade',
+    tagline: '8-bit pixels behind CRT glass',
+    description:
+      'Press Start 2P headlines, pixel-hard buttons with chunky drop edges, CRT scanlines and a blinking INSERT COIN — your career as the greatest game ever shipped.',
+    tags: ['retro', '8-bit', 'playful'],
+    typography: 'mono',
+    suggestedTheme: ThemeSchema.parse({
+      colors: {
+        primary: '#facc15',
+        secondary: '#eab308',
+        background: '#10141f',
+        foreground: '#f6f5e8',
+        muted: '#94a0b8',
+        accent: '#22d3ee',
+        card: '#1a2030',
+        border: '#38415c',
+      },
+      font: 'jetbrains-mono',
+      radius: 'none',
+      darkMode: true,
+      spacing: 'compact',
+    }),
+  },
 ];
 
 export function getPortfolioTemplate(id: string | undefined): PortfolioTemplateMeta {
