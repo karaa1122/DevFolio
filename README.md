@@ -30,7 +30,7 @@ No Webflow subscription. No WordPress plugin hell. No Word document that breaks 
 - Both portfolio and resume are stored as **JSON objects** in the database — no HTML stored, ever
 - The editor is a live preview — what you see is literally what gets rendered publicly (or printed to PDF)
 - **Portfolio** → publish to a public URL, or export to a static **ZIP file** (HTML + CSS) and host it anywhere for free
-- **Resume** → 6 templates, 6 skill layouts, server-side Chromium PDF export with selectable text and ATS-safe mode
+- **Resume** → 9 templates, 6 skill layouts, server-side Chromium PDF export with selectable text and ATS-safe mode
 - Connect GitHub to auto-import your repos as portfolio projects
 - Tiptap-powered rich text editor for summaries and bullets — bold, italic, underline, lists, links, alignment
 - **9 portfolio templates**, free — Aurora, Minimal, Editorial, Terminal, Retro OS, Dimension, Brutalist, Glitch, Arcade
@@ -269,7 +269,7 @@ A full second product, in the same app, on the same data layer. Tailor a separat
 - **Live multi-page paginator** — the canvas shows real A4 / Letter page breaks as you type
 - **Zoom controls** — 50% / 75% / 100% / 125% / 150% + page indicator + 1:1 + Fit
 
-### Templates (6)
+### Templates (9)
 
 | Template | Best for |
 |---|---|
@@ -279,6 +279,14 @@ A full second product, in the same app, on the same data layer. Tailor a separat
 | **Sidebar** | Two columns with an accent-tinted left rail for skills / languages / certs |
 | **Two-column** | Centered header, 60/40 split — chronological narrative left, supporting material right |
 | **Dev Focus** | Monospace headings with `>` prefix, bordered tech chips, dashed rule under header |
+| **Noir** | Dark-mode resume — near-black page, neon accent glow on headings, monospace meta. Flips to plain black-on-white automatically in ATS mode |
+| **Bento** | Every section becomes a bordered card in a two-column grid; Experience and Projects span both columns |
+| **Timeline** | Experience and Education render as a connected vertical timeline — a dot per entry, a line joining them |
+
+<div align="center">
+<img src="./screenshots/resume-noir.png" alt="Noir resume template" width="420"/>
+<br/><sub>Noir — same PDF export pipeline as every other template, just in the dark.</sub>
+</div>
 
 ### Skill layouts (6)
 
@@ -310,7 +318,7 @@ The skills section reshapes itself based on what's selected — same data, six v
 
 ### Design controls
 
-- **6 templates** — switch live, swap any time
+- **9 templates** — switch live, swap any time
 - **10 accent presets** + full custom color picker
 - **6 fonts** — Inter, Source Sans, IBM Plex, Lora, Merriweather, JetBrains Mono
 - **4 sizes** × **3 line heights** × **3 density modes** (compact / normal / relaxed)
@@ -672,7 +680,8 @@ packages/renderer/src/
 │   ├── inline-markdown.tsx           Legacy markdown parser (backward compat fallback)
 │   ├── format.ts                     Date helpers (MMM YYYY etc.)
 │   ├── sections/                     Header, Summary, Experience, … per-section components
-│   └── templates/                    Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus
+│   └── templates/                    Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus,
+│                                     Noir, Bento, Timeline
 └── sections/                         Portfolio section components
 ```
 
@@ -697,7 +706,7 @@ This is what's built, what's in progress, and what's coming:
 
 **Resume**
 - [x] Resume builder with 10 section types
-- [x] 6 templates (Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus)
+- [x] 9 templates (Classic, Modern, Compact, Sidebar, TwoColumn, DevFocus, Noir, Bento, Timeline)
 - [x] 6 skill layouts (Grouped, Tags, Bars, Compact, Grid, ATS-minimal)
 - [x] Tiptap rich-text editor (B / I / U / lists / link / alignment) in a FlowCV-style modal
 - [x] Server-side PDF export via Playwright + headless Chromium (selectable text, real `@page` pagination)

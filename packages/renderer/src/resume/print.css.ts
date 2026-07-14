@@ -515,9 +515,35 @@ ${
 .resume-doc .resume-rich strong { color: #000 !important; }
 /* Force single-column so parsers read top-to-bottom */
 .resume-template-sidebar-cols,
-.resume-template-two-column-cols { display: block !important; }
+.resume-template-two-column-cols,
+.resume-template-bento-grid { display: block !important; }
 .resume-template-sidebar aside,
 .resume-template-two-column-cols > div { width: 100% !important; }
+.resume-template-bento-grid > div {
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.resume-template-bento-grid .resume-section { margin-bottom: var(--resume-section-gap) !important; }
+/* Noir is a dark-mode template — flip it back to plain black-on-white */
+.resume-template-noir {
+  --resume-color-text: #000 !important;
+  --resume-color-muted: #333 !important;
+  --resume-color-rule: #000 !important;
+  --resume-color-soft: #f2f2f2 !important;
+}
+.resume-page:has(.resume-template-noir) { background: #ffffff !important; }
+.resume-template-noir .resume-header-name,
+.resume-template-noir .resume-header-title,
+.resume-template-noir .resume-section-heading { text-shadow: none !important; }
+.resume-template-noir .resume-item-bullets li::before,
+.resume-template-noir .resume-rich ul li::before { box-shadow: none !important; }
+/* Timeline connector dots/lines forced to solid black */
+.resume-template-timeline .timeline-section .resume-item::before,
+.resume-template-timeline .timeline-section .resume-item::after {
+  background: #000 !important;
+  box-shadow: none !important;
+}
 .resume-template-sidebar .resume-header {
   background: transparent !important;
   color: #000 !important;

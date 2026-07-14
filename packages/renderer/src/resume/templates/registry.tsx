@@ -6,6 +6,9 @@ import { CompactTemplate } from './Compact';
 import { SidebarTemplate } from './Sidebar';
 import { TwoColumnTemplate } from './TwoColumn';
 import { DevFocusTemplate } from './DevFocus';
+import { NoirTemplate } from './Noir';
+import { BentoTemplate } from './Bento';
+import { TimelineTemplate } from './Timeline';
 
 interface TemplateComponentProps {
   resume: Resume;
@@ -22,4 +25,7 @@ export const resumeTemplateRegistry: Record<
   sidebar: SidebarTemplate,
   'two-column': TwoColumnTemplate,
   'dev-focus': DevFocusTemplate,
+  noir: NoirTemplate,
+  bento: BentoTemplate,
+  timeline: TimelineTemplate,
 };

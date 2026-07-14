@@ -37,6 +37,9 @@ const TEMPLATE_LABEL: Record<ResumeTemplateId, string> = {
   sidebar: 'Sidebar',
   'two-column': 'Two col',
   'dev-focus': 'Dev focus',
+  noir: 'Noir',
+  bento: 'Bento',
+  timeline: 'Timeline',
 };
 
 export function DesignPanel() {
@@ -361,6 +364,59 @@ function TemplatePreview({ id, accent }: { id: ResumeTemplateId; accent: string 
                 <rect x="7" width="7" height="2.5" rx="0.5" fill="none" stroke={grey} strokeWidth="0.3" />
                 <rect x="15" width="5" height="2.5" rx="0.5" fill="none" stroke={grey} strokeWidth="0.3" />
               </g>
+            </g>
+          ))}
+        </svg>
+      );
+    case 'noir':
+      return (
+        <svg viewBox="0 0 60 80" className="w-full h-full" fontFamily="monospace">
+          <rect x="0" y="0" width="60" height="80" fill="#0a0f0e" />
+          <text x="6" y="11" fontSize="6" fontWeight="700" fill="#edf2f1">NAME</text>
+          <text x="6" y="16" fontSize="3" fill={accent}>role</text>
+          <line x1="6" y1="19" x2="54" y2="19" stroke="#263230" strokeWidth="0.4" />
+          {[27, 43, 59].map((y) => (
+            <g key={y}>
+              <text x="6" y={y} fontSize="3" fontWeight="700" fill={accent}>SECTION</text>
+              <rect x="6" y={y + 3} width="42" height="0.8" fill="#93a29c" opacity="0.7" />
+              <rect x="6" y={y + 5.5} width="38" height="0.8" fill="#93a29c" opacity="0.5" />
+            </g>
+          ))}
+        </svg>
+      );
+    case 'bento':
+      return (
+        <svg viewBox="0 0 60 80" className="w-full h-full">
+          <text x="6" y="10" fontSize="5" fontWeight="700" fill={dark}>NAME</text>
+          <line x1="6" y1="14" x2="54" y2="14" stroke={accent} strokeWidth="0.5" />
+          {[
+            { x: 4, y: 18, w: 25, h: 16 },
+            { x: 31, y: 18, w: 25, h: 16 },
+            { x: 4, y: 36, w: 52, h: 20 },
+            { x: 4, y: 58, w: 25, h: 16 },
+            { x: 31, y: 58, w: 25, h: 16 },
+          ].map((r, i) => (
+            <g key={i}>
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} rx="1.2" fill="none" stroke={grey} strokeWidth="0.35" />
+              <text x={r.x + 2} y={r.y + 4.5} fontSize="2.4" fontWeight="700" fill={accent}>SEC</text>
+              <rect x={r.x + 2} y={r.y + 7} width={r.w - 5} height="0.7" fill={grey} opacity="0.6" />
+              <rect x={r.x + 2} y={r.y + 9.5} width={r.w - 9} height="0.7" fill={grey} opacity="0.5" />
+            </g>
+          ))}
+        </svg>
+      );
+    case 'timeline':
+      return (
+        <svg viewBox="0 0 60 80" className="w-full h-full">
+          <text x="6" y="10" fontSize="5" fontWeight="700" fill={dark}>NAME</text>
+          <line x1="6" y1="14" x2="54" y2="14" stroke={grey} strokeWidth="0.3" />
+          <line x1="9" y1="22" x2="9" y2="70" stroke={grey} strokeWidth="0.4" />
+          {[22, 40, 58].map((y) => (
+            <g key={y}>
+              <circle cx="9" cy={y} r="1.3" fill={accent} />
+              <text x="14" y={y + 1} fontSize="3" fontWeight="700" fill={dark}>SECTION</text>
+              <rect x="14" y={y + 3} width="38" height="0.7" fill={grey} opacity="0.6" />
+              <rect x="14" y={y + 5.5} width="34" height="0.7" fill={grey} opacity="0.5" />
             </g>
           ))}
         </svg>

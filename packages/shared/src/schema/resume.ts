@@ -323,6 +323,9 @@ export const RESUME_TEMPLATE_IDS = [
   'sidebar',
   'two-column',
   'dev-focus',
+  'noir',
+  'bento',
+  'timeline',
 ] as const;
 
 export const ResumeTemplateIdSchema = z.enum(RESUME_TEMPLATE_IDS);
