@@ -48,9 +48,12 @@ services:
   # Self-hosted LLM for AI Writing — exposed on 11434 so the locally-run API
   # can reach it. First run: `docker compose -f docker-compose.dev.yml exec
   # ollama ollama pull llama3.2:3b` (or whatever OLLAMA_MODEL you set).
+  # Opt-in — see docker-compose.yml for why. Start it explicitly with
+  # `docker compose -f docker-compose.dev.yml --profile ollama up -d`.
   ollama:
     image: ollama/ollama:latest
     container_name: devfolio_ollama_dev
+    profiles: [ 'ollama' ]
     volumes:
       - ollama_dev_data:/root/.ollama
     ports:

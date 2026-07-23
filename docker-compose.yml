@@ -82,9 +82,20 @@ services:
   # Self-hosted LLM for the AI Writing feature (Improve/Grammar/Shorter).
   # Free, private, no API key — internal network only, the API is its only
   # caller via Ollama's OpenAI-compatible /v1/chat/completions endpoint.
+  #
+  # OPT-IN via Compose profile — a plain `docker compose up -d` will NOT
+  # start these, on purpose. llama3.2:3b needs ~2-3GB RAM and pulls ~4GB of
+  # image+model on first boot; a small VPS (e.g. a 1GB EC2 t3.micro already
+  # running Postgres/Redis/API/Web/ats-engine) does not have that headroom,
+  # and a plain `up` used to try the pull anyway and could fill the disk.
+  # Enable with: `docker compose --profile ollama up -d`, or set
+  # `COMPOSE_PROFILES=ollama` in .env. Servers that can't spare the RAM
+  # should set AI_PROVIDER=openrouter instead (see README > AI Writing Setup)
+  # and never need this profile at all.
   ollama:
     image: ollama/ollama:latest
     container_name: devfolio_ollama
+    profiles: [ 'ollama' ]
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
@@ -100,6 +111,7 @@ services:
   ollama-init:
     image: ollama/ollama:latest
     container_name: devfolio_ollama_init
+    profiles: [ 'ollama' ]
     entrypoint: [ '/bin/sh', '-c', 'OLLAMA_HOST=ollama:11434 ollama pull ${OLLAMA_MODEL:-llama3.2:3b}' ]
     depends_on:
       ollama:

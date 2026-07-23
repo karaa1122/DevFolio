@@ -508,25 +508,35 @@ For production, replace `localhost` URLs with your actual domain.
 
 ## AI Writing Setup
 
-Powers **Improve / Grammar / Shorter** on resume fields and portfolio bios. Self-hosted by default via the `ollama` service in both compose files — free, private, no API key, no rate limits beyond your own hardware.
+Powers **Improve / Grammar / Shorter** on resume fields and portfolio bios. Two providers — pick based on what your server can actually spare:
 
-**Docker (recommended, zero config):** the `ollama` service starts with the rest of the stack. First boot only, pull the model:
+### Option A — Cloud model (recommended for small/free-tier servers)
 
-```bash
-docker compose exec ollama ollama pull llama3.2:3b
-```
-
-(In production this also runs automatically via the one-shot `ollama-init` service — the manual command above is only needed if you change `OLLAMA_MODEL` later, or for the dev compose file, which doesn't run an init container.)
-
-That's it — `AI_PROVIDER=ollama` is the default, nothing else to configure. Needs ~2GB RAM free; CPU inference takes a few seconds per rewrite.
-
-**Prefer a cloud model instead?** (useful if your server can't spare the RAM) Set `AI_PROVIDER=openrouter` in `.env` plus an [OpenRouter](https://openrouter.ai) API key — free-tier Llama models, no credits needed:
+No local RAM or disk cost. Set `AI_PROVIDER=openrouter` in `.env` plus a free [OpenRouter](https://openrouter.ai) API key:
 
 ```env
 AI_PROVIDER=openrouter
 OPENROUTER_API_KEY=sk-or-...
 OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
 ```
+
+This is the right choice for a 1GB-RAM EC2 `t3.micro`-class box, or anywhere already running Postgres/Redis/API/Web/ats-engine with little headroom left.
+
+### Option B — Self-hosted Ollama (free, private, no API key — needs real resources)
+
+`llama3.2:3b` wants **~2-3GB RAM free** and pulls **~4GB of image + model** on first boot. This is opt-in via a Compose profile — a plain `docker compose up -d` will **not** start it, on purpose, so it can't silently eat disk/RAM on a server that doesn't have room:
+
+```bash
+# start it explicitly
+docker compose --profile ollama up -d
+
+# first boot only — pull the model (also runs automatically via the
+# one-shot ollama-init service in production; manual pull is only needed
+# if you change OLLAMA_MODEL later, or in the dev compose file)
+docker compose exec ollama ollama pull llama3.2:3b
+```
+
+Then set `AI_PROVIDER=ollama` (the code default if unset, but set it explicitly so it's obvious which path is active). Check you actually have the headroom first — `free -h` (want ~2-3GB in the `available` column) and `df -h /` (want ~4GB free) on the target server before enabling the profile.
 
 ---
 
