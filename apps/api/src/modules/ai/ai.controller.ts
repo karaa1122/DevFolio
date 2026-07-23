@@ -16,7 +16,7 @@ export class AiController {
   @Throttle({ default: { limit: 20, ttl: 60_000 } })
   @ApiOperation({ summary: 'Rewrite resume text (improve / grammar / shorten)' })
   async rewrite(@Body() dto: RewriteDto): Promise<{ result: string }> {
-    const result = await this.aiService.rewrite(dto.text, dto.action);
+    const result = await this.aiService.rewrite(dto.text, dto.action, dto.format);
     return { result };
   }
 }

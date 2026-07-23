@@ -60,9 +60,19 @@ export default () => ({
   encryption: {
     key: process.env.ENCRYPTION_KEY ?? '',
   },
-  openrouter: {
-    apiKey: process.env.OPENROUTER_API_KEY ?? '',
-    model: process.env.OPENROUTER_MODEL ?? 'meta-llama/llama-3.3-70b-instruct:free',
-    url: process.env.OPENROUTER_URL ?? 'https://openrouter.ai/api/v1/chat/completions',
+  ai: {
+    // 'ollama' (self-hosted, free, private — the default) or 'openrouter'
+    // (cloud, needs an API key, useful when the server can't run local
+    // inference). See services docker-compose.yml for the ollama container.
+    provider: (process.env.AI_PROVIDER ?? 'ollama') as 'ollama' | 'openrouter',
+    ollama: {
+      url: process.env.OLLAMA_URL ?? 'http://ollama:11434',
+      model: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
+    },
+    openrouter: {
+      apiKey: process.env.OPENROUTER_API_KEY ?? '',
+      model: process.env.OPENROUTER_MODEL ?? 'meta-llama/llama-3.3-70b-instruct:free',
+      url: process.env.OPENROUTER_URL ?? 'https://openrouter.ai/api/v1/chat/completions',
+    },
   },
 });
