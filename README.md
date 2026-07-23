@@ -137,7 +137,7 @@ devfolio/
 ├── services/
 │   └── ats-engine/       FastAPI resume ↔ job-description matching engine → :8000
 ├── docker-compose.yml    Full stack (prod-like)
-├── docker-compose.dev.yml  Dev stack (DB + Redis only)
+├── docker-compose.dev.yml  Dev stack (DB, Redis, ats-engine, ollama — run apps with `pnpm dev`)
 └── .env.example          Start here
 ```
 
@@ -156,6 +156,7 @@ devfolio/
 | **Resume export** | Playwright + headless Chromium — server-rendered React → PDF with selectable text |
 | **Sanitization** | sanitize-html — whitelisted-tag HTML rendering for user-authored rich text |
 | **ATS matching** | Python + FastAPI microservice (`services/ats-engine`) — TF-IDF scoring by default, sentence-transformers optional |
+| **AI writing** | Self-hosted [Ollama](https://ollama.com) (`llama3.2:3b` by default) via its OpenAI-compatible API — free, private, no usage limits. Swap to OpenRouter with one env var if your server can't spare the RAM |
 | **Monorepo** | pnpm workspaces + Turborepo |
 | **Containers** | Docker + Docker Compose |
 
@@ -505,6 +506,30 @@ For production, replace `localhost` URLs with your actual domain.
 
 ---
 
+## AI Writing Setup
+
+Powers **Improve / Grammar / Shorter** on resume fields and portfolio bios. Self-hosted by default via the `ollama` service in both compose files — free, private, no API key, no rate limits beyond your own hardware.
+
+**Docker (recommended, zero config):** the `ollama` service starts with the rest of the stack. First boot only, pull the model:
+
+```bash
+docker compose exec ollama ollama pull llama3.2:3b
+```
+
+(In production this also runs automatically via the one-shot `ollama-init` service — the manual command above is only needed if you change `OLLAMA_MODEL` later, or for the dev compose file, which doesn't run an init container.)
+
+That's it — `AI_PROVIDER=ollama` is the default, nothing else to configure. Needs ~2GB RAM free; CPU inference takes a few seconds per rewrite.
+
+**Prefer a cloud model instead?** (useful if your server can't spare the RAM) Set `AI_PROVIDER=openrouter` in `.env` plus an [OpenRouter](https://openrouter.ai) API key — free-tier Llama models, no credits needed:
+
+```env
+AI_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
+```
+
+---
+
 ## How to Use the Editors
 
 ### Portfolio editor (`/editor/:id`)
@@ -607,6 +632,7 @@ apps/api/src/
 │   ├── themes/         6 built-in theme presets
 │   ├── export/         Queue producer (portfolio ZIP + resume PDF), download controller
 │   ├── github/         OAuth token storage, repo fetch, sync to portfolio
+│   ├── ai/             AI rewrite proxy (Ollama self-hosted / OpenRouter cloud)
 │   ├── analytics/      Event tracking, per-portfolio stats, IP hashing
 │   └── health/         GET /health — checks DB + Redis
 ├── database/
@@ -720,7 +746,7 @@ This is what's built, what's in progress, and what's coming:
 **Coming**
 - [x] Custom domain support
 - [x] Multi-template marketplace
-- [ ] AI-assisted bio, summary, and bullet rewriting (Improve / Grammar / Shorter)
+- [x] AI-assisted bio, summary, and bullet rewriting (Improve / Grammar / Shorter) — self-hosted via Ollama, no API key needed
 - [ ] DOCX + PNG export for resumes
 - [ ] LinkedIn import (parse profile into resume sections)
 - [x] ATS keyword score against a job description

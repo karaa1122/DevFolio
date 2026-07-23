@@ -18,6 +18,7 @@ import type {
 } from '@devfolio/shared';
 import { generateId } from '@/lib/utils';
 import { IconArrowLeft } from '@/components/icons';
+import { AiRewriteButtons } from './AiRewriteButtons';
 
 interface Props {
   sectionId: string;
@@ -285,6 +286,7 @@ function HeroForm({
           placeholder="A short bio about yourself..."
           rows={4}
         />
+        <AiRewriteButtons value={data.bio ?? ''} onChange={(v) => onUpdate({ bio: v })} />
       </FieldWrapper>
       <FieldWrapper label="Location">
         <TextInput
@@ -330,6 +332,7 @@ function AboutForm({
           placeholder="Tell your story..."
           rows={6}
         />
+        <AiRewriteButtons value={data.bio} onChange={(v) => onUpdate({ bio: v })} />
       </FieldWrapper>
     </div>
   );

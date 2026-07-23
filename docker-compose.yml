@@ -52,6 +52,7 @@ services:
       REDIS_HOST: redis
       STORAGE_LOCAL_PATH: /app/uploads
       ATS_ENGINE_URL: http://ats-engine:8000
+      OLLAMA_URL: http://ollama:11434
     volumes:
       - uploads:/app/uploads
     ports:
@@ -77,6 +78,33 @@ services:
       context: services/ats-engine
     container_name: devfolio_ats_engine
     restart: unless-stopped
+
+  # Self-hosted LLM for the AI Writing feature (Improve/Grammar/Shorter).
+  # Free, private, no API key — internal network only, the API is its only
+  # caller via Ollama's OpenAI-compatible /v1/chat/completions endpoint.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: devfolio_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: [ 'CMD-SHELL', 'ollama list || exit 1' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # One-shot: pulls the default model on first boot, then exits. Re-running
+  # `docker compose up` is a no-op once the model is already on the volume.
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: devfolio_ollama_init
+    entrypoint: [ '/bin/sh', '-c', 'OLLAMA_HOST=ollama:11434 ollama pull ${OLLAMA_MODEL:-llama3.2:3b}' ]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: 'no'
 
   web:
     image: ${IMAGE_WEB:-devfolio-web}
@@ -147,3 +175,4 @@ volumes:
   uploads:
   caddy_data:
   caddy_config:
+  ollama_data:

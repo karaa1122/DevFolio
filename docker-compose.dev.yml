@@ -45,6 +45,18 @@ services:
     ports:
       - '8000:8000'
 
+  # Self-hosted LLM for AI Writing — exposed on 11434 so the locally-run API
+  # can reach it. First run: `docker compose -f docker-compose.dev.yml exec
+  # ollama ollama pull llama3.2:3b` (or whatever OLLAMA_MODEL you set).
+  ollama:
+    image: ollama/ollama:latest
+    container_name: devfolio_ollama_dev
+    volumes:
+      - ollama_dev_data:/root/.ollama
+    ports:
+      - '11434:11434'
+
 volumes:
   postgres_dev_data:
   redis_dev_data:
+  ollama_dev_data:

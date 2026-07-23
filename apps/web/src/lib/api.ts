@@ -296,10 +296,14 @@ export const themesApi = {
 // ─── AI Writing ────────────────────────────────────────────────────────────
 
 export const aiApi = {
-  rewrite: (text: string, action: 'improve' | 'grammar' | 'shorten') =>
+  rewrite: (
+    text: string,
+    action: 'improve' | 'grammar' | 'shorten',
+    format?: 'html' | 'text',
+  ) =>
     request<{ result: string }>('/ai/rewrite', {
       method: 'POST',
-      body: JSON.stringify({ text, action }),
+      body: JSON.stringify({ text, action, format }),
     }),
 };
 
